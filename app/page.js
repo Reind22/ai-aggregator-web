@@ -56,7 +56,7 @@ const features = [
   {
     icon: <IconMedia />,
     title: "Голос, фото, документы",
-    text: "Отправляй голосовые (Whisper на сервере), загружай изображения и файлы — AI всё поймёт.",
+    text: "Отправляй голосовые сообщения, загружай изображения и файлы — AI всё поймёт.",
   },
   {
     icon: <IconBolt />,
@@ -66,7 +66,7 @@ const features = [
   {
     icon: <IconShield />,
     title: "Безопасно",
-    text: "JWT-авторизация, изоляция данных, Docker-контейнер, защита от prompt injection.",
+    text: "Изоляция данных каждого аккаунта, защита от взлома и злоупотреблений.",
   },
 ];
 
@@ -153,6 +153,7 @@ export default function Home() {
             <a href="#features" className="text-gray-400 hover:text-white transition-colors hidden md:block">Возможности</a>
             <a href="#pricing" className="text-gray-400 hover:text-white transition-colors hidden md:block">Тарифы</a>
             <LanguageMenu />
+            <Link href="/apikeys" className="text-gray-400 hover:text-white transition-colors hidden md:block font-medium">API</Link>
             <Link href="/login" className="border border-white/15 hover:border-white/35 text-gray-200 px-4 py-2 rounded-lg font-medium transition-colors">
               Войти
             </Link>
@@ -288,7 +289,7 @@ export default function Home() {
             {pricing.map((plan) => (
               <div
                 key={plan.name}
-                className={`rounded-2xl p-6 border transition-all ${
+                className={`rounded-2xl p-6 border transition-all flex flex-col ${
                   plan.badge
                     ? "border-[#00CC00]/60 bg-[#00CC00]/[0.04] relative hover:border-[#00FF00]"
                     : "border-white/[0.06] bg-white/[0.02] hover:border-white/[0.15]"
@@ -307,7 +308,7 @@ export default function Home() {
                 <div className="text-[#33FF33] text-sm font-semibold mb-8">
                   {plan.balance} на запросы
                 </div>
-                <div className="space-y-2.5 mb-8 min-h-[140px]">
+                <div className="space-y-2.5 mb-8">
                   {plan.features.map((f) => (
                     <div key={f} className="flex items-start gap-2.5 text-sm text-gray-300">
                       <svg className="w-4 h-4 text-[#00CC00] mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -318,7 +319,7 @@ export default function Home() {
                   ))}
                 </div>
                 <button
-                  className={`w-full py-2.5 rounded-xl font-bold text-sm transition-colors ${
+                  className={`w-full py-2.5 rounded-xl font-bold text-sm transition-colors mt-auto ${
                     plan.badge
                       ? "bg-[#00FF00] hover:bg-[#00CC00] text-black"
                       : "border border-white/10 hover:border-[#00FF00]/50 text-gray-200 hover:bg-white/5"

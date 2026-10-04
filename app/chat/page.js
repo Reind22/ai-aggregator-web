@@ -148,7 +148,7 @@ export default function ChatPage() {
           <div className="max-w-3xl mx-auto space-y-4">
             {messages.length === 0 && (
               <div className="text-center py-20">
-                <div className="w-16 h-16 bg-gradient-to-br from-[#00FF00] to-[#00CC00] rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4">⚡</div>
+                <div className="mx-auto mb-4 w-fit"><Logo size={64} /></div>
                 <h2 className="text-2xl font-extrabold mb-2 text-white">AI Combiner</h2>
                 <p className="text-gray-400 mb-1">Напиши сообщение, чтобы начать диалог</p>
                 <p className="text-gray-600 text-sm">GLM 5.3, 5.2, 5.1, DeepSeek — переключай модель сверху</p>
