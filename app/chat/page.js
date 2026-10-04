@@ -11,7 +11,8 @@ export default function ChatPage() {
   const [input, setInput] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [model, setModel] = useState("glm-5.3-flash");
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false); // мобайл: закрыт
+  const [isMobile, setIsMobile] = useState(false);
   const [isTemp, setIsTemp] = useState(false);
   const [chats, setChats] = useState([]);
   const [token, setToken] = useState(null);
@@ -27,11 +28,17 @@ export default function ChatPage() {
   ];
 
   useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
     const saved = localStorage.getItem("ai_token");
     if (saved) {
       setToken(saved);
       loadChats(saved);
     }
+    // На десктопе сайдбар открыт по умолчанию
+    if (window.innerWidth >= 768) setSidebarOpen(true);
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   useEffect(() => {
@@ -95,17 +102,32 @@ export default function ChatPage() {
   return (
     <div className="flex h-screen bg-surface-dark overflow-hidden">
       {/* Sidebar — белый */}
-      <div className={`${sidebarOpen ? "w-64" : "w-0"} transition-all duration-300 bg-[#0d0d14] border-r border-white/[0.06] flex flex-col overflow-hidden flex-shrink-0`}>
+      {/* Overlay для мобилы */}
+      {sidebarOpen && isMobile && (
+        <div className="fixed inset-0 bg-black/60 z-30 md:hidden" onClick={() => setSidebarOpen(false)} />
+      )}
+      <div className={`${sidebarOpen ? "w-64" : "w-0"} ${
+        isMobile ? "fixed z-40 h-full left-0 top-0 shadow-2xl" : "relative"
+      } transition-all duration-300 bg-[#0d0d14] border-r border-white/[0.06] flex flex-col overflow-hidden flex-shrink-0`}>
         <div className="p-4">
-          <a href="/" className="flex items-center gap-2 mb-4">
-            <Logo size={24} />
-            <span className="font-extrabold text-sm text-white">AI Combiner</span>
-          </a>
+          <div className="flex items-center justify-between mb-4">
+            <a href="/" className="flex items-center gap-2">
+              <Logo size={24} />
+              <span className="font-extrabold text-sm text-white">AI Combiner</span>
+            </a>
+            {isMobile && (
+              <button onClick={() => setSidebarOpen(false)} className="text-gray-500 hover:text-white p-1.5 min-w-[36px] min-h-[36px] flex items-center justify-center" aria-label="Закрыть меню">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )}
+          </div>
           <button onClick={newChat} className="w-full bg-[#00FF00] hover:bg-[#00CC00] text-black rounded-lg py-2.5 font-bold transition-colors flex items-center justify-center gap-2">
             <span className="text-lg">+</span> Новый чат
           </button>
           <button onClick={tempChat} className="w-full mt-2 border border-white/10 hover:border-[#00CC00]/50 rounded-lg py-2 text-sm text-gray-300 transition-colors">
-            👻 Временный чат
+            Временный чат
           </button>
         </div>
         <div className="flex-1 overflow-y-auto px-2">
@@ -125,7 +147,7 @@ export default function ChatPage() {
             <div className="bg-[#00CC00] h-2 rounded-full transition-all" style={{ width: balance !== null ? `${Math.min(100, balance * 200)}%` : "100%" }}></div>
           </div>
           <div className="text-xs text-gray-500 mt-1">
-            {balance !== null ? `$${balance.toFixed(3)}` : "$0.500 (Free)"}
+            {balance !== null ? `$${balance.toFixed(2)}` : "$0.50 (Free)"}
           </div>
         </div>
       </div>
@@ -133,12 +155,16 @@ export default function ChatPage() {
       {/* Main */}
       <div className="flex-1 flex flex-col">
         <div className="border-b border-white/[0.06] bg-[#0d0d14] px-4 py-3 flex items-center justify-between">
-          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-gray-400 hover:text-white transition-colors text-lg">☰</button>
-          {isTemp && <span className="text-[#00FF00] text-sm">👻 Временный чат</span>}
-          <div className="flex items-center gap-2">
-            <LanguageMenu />
+          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-gray-400 hover:text-white transition-colors p-2 -ml-2 min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Меню">
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          {isTemp && <span className="text-[#00FF00] text-sm">Временный чат (автоочистка 24ч)</span>}
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <LanguageMenu compact />
             <select value={model} onChange={(e) => setModel(e.target.value)}
-              className="bg-[#0d0d14] border border-white/10 rounded-lg px-3 py-1.5 text-sm text-gray-200 outline-none focus:border-[#00CC00] transition-colors">
+              className="bg-[#0d0d14] border border-white/10 rounded-lg px-2 sm:px-3 py-1.5 text-xs sm:text-sm text-gray-200 outline-none focus:border-[#00CC00] transition-colors max-w-[140px] sm:max-w-none">
               {models.map((m) => (<option key={m.id} value={m.id}>{m.name} ({m.tier})</option>))}
             </select>
           </div>
@@ -190,7 +216,16 @@ export default function ChatPage() {
               style={{ minHeight: "48px", maxHeight: "200px" }} />
             <button onClick={sendMessage} disabled={!input.trim() || isGenerating}
               className="bg-[#00FF00] hover:bg-[#00CC00] disabled:opacity-30 disabled:cursor-not-allowed text-[#0A2A0A] rounded-xl px-5 font-semibold transition-colors">
-              {isGenerating ? "⏳" : "➤"}
+              {isGenerating ? (
+              <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+            ) : (
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+              </svg>
+            )}
             </button>
           </div>
           {error && <div className="max-w-3xl mx-auto mt-2 text-xs text-red-400">{error}</div>}

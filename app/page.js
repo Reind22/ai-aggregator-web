@@ -157,7 +157,7 @@ export default function Home() {
             <Link href="/login" className="border border-white/15 hover:border-white/35 text-gray-200 px-4 py-2 rounded-lg font-medium transition-colors">
               Войти
             </Link>
-            <Link href="/chat" className="bg-[#00FF00] hover:bg-[#00CC00] text-black px-4 py-2 rounded-lg font-bold transition-colors">
+            <Link href="/chat" className="bg-[#00FF00] hover:bg-[#00CC00] text-black px-3 sm:px-4 py-2 rounded-lg font-bold transition-colors whitespace-nowrap text-[13px] sm:text-sm">
               Открыть чат
             </Link>
           </nav>
@@ -354,23 +354,23 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="border-t border-white/[0.06] py-8 px-4">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-sm">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-5 md:gap-4 text-sm">
           <div className="flex items-center gap-2 text-gray-600">
             <Logo size={20} />
             AI Combiner © 2026
           </div>
-          <div className="flex gap-6 text-gray-600">
-            <a href="/privacy" className="hover:text-gray-400 transition-colors">Конфиденциальность</a>
-            <a href="/terms" className="hover:text-gray-400 transition-colors">Пользовательское соглашение</a>
+          <nav className="flex flex-wrap justify-center gap-x-6 gap-y-3 text-gray-600">
+            <a href="/privacy" className="hover:text-gray-400 transition-colors py-1">Конфиденциальность</a>
+            <a href="/terms" className="hover:text-gray-400 transition-colors py-1">Пользовательское соглашение</a>
             <a
               href="https://t.me/aicombinernet_bot?start=website"
               target="_blank"
               onClick={() => trackTgClick("footer")}
-              className="hover:text-gray-400 transition-colors"
+              className="hover:text-gray-400 transition-colors py-1"
             >
               Telegram
             </a>
-          </div>
+          </nav>
         </div>
       </footer>
     </main>
