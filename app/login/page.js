@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Logo from "../../components/Logo";
 import TelegramLogin from "../../components/TelegramLogin";
@@ -80,6 +80,15 @@ export default function LoginPage() {
   const [notice, setNotice] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  // Реферальный код из /ref/CODE (localStorage) — авто-переключение на регистрацию
+  useEffect(() => {
+    const savedRef = localStorage.getItem("ai_referral");
+    if (savedRef && !referral) {
+      setReferral(savedRef);
+      setMode("register");
+    }
+  }, []);
+
   const handleTelegramAuth = async (user) => {
     setLoading(true);
     setError(null);
@@ -101,7 +110,10 @@ export default function LoginPage() {
       const data = await res.json();
       if (res.ok) {
         localStorage.setItem("ai_token", data.access_token);
-        if (window.umami) window.umami.track("login-success", { method: "telegram" });
+        if (window.umami) {
+          window.umami.track("login-success", { method: "telegram" });
+          window.umami.identify(`tg_${user.id}`);
+        }
         router.push("/profile");
       } else {
         setError(humanizeError(data.detail));

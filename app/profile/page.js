@@ -18,6 +18,7 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [copiedSite, setCopiedSite] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem("ai_token");
@@ -30,7 +31,10 @@ export default function ProfilePage() {
       headers: { Authorization: `Bearer ${saved}` },
     })
       .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
-      .then(setProfile)
+      .then((p) => {
+        setProfile(p);
+        if (window.umami && p.id) window.umami.identify(`user_${p.id}`);
+      })
       .catch((status) => {
         if (status === 401) localStorage.removeItem("ai_token");
       })
@@ -42,6 +46,14 @@ export default function ProfilePage() {
     navigator.clipboard.writeText(profile.referral.link);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const copySiteRef = () => {
+    if (!profile) return;
+    navigator.clipboard.writeText(`https://aicombiner.net/ref/${profile.referral.code}`);
+    setCopiedSite(true);
+    if (window.umami) window.umami.track("referral-link-copy", { type: "site" });
+    setTimeout(() => setCopiedSite(false), 2000);
   };
 
   const logout = () => {
@@ -178,13 +190,23 @@ export default function ProfilePage() {
             <p className="text-xs text-gray-500 mb-4">
               {profile.referral.percent}% с оплат приведённых друзей — пожизненно
             </p>
-            <div className="flex items-center gap-2 mb-4">
-              <code className="flex-1 bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-[#33FF33] font-mono truncate">
-                {profile.referral.link}
-              </code>
-              <button onClick={copyRef} className="bg-[#00FF00] hover:bg-[#00CC00] text-black rounded-lg px-3 py-2 text-xs font-bold transition-colors flex-shrink-0">
-                {copied ? "✓" : "Копировать"}
-              </button>
+            <div className="space-y-2 mb-4">
+              <div className="flex items-center gap-2">
+                <code className="flex-1 bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-[#33FF33] font-mono truncate">
+                  {profile.referral.link}
+                </code>
+                <button onClick={copyRef} title="Скопировать ссылку-бота" className="bg-[#00FF00] hover:bg-[#00CC00] text-black rounded-lg px-3 py-2 text-xs font-bold transition-colors flex-shrink-0">
+                  {copied ? "✓" : "TG"}
+                </button>
+              </div>
+              <div className="flex items-center gap-2">
+                <code className="flex-1 bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-gray-300 font-mono truncate">
+                  https://aicombiner.net/ref/{profile.referral.code}
+                </code>
+                <button onClick={copySiteRef} title="Скопировать ссылку-сайт" className="border border-white/15 hover:border-[#00CC00]/60 text-gray-200 rounded-lg px-3 py-2 text-xs font-bold transition-colors flex-shrink-0">
+                  {copiedSite ? "✓" : "Web"}
+                </button>
+              </div>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">Приглашено</span>
