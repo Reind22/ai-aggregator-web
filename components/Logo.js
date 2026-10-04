@@ -16,7 +16,7 @@ export default function Logo({ size = 32 }) {
           key={`${i}-${j}`}
           x1={points[i][0]} y1={points[i][1]}
           x2={points[j][0]} y2={points[j][1]}
-          stroke="#00CC00" strokeWidth="1" strokeOpacity="0.3"
+          stroke="#00CC00" strokeWidth="1.6" strokeOpacity="0.55"
         />
       );
     }
