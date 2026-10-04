@@ -24,7 +24,6 @@ export default function ChatPage() {
     { id: "glm-5.3", name: "GLM 5.3", tier: "Ultra" },
   ];
 
-  // При загрузке — анонимная сессия (для демо) или восстановление токена
   useEffect(() => {
     const saved = localStorage.getItem("ai_token");
     if (saved) {
@@ -73,7 +72,7 @@ export default function ChatPage() {
         setError(detail);
         setMessages((prev) => [...prev, {
           role: "assistant",
-          content: `⚠️ ${detail}\n\nAPI-ключи ещё не подключены — заполни их в .env, и чат заработает.`,
+          content: `⚠️ ${detail}\n\nAI-ответы появятся после подключения API-ключей модели.`,
         }]);
       }
     } catch (e) {
@@ -92,38 +91,38 @@ export default function ChatPage() {
   const tempChat = () => { setMessages([]); setIsTemp(true); };
 
   return (
-    <div className="flex h-screen bg-[#08080c] overflow-hidden">
-      {/* Sidebar */}
-      <div className={`${sidebarOpen ? "w-64" : "w-0"} transition-all duration-300 bg-[#0d0d14] border-r border-white/[0.06] flex flex-col overflow-hidden flex-shrink-0`}>
+    <div className="flex h-screen bg-surface-dark overflow-hidden">
+      {/* Sidebar — белый */}
+      <div className={`${sidebarOpen ? "w-64" : "w-0"} transition-all duration-300 bg-white border-r border-surface-border flex flex-col overflow-hidden flex-shrink-0`}>
         <div className="p-4">
           <a href="/" className="flex items-center gap-2 mb-4">
-            <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-purple-600 rounded flex items-center justify-center text-[10px]">⚡</div>
-            <span className="font-semibold text-sm">AI Combiner</span>
+            <div className="w-6 h-6 bg-gradient-to-br from-[#00FF00] to-[#00CC00] rounded flex items-center justify-center text-[10px]">⚡</div>
+            <span className="font-semibold text-sm text-ink">AI Combiner</span>
           </a>
-          <button onClick={newChat} className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-2.5 font-medium transition-colors flex items-center justify-center gap-2">
+          <button onClick={newChat} className="w-full bg-[#00FF00] hover:bg-[#00CC00] text-[#0A2A0A] rounded-lg py-2.5 font-semibold transition-colors flex items-center justify-center gap-2">
             <span className="text-lg">+</span> Новый чат
           </button>
-          <button onClick={tempChat} className="w-full mt-2 border border-white/10 hover:border-gray-500 rounded-lg py-2 text-sm text-gray-300 transition-colors">
+          <button onClick={tempChat} className="w-full mt-2 border border-surface-border hover:border-[#00CC00] rounded-lg py-2 text-sm text-ink-soft transition-colors">
             👻 Временный чат
           </button>
         </div>
         <div className="flex-1 overflow-y-auto px-2">
           {chats.length === 0 ? (
-            <div className="px-3 py-2 text-xs text-gray-600">История пуста</div>
+            <div className="px-3 py-2 text-xs text-ink-mute">История пуста</div>
           ) : (
             chats.map((chat) => (
-              <div key={chat.id} className="px-3 py-2.5 rounded-lg cursor-pointer text-sm text-gray-400 hover:bg-white/5 hover:text-gray-200 transition-colors">
+              <div key={chat.id} className="px-3 py-2.5 rounded-lg cursor-pointer text-sm text-ink-soft hover:bg-surface-hover hover:text-ink transition-colors">
                 {chat.title}
               </div>
             ))
           )}
         </div>
-        <div className="p-4 border-t border-white/[0.06]">
-          <div className="text-xs text-gray-500 mb-2">Остаток сегодня:</div>
-          <div className="w-full bg-white/10 rounded-full h-2">
-            <div className="bg-emerald-400 h-2 rounded-full transition-all" style={{ width: balance !== null ? `${Math.min(100, balance * 200)}%` : "100%" }}></div>
+        <div className="p-4 border-t border-surface-border">
+          <div className="text-xs text-ink-mute mb-2">Остаток сегодня:</div>
+          <div className="w-full bg-[#E5E5E5] rounded-full h-2">
+            <div className="bg-[#00CC00] h-2 rounded-full transition-all" style={{ width: balance !== null ? `${Math.min(100, balance * 200)}%` : "100%" }}></div>
           </div>
-          <div className="text-xs text-gray-500 mt-1">
+          <div className="text-xs text-ink-mute mt-1">
             {balance !== null ? `$${balance.toFixed(3)}` : "$0.500 (Free)"}
           </div>
         </div>
@@ -131,11 +130,11 @@ export default function ChatPage() {
 
       {/* Main */}
       <div className="flex-1 flex flex-col">
-        <div className="border-b border-white/[0.06] px-4 py-3 flex items-center justify-between">
-          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-gray-400 hover:text-white transition-colors">☰</button>
-          {isTemp && <span className="text-yellow-500 text-sm">👻 Временный чат</span>}
+        <div className="border-b border-surface-border bg-white px-4 py-3 flex items-center justify-between">
+          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-ink-soft hover:text-ink transition-colors text-lg">☰</button>
+          {isTemp && <span className="text-[#00A000] text-sm">👻 Временный чат</span>}
           <select value={model} onChange={(e) => setModel(e.target.value)}
-            className="bg-[#0d0d14] border border-white/10 rounded-lg px-3 py-1.5 text-sm text-gray-200 outline-none">
+            className="bg-white border border-surface-border rounded-lg px-3 py-1.5 text-sm text-ink outline-none focus:border-[#00CC00] transition-colors">
             {models.map((m) => (<option key={m.id} value={m.id}>{m.name} ({m.tier})</option>))}
           </select>
         </div>
@@ -144,18 +143,18 @@ export default function ChatPage() {
           <div className="max-w-3xl mx-auto space-y-4">
             {messages.length === 0 && (
               <div className="text-center py-20">
-                <div className="text-5xl mb-4">⚡</div>
-                <h2 className="text-2xl font-semibold mb-2">AI Combiner</h2>
-                <p className="text-gray-500 mb-1">Напиши сообщение, чтобы начать диалог</p>
-                <p className="text-gray-600 text-sm">GLM 5.3, 5.2, 5.1, DeepSeek — переключай модель сверху</p>
+                <div className="w-16 h-16 bg-gradient-to-br from-[#00FF00] to-[#00CC00] rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4">⚡</div>
+                <h2 className="text-2xl font-semibold mb-2 text-ink">AI Combiner</h2>
+                <p className="text-ink-soft mb-1">Напиши сообщение, чтобы начать диалог</p>
+                <p className="text-ink-mute text-sm">GLM 5.3, 5.2, 5.1, DeepSeek — переключай модель сверху</p>
               </div>
             )}
             {messages.map((msg, i) => (
               <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
                 <div className={`max-w-[80%] rounded-2xl px-4 py-3 whitespace-pre-wrap ${
                   msg.role === "user"
-                    ? "bg-blue-600 text-white rounded-br-sm"
-                    : "bg-[#0d0d14] border border-white/[0.06] rounded-bl-sm"
+                    ? "bg-[#00CC00] text-white rounded-br-sm"
+                    : "bg-white border border-surface-border rounded-bl-sm text-ink"
                 }`}>
                   {msg.content}
                 </div>
@@ -163,11 +162,11 @@ export default function ChatPage() {
             ))}
             {isGenerating && (
               <div className="flex justify-start">
-                <div className="bg-[#0d0d14] border border-white/[0.06] rounded-2xl rounded-bl-sm px-4 py-3">
+                <div className="bg-white border border-surface-border rounded-2xl rounded-bl-sm px-4 py-3">
                   <span className="inline-flex gap-1">
-                    <span className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce"></span>
-                    <span className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce" style={{animationDelay:'0.15s'}}></span>
-                    <span className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce" style={{animationDelay:'0.3s'}}></span>
+                    <span className="w-1.5 h-1.5 bg-[#999] rounded-full animate-bounce"></span>
+                    <span className="w-1.5 h-1.5 bg-[#999] rounded-full animate-bounce" style={{animationDelay:'0.15s'}}></span>
+                    <span className="w-1.5 h-1.5 bg-[#999] rounded-full animate-bounce" style={{animationDelay:'0.3s'}}></span>
                   </span>
                 </div>
               </div>
@@ -176,20 +175,20 @@ export default function ChatPage() {
           </div>
         </div>
 
-        <div className="border-t border-white/[0.06] p-4">
+        <div className="border-t border-surface-border bg-white p-4">
           <div className="max-w-3xl mx-auto flex gap-3">
             <textarea value={input} onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Напиши сообщение..."
-              className="flex-1 bg-[#0d0d14] border border-white/10 rounded-xl px-4 py-3 resize-none outline-none focus:border-blue-500 transition-colors placeholder:text-gray-600"
+              className="flex-1 bg-surface-dark border border-surface-border rounded-xl px-4 py-3 resize-none outline-none focus:border-[#00CC00] transition-colors placeholder:text-ink-mute text-ink"
               rows={1} disabled={isGenerating}
               style={{ minHeight: "48px", maxHeight: "200px" }} />
             <button onClick={sendMessage} disabled={!input.trim() || isGenerating}
-              className="bg-blue-600 hover:bg-blue-700 disabled:opacity-30 disabled:cursor-not-allowed text-white rounded-xl px-5 transition-colors">
+              className="bg-[#00FF00] hover:bg-[#00CC00] disabled:opacity-30 disabled:cursor-not-allowed text-[#0A2A0A] rounded-xl px-5 font-semibold transition-colors">
               {isGenerating ? "⏳" : "➤"}
             </button>
           </div>
-          {error && <div className="max-w-3xl mx-auto mt-2 text-xs text-red-400">{error}</div>}
+          {error && <div className="max-w-3xl mx-auto mt-2 text-xs text-[#FF4444]">{error}</div>}
         </div>
       </div>
     </div>

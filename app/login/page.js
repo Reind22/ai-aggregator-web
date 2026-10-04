@@ -7,14 +7,13 @@ const API_BASE = "/api";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [mode, setMode] = useState("login"); // login | register
+  const [mode, setMode] = useState("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [referral, setReferral] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Callback для Telegram Login Widget
   const handleTelegramAuth = async (user) => {
     setLoading(true);
     setError(null);
@@ -46,7 +45,6 @@ export default function LoginPage() {
     }
   };
 
-  // Регистрируем глобальный колбэк для Telegram widget
   if (typeof window !== "undefined") {
     window.onTelegramAuth = handleTelegramAuth;
   }
@@ -83,18 +81,18 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#08080c] flex items-center justify-center px-4">
+    <div className="min-h-screen bg-surface-dark flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <a href="/" className="flex items-center justify-center gap-2.5 mb-8">
-          <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-lg">⚡</div>
-          <span className="font-semibold text-lg">AI Combiner</span>
+          <div className="w-9 h-9 bg-gradient-to-br from-[#00FF00] to-[#00CC00] rounded-xl flex items-center justify-center text-lg">⚡</div>
+          <span className="font-semibold text-lg text-ink">AI Combiner</span>
         </a>
 
-        <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6">
-          <h1 className="text-xl font-semibold mb-1">
+        <div className="bg-white border border-surface-border rounded-2xl p-6 shadow-[0_8px_24px_rgba(0,0,0,0.06)]">
+          <h1 className="text-xl font-semibold mb-1 text-ink">
             {mode === "login" ? "Вход" : "Регистрация"}
           </h1>
-          <p className="text-gray-500 text-sm mb-6">
+          <p className="text-ink-soft text-sm mb-6">
             {mode === "login"
               ? "С возвращением"
               : "Бесплатно, $0.50 на запросы каждый день"}
@@ -114,9 +112,9 @@ export default function LoginPage() {
           </div>
 
           <div className="flex items-center gap-3 mb-6">
-            <div className="flex-1 h-px bg-white/10" />
-            <span className="text-xs text-gray-600">или email</span>
-            <div className="flex-1 h-px bg-white/10" />
+            <div className="flex-1 h-px bg-surface-border" />
+            <span className="text-xs text-ink-mute">или email</span>
+            <div className="flex-1 h-px bg-surface-border" />
           </div>
 
           <form onSubmit={submit} className="space-y-3">
@@ -126,7 +124,7 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full bg-[#0d0d14] border border-white/10 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-500 transition-colors placeholder:text-gray-600"
+              className="w-full bg-surface-dark border border-surface-border rounded-xl px-4 py-3 text-sm text-ink outline-none focus:border-[#00CC00] transition-colors placeholder:text-ink-mute"
             />
             <input
               type="password"
@@ -135,7 +133,7 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={8}
-              className="w-full bg-[#0d0d14] border border-white/10 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-500 transition-colors placeholder:text-gray-600"
+              className="w-full bg-surface-dark border border-surface-border rounded-xl px-4 py-3 text-sm text-ink outline-none focus:border-[#00CC00] transition-colors placeholder:text-ink-mute"
             />
             {mode === "register" && (
               <input
@@ -143,16 +141,16 @@ export default function LoginPage() {
                 placeholder="Реферальный код (необязательно)"
                 value={referral}
                 onChange={(e) => setReferral(e.target.value)}
-                className="w-full bg-[#0d0d14] border border-white/10 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-500 transition-colors placeholder:text-gray-600"
+                className="w-full bg-surface-dark border border-surface-border rounded-xl px-4 py-3 text-sm text-ink outline-none focus:border-[#00CC00] transition-colors placeholder:text-ink-mute"
               />
             )}
 
-            {error && <div className="text-red-400 text-xs">{error}</div>}
+            {error && <div className="text-[#FF4444] text-xs">{error}</div>}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl py-3 font-medium text-sm transition-colors"
+              className="w-full bg-[#00FF00] hover:bg-[#00CC00] disabled:opacity-50 text-[#0A2A0A] rounded-xl py-3 font-semibold text-sm transition-colors"
             >
               {loading ? "..." : mode === "login" ? "Войти" : "Создать аккаунт"}
             </button>
@@ -162,22 +160,22 @@ export default function LoginPage() {
             {mode === "login" ? (
               <button
                 onClick={() => { setMode("register"); setError(null); }}
-                className="text-gray-400 hover:text-white transition-colors"
+                className="text-ink-soft hover:text-ink transition-colors"
               >
-                Нет аккаунта? <span className="text-blue-400">Регистрация</span>
+                Нет аккаунта? <span className="text-[#00A000] font-medium">Регистрация</span>
               </button>
             ) : (
               <button
                 onClick={() => { setMode("login"); setError(null); }}
-                className="text-gray-400 hover:text-white transition-colors"
+                className="text-ink-soft hover:text-ink transition-colors"
               >
-                Уже есть аккаунт? <span className="text-blue-400">Войти</span>
+                Уже есть аккаунт? <span className="text-[#00A000] font-medium">Войти</span>
               </button>
             )}
           </div>
         </div>
 
-        <p className="text-center text-gray-600 text-xs mt-6">
+        <p className="text-center text-ink-mute text-xs mt-6">
           Продолжая, ты соглашаешься с условиями использования
         </p>
       </div>
