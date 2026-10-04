@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Logo from "../../components/Logo";
+import TelegramLogin from "../../components/TelegramLogin";
 
 const API_BASE = "/api";
 
@@ -112,10 +113,6 @@ export default function LoginPage() {
     }
   };
 
-  if (typeof window !== "undefined") {
-    window.onTelegramAuth = handleTelegramAuth;
-  }
-
   const submit = async (e) => {
     e.preventDefault();
     // Клиентские проверки с человеческими текстами
@@ -187,17 +184,9 @@ export default function LoginPage() {
               : "Бесплатно, $0.50 на запросы каждый день"}
           </p>
 
-          {/* Telegram Login Widget */}
-          <div className="flex justify-center mb-4">
-            <script
-              async
-              src="https://telegram.org/js/telegram-widget.js?22"
-              data-telegram-login="aicombinernet_bot"
-              data-size="large"
-              data-radius="10"
-              data-onauth="onTelegramAuth(user)"
-              data-request-access="write"
-            ></script>
+          {/* Telegram Login Widget (программная загрузка) */}
+          <div className="mb-4">
+            <TelegramLogin botName="aicombinernet_bot" onAuth={handleTelegramAuth} />
           </div>
 
           {/* Discord / Google */}
