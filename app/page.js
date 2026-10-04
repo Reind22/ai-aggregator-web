@@ -1,6 +1,10 @@
-import Link from "next/link";
+"use client";
 
-// SVG иконки (монохром, зелёный акцент)
+import Link from "next/link";
+import Logo from "../components/Logo";
+import LanguageMenu from "../components/LanguageMenu";
+
+// SVG иконки (зелёный акцент)
 const iconCls = "w-7 h-7 text-[#00CC00]";
 const IconBot = () => (
   <svg className={iconCls} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -66,12 +70,11 @@ const features = [
   },
 ];
 
-// Тарифы — финальные цены (Free 0 / Basic 249 / Pro 799 / Ultra 999)
+// Финальные тарифы: Free 0 / Basic 249 / Pro 799 / Ultra 999
 const pricing = [
   {
     name: "Free",
     price: "0₽",
-    period: "навсегда",
     balance: "$0.50 / день",
     features: [
       "GLM 5.3 Flash + DeepSeek Chat",
@@ -86,7 +89,6 @@ const pricing = [
   {
     name: "Basic",
     price: "249₽",
-    period: "в месяц",
     balance: "$1.00 / день",
     features: [
       "Всё из Free",
@@ -101,7 +103,6 @@ const pricing = [
   {
     name: "Pro",
     price: "799₽",
-    period: "в месяц",
     balance: "$3.00 / день",
     features: [
       "Всё из Basic",
@@ -116,7 +117,6 @@ const pricing = [
   {
     name: "Ultra",
     price: "999₽",
-    period: "в месяц",
     balance: "$5.00 / день",
     features: [
       "Всё из Pro",
@@ -126,32 +126,37 @@ const pricing = [
       "−25% на API-токены",
     ],
     cta: "Выбрать Ultra",
-    badge: "Максимальная выгода", // бейдж на последней подписке
+    badge: "Максимальная выгода",
   },
 ];
+
+// Клик по кнопке Telegram — событие в Umami
+function trackTgClick(place) {
+  if (typeof window !== "undefined" && window.umami) {
+    window.umami.track("telegram-click", { place });
+  }
+}
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-surface-dark relative">
-      {/* Hero glow */}
       <div className="hero-glow absolute inset-x-0 top-0 h-[800px] pointer-events-none" />
 
-      {/* Header — sticky, белая, тень снизу */}
-      <header className="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-xl border-b border-surface-border shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+      {/* Header */}
+      <header className="fixed top-0 w-full z-50 bg-surface-dark/85 backdrop-blur-xl border-b border-white/[0.06]">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-gradient-to-br from-[#00FF00] to-[#00CC00] rounded-lg flex items-center justify-center">
-              <span className="text-sm font-bold text-[#0A2A0A]">⚡</span>
-            </div>
-            <span className="font-semibold text-[15px] tracking-tight text-ink">AI Combiner</span>
+            <Logo size={32} />
+            <span className="font-extrabold text-[15px] tracking-tight text-white">AI Combiner</span>
           </div>
-          <nav className="flex items-center gap-5 text-sm">
-            <a href="#features" className="text-ink-soft hover:text-ink transition-colors hidden md:block">Возможности</a>
-            <a href="#pricing" className="text-ink-soft hover:text-ink transition-colors hidden md:block">Тарифы</a>
-            <Link href="/login" className="border border-[#D5D5D5] hover:border-[#00CC00] text-ink px-4 py-2 rounded-lg font-medium transition-colors">
+          <nav className="flex items-center gap-4 text-sm">
+            <a href="#features" className="text-gray-400 hover:text-white transition-colors hidden md:block">Возможности</a>
+            <a href="#pricing" className="text-gray-400 hover:text-white transition-colors hidden md:block">Тарифы</a>
+            <LanguageMenu />
+            <Link href="/login" className="border border-white/15 hover:border-white/35 text-gray-200 px-4 py-2 rounded-lg font-medium transition-colors">
               Войти
             </Link>
-            <Link href="/chat" className="bg-[#00FF00] hover:bg-[#00CC00] text-[#0A2A0A] px-4 py-2 rounded-lg font-semibold transition-colors">
+            <Link href="/chat" className="bg-[#00FF00] hover:bg-[#00CC00] text-black px-4 py-2 rounded-lg font-bold transition-colors">
               Открыть чат
             </Link>
           </nav>
@@ -161,77 +166,76 @@ export default function Home() {
       {/* Hero */}
       <section className="relative pt-32 pb-16 px-4">
         <div className="max-w-4xl mx-auto text-center animate-fade-in-up">
-          <div className="inline-flex items-center gap-2 bg-white border border-surface-border rounded-full px-4 py-1.5 text-sm text-ink-soft mb-8 shadow-sm">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#00CC00] animate-pulse"></span>
+          <div className="inline-flex items-center gap-2 bg-white/[0.04] border border-white/[0.08] rounded-full px-4 py-1.5 text-sm text-gray-300 mb-8">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#00FF00] animate-pulse"></span>
             Работает на GLM 5.3 — последняя модель
           </div>
-          <h1 className="text-5xl md:text-7xl font-bold leading-[1.1] tracking-tight mb-6 text-ink">
+          <h1 className="text-5xl md:text-7xl font-extrabold leading-[1.1] tracking-tight mb-6 text-white">
             Нейросети
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00CC00] to-[#008800]"> везде</span>,
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00FF00] to-[#00A000]"> везде</span>,
             <br />
             где тебе удобно
           </h1>
-          <p className="text-lg text-ink-soft mb-10 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed">
             Один аккаунт — доступ к 5+ моделям через Telegram, Discord и браузер.
             Дневной баланс в долларах. Бесплатный тариф без карты.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link
               href="/chat"
-              className="bg-[#00FF00] text-[#0A2A0A] px-8 py-3.5 rounded-xl font-semibold text-base transition-all hover:scale-[1.02] hover:shadow-xl hover:shadow-[#00CC00]/20"
+              className="bg-[#00FF00] text-black px-8 py-3.5 rounded-xl font-bold text-base transition-all hover:scale-[1.02] hover:shadow-xl hover:shadow-[#00CC00]/20"
             >
               Начать бесплатно
             </Link>
             <a
-              href="https://t.me/aicombinernet_bot?utm_source=website"
+              href="https://t.me/aicombinernet_bot?start=website"
               target="_blank"
-              className="border border-[#D5D5D5] hover:border-[#00CC00] px-8 py-3.5 rounded-xl font-semibold text-base transition-all hover:bg-white text-ink"
+              onClick={() => trackTgClick("hero")}
+              className="border border-white/10 hover:border-[#00FF00]/50 px-8 py-3.5 rounded-xl font-bold text-base transition-all hover:bg-white/5 text-gray-200"
             >
               Открыть в Telegram
             </a>
           </div>
         </div>
 
-        {/* Мокап продукта */}
+        {/* Мокап чата */}
         <div className="max-w-4xl mx-auto mt-16 animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
-          <div className="bg-white rounded-2xl p-1 shadow-[0_20px_60px_rgba(0,0,0,0.08)] border border-surface-border">
-            <div className="bg-[#FAFAFA] rounded-xl overflow-hidden">
-              {/* Browser bar */}
-              <div className="flex items-center gap-2 px-4 py-2.5 border-b border-surface-border bg-white">
-                <div className="w-3 h-3 rounded-full bg-[#FF5F57]"></div>
-                <div className="w-3 h-3 rounded-full bg-[#FEBC2E]"></div>
-                <div className="w-3 h-3 rounded-full bg-[#28C840]"></div>
-                <div className="ml-3 text-xs text-ink-mute bg-surface-dark rounded-md px-3 py-0.5">
+          <div className="bg-gradient-to-b from-white/[0.08] to-transparent rounded-2xl p-1">
+            <div className="bg-[#0d0d14] rounded-xl border border-white/[0.08] overflow-hidden">
+              <div className="flex items-center gap-2 px-4 py-2.5 border-b border-white/[0.06]">
+                <div className="w-3 h-3 rounded-full bg-red-500/60"></div>
+                <div className="w-3 h-3 rounded-full bg-yellow-500/60"></div>
+                <div className="w-3 h-3 rounded-full bg-green-500/60"></div>
+                <div className="ml-3 text-xs text-gray-600 bg-white/[0.04] rounded-md px-3 py-0.5">
                   aicombiner.net/chat
                 </div>
               </div>
-              {/* Fake chat UI */}
               <div className="flex h-[360px]">
-                <div className="w-48 border-r border-surface-border p-3 hidden sm:block bg-white">
-                  <div className="bg-[#E8F5E9] border border-[#00CC00]/30 rounded-lg py-2 text-center text-sm text-[#00A000] font-medium mb-3">
+                <div className="w-48 border-r border-white/[0.06] p-3 hidden sm:block">
+                  <div className="bg-[#00CC00]/15 border border-[#00CC00]/30 rounded-lg py-2 text-center text-sm text-[#00FF00] font-semibold mb-3">
                     + Новый чат
                   </div>
                   {["Квантовая запутанность", "Код на Python", "Рецепт борща", "Резюме статьи"].map((t) => (
-                    <div key={t} className="px-2 py-1.5 text-xs text-ink-soft rounded-md mb-1 truncate hover:bg-surface-hover cursor-pointer">
+                    <div key={t} className="px-2 py-1.5 text-xs text-gray-500 rounded-md mb-1 truncate hover:bg-white/5 cursor-pointer">
                       {t}
                     </div>
                   ))}
                 </div>
                 <div className="flex-1 p-4 flex flex-col justify-end gap-3">
-                  <div className="self-end bg-[#00CC00] rounded-2xl rounded-br-md px-4 py-2.5 max-w-[70%] text-sm text-white">
+                  <div className="self-end bg-[#00CC00] rounded-2xl rounded-br-md px-4 py-2.5 max-w-[70%] text-sm text-black font-medium">
                     Привет! Объясни квантовую запутанность простыми словами
                   </div>
-                  <div className="self-start bg-white border border-surface-border rounded-2xl rounded-bl-md px-4 py-2.5 max-w-[80%] text-sm text-ink-soft">
+                  <div className="self-start bg-white/[0.06] rounded-2xl rounded-bl-md px-4 py-2.5 max-w-[80%] text-sm text-gray-300">
                     Представь две монеты, которые связаны невидимой нитью...
                   </div>
-                  <div className="self-end bg-[#00CC00] rounded-2xl rounded-br-md px-4 py-2.5 max-w-[70%] text-sm text-white">
+                  <div className="self-end bg-[#00CC00] rounded-2xl rounded-br-md px-4 py-2.5 max-w-[70%] text-sm text-black font-medium">
                     А как это используется в компьютерах?
                   </div>
-                  <div className="self-start bg-white border border-surface-border rounded-2xl rounded-bl-md px-4 py-2.5 max-w-[80%] text-sm">
+                  <div className="self-start bg-white/[0.06] rounded-2xl rounded-bl-md px-4 py-2.5 max-w-[80%] text-sm">
                     <span className="inline-flex gap-1">
-                      <span className="w-1.5 h-1.5 bg-[#999] rounded-full animate-bounce"></span>
-                      <span className="w-1.5 h-1.5 bg-[#999] rounded-full animate-bounce" style={{animationDelay:'0.15s'}}></span>
-                      <span className="w-1.5 h-1.5 bg-[#999] rounded-full animate-bounce" style={{animationDelay:'0.3s'}}></span>
+                      <span className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce"></span>
+                      <span className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce" style={{animationDelay:'0.15s'}}></span>
+                      <span className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce" style={{animationDelay:'0.3s'}}></span>
                     </span>
                   </div>
                 </div>
@@ -245,10 +249,10 @@ export default function Home() {
       <section id="features" className="py-24 px-4 relative">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4 text-ink">
+            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-4 text-white">
               Всё, что нужно в одном месте
             </h2>
-            <p className="text-ink-soft max-w-xl mx-auto">
+            <p className="text-gray-500 max-w-xl mx-auto">
               Мы объединили лучшие модели и добавили то, чего не хватало у конкурентов.
             </p>
           </div>
@@ -256,13 +260,13 @@ export default function Home() {
             {features.map((f) => (
               <div
                 key={f.title}
-                className="bg-white border border-surface-border rounded-2xl p-6 hover:border-[#00CC00] hover:shadow-[0_8px_24px_rgba(0,204,0,0.12)] hover:-translate-y-1 transition-all group"
+                className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-6 hover:border-[#00CC00]/60 hover:bg-white/[0.05] transition-all group"
               >
-                <div className="mb-5 p-2.5 bg-[#E8F5E9] rounded-xl w-fit group-hover:bg-[#D5F0D8] transition-colors">
+                <div className="mb-5 p-2.5 bg-[#00CC00]/10 rounded-xl w-fit group-hover:bg-[#00CC00]/20 transition-colors">
                   {f.icon}
                 </div>
-                <h3 className="font-semibold text-base mb-2 text-ink">{f.title}</h3>
-                <p className="text-ink-soft text-sm leading-relaxed">{f.text}</p>
+                <h3 className="font-bold text-base mb-2 text-white">{f.title}</h3>
+                <p className="text-gray-500 text-sm leading-relaxed">{f.text}</p>
               </div>
             ))}
           </div>
@@ -273,10 +277,10 @@ export default function Home() {
       <section id="pricing" className="py-24 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4 text-ink">
+            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-4 text-white">
               Прозрачные тарифы
             </h2>
-            <p className="text-ink-soft max-w-md mx-auto">
+            <p className="text-gray-500 max-w-md mx-auto">
               Дневной баланс в долларах — трать на любую модель. Остаток не переносится.
             </p>
           </div>
@@ -284,28 +288,28 @@ export default function Home() {
             {pricing.map((plan) => (
               <div
                 key={plan.name}
-                className={`rounded-2xl p-6 border bg-white transition-all hover:-translate-y-1 ${
+                className={`rounded-2xl p-6 border transition-all ${
                   plan.badge
-                    ? "border-[#00CC00] shadow-[0_8px_24px_rgba(0,204,0,0.12)] relative"
-                    : "border-surface-border hover:border-[#00CC00] hover:shadow-[0_8px_24px_rgba(0,204,0,0.08)]"
+                    ? "border-[#00CC00]/60 bg-[#00CC00]/[0.04] relative hover:border-[#00FF00]"
+                    : "border-white/[0.06] bg-white/[0.02] hover:border-white/[0.15]"
                 }`}
               >
                 {plan.badge && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#00FF00] text-[#0A2A0A] text-[11px] font-bold px-3 py-0.5 rounded-full whitespace-nowrap">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#00FF00] text-black text-[11px] font-bold px-3 py-0.5 rounded-full whitespace-nowrap">
                     {plan.badge}
                   </div>
                 )}
-                <h3 className="font-medium text-ink-soft text-sm mb-3">{plan.name}</h3>
+                <h3 className="font-medium text-gray-400 text-sm mb-3">{plan.name}</h3>
                 <div className="flex items-baseline gap-1 mb-1">
-                  <span className="text-4xl font-bold tracking-tight text-ink">{plan.price}</span>
-                  <span className="text-ink-mute text-sm">/мес</span>
+                  <span className="text-4xl font-extrabold tracking-tight text-white">{plan.price}</span>
+                  <span className="text-gray-600 text-sm">/мес</span>
                 </div>
-                <div className="text-[#008F00] text-sm font-semibold mb-8">
+                <div className="text-[#33FF33] text-sm font-semibold mb-8">
                   {plan.balance} на запросы
                 </div>
                 <div className="space-y-2.5 mb-8 min-h-[140px]">
                   {plan.features.map((f) => (
-                    <div key={f} className="flex items-start gap-2.5 text-sm text-ink-soft">
+                    <div key={f} className="flex items-start gap-2.5 text-sm text-gray-300">
                       <svg className="w-4 h-4 text-[#00CC00] mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                       </svg>
@@ -314,10 +318,10 @@ export default function Home() {
                   ))}
                 </div>
                 <button
-                  className={`w-full py-2.5 rounded-xl font-semibold text-sm transition-colors ${
+                  className={`w-full py-2.5 rounded-xl font-bold text-sm transition-colors ${
                     plan.badge
-                      ? "bg-[#00FF00] hover:bg-[#00CC00] text-[#0A2A0A]"
-                      : "border border-[#D5D5D5] hover:border-[#00CC00] text-ink hover:bg-[#E8F5E9]"
+                      ? "bg-[#00FF00] hover:bg-[#00CC00] text-black"
+                      : "border border-white/10 hover:border-[#00FF00]/50 text-gray-200 hover:bg-white/5"
                   }`}
                 >
                   {plan.cta}
@@ -332,15 +336,15 @@ export default function Home() {
       <section className="py-24 px-4 relative">
         <div className="hero-glow absolute inset-0 pointer-events-none" />
         <div className="max-w-2xl mx-auto text-center relative">
-          <h2 className="text-3xl font-bold tracking-tight mb-4 text-ink">
+          <h2 className="text-3xl font-extrabold tracking-tight mb-4 text-white">
             Готов попробовать?
           </h2>
-          <p className="text-ink-soft mb-8">
+          <p className="text-gray-500 mb-8">
             Бесплатный тариф — без карты, без ограничений по времени.
           </p>
           <Link
             href="/chat"
-            className="inline-block bg-[#00FF00] text-[#0A2A0A] px-10 py-4 rounded-xl font-semibold text-lg transition-all hover:scale-[1.02] hover:shadow-2xl hover:shadow-[#00CC00]/25"
+            className="inline-block bg-[#00FF00] text-black px-10 py-4 rounded-xl font-bold text-lg transition-all hover:scale-[1.02] hover:shadow-2xl hover:shadow-[#00CC00]/25"
           >
             Начать бесплатно
           </Link>
@@ -348,16 +352,23 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-surface-border py-8 px-4 bg-white">
+      <footer className="border-t border-white/[0.06] py-8 px-4">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-sm">
-          <div className="flex items-center gap-2 text-ink-mute">
-            <div className="w-5 h-5 bg-gradient-to-br from-[#00FF00] to-[#00CC00] rounded flex items-center justify-center text-[10px]">⚡</div>
+          <div className="flex items-center gap-2 text-gray-600">
+            <Logo size={20} />
             AI Combiner © 2026
           </div>
-          <div className="flex gap-6 text-ink-mute">
-            <a href="#" className="hover:text-ink transition-colors">Условия использования</a>
-            <a href="#" className="hover:text-ink transition-colors">Конфиденциальность</a>
-            <a href="https://t.me/aicombinernet_bot?utm_source=website" className="hover:text-ink transition-colors">Telegram</a>
+          <div className="flex gap-6 text-gray-600">
+            <a href="/privacy" className="hover:text-gray-400 transition-colors">Конфиденциальность</a>
+            <a href="/terms" className="hover:text-gray-400 transition-colors">Пользовательское соглашение</a>
+            <a
+              href="https://t.me/aicombinernet_bot?start=website"
+              target="_blank"
+              onClick={() => trackTgClick("footer")}
+              className="hover:text-gray-400 transition-colors"
+            >
+              Telegram
+            </a>
           </div>
         </div>
       </footer>
