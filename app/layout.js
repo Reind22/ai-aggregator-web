@@ -10,6 +10,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="ru" className="dark">
       <head>
+        <link rel="icon" href="/favicon16.svg" sizes="any" type="image/svg+xml" />
         <link rel="icon" href="/logo.svg" type="image/svg+xml" />
         <script
           defer

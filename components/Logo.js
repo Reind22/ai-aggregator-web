@@ -1,22 +1,18 @@
-import Link from "next/link";
+"use client";
 
-// Лого: нейросеть — 10 зелёных точек по кругу, каждая соединена с каждой (45 линий), чёрный фон
+// Лого: нейросеть — 7 зелёных точек по кругу, каждая соединена с каждой (21 линий), чёрный фон
 export default function Logo({ size = 32 }) {
-  // Координаты 10 точек на окружности r=42, центр (60,60)
-  const points = [
-    [60, 18], [84.7, 26], [99.9, 47], [99.9, 73], [84.7, 94],
-    [60, 102], [35.3, 94], [20.1, 73], [20.1, 47], [35.3, 26],
-  ];
+  const points = [[60.0, 18.0], [92.8, 33.8], [100.9, 69.3], [78.2, 97.8], [41.8, 97.8], [19.1, 69.3], [27.2, 33.8]];
 
   const lines = [];
-  for (let i = 0; i < 10; i++) {
-    for (let j = i + 1; j < 10; j++) {
+  for (let i = 0; i < points.length; i++) {
+    for (let j = i + 1; j < points.length; j++) {
       lines.push(
         <line
           key={`${i}-${j}`}
           x1={points[i][0]} y1={points[i][1]}
           x2={points[j][0]} y2={points[j][1]}
-          stroke="#00CC00" strokeWidth="1.6" strokeOpacity="0.55"
+          stroke="#00CC00" strokeWidth="1.8" strokeOpacity="0.6"
         />
       );
     }
@@ -34,7 +30,7 @@ export default function Logo({ size = 32 }) {
       <g>
         {lines}
         {points.map(([x, y], i) => (
-          <circle key={i} cx={x} cy={y} r="5" fill="#00FF00" />
+          <circle key={i} cx={x} cy={y} r="6" fill="#00FF00" />
         ))}
       </g>
     </svg>
