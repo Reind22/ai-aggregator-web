@@ -143,9 +143,12 @@ export default function Home() {
             </div>
             <span className="font-semibold text-[15px] tracking-tight">AI Combiner</span>
           </div>
-          <nav className="flex items-center gap-7 text-sm">
+          <nav className="flex items-center gap-5 text-sm">
             <a href="#features" className="text-gray-400 hover:text-white transition-colors hidden md:block">Возможности</a>
-            <a href="#pricing" className="text-gray-400 hover:text-white transition-colors">Тарифы</a>
+            <a href="#pricing" className="text-gray-400 hover:text-white transition-colors hidden md:block">Тарифы</a>
+            <Link href="/login" className="border border-white/15 hover:border-white/35 text-gray-200 px-4 py-2 rounded-lg font-medium transition-colors">
+              Войти
+            </Link>
             <Link href="/chat" className="bg-white text-black px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors">
               Открыть чат
             </Link>
