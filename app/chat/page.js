@@ -2,6 +2,8 @@
 
 import { useState, useRef, useEffect } from "react";
 
+const API_BASE = "/api";
+
 export default function ChatPage() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -9,7 +11,10 @@ export default function ChatPage() {
   const [model, setModel] = useState("glm-5.3-flash");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isTemp, setIsTemp] = useState(false);
-  const [chats] = useState([{ id: 1, title: "Новый чат" }]);
+  const [chats, setChats] = useState([]);
+  const [token, setToken] = useState(null);
+  const [balance, setBalance] = useState(null);
+  const [error, setError] = useState(null);
   const messagesEndRef = useRef(null);
 
   const models = [
@@ -19,24 +24,64 @@ export default function ChatPage() {
     { id: "glm-5.3", name: "GLM 5.3", tier: "Ultra" },
   ];
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  // При загрузке — анонимная сессия (для демо) или восстановление токена
+  useEffect(() => {
+    const saved = localStorage.getItem("ai_token");
+    if (saved) {
+      setToken(saved);
+      loadChats(saved);
+    }
+  }, []);
 
   useEffect(() => {
-    scrollToBottom();
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  const loadChats = async (t) => {
+    try {
+      const res = await fetch(`${API_BASE}/chats/`, {
+        headers: { Authorization: `Bearer ${t}` },
+      });
+      if (res.ok) setChats(await res.json());
+    } catch (e) {}
+  };
 
   const sendMessage = async () => {
     if (!input.trim() || isGenerating) return;
-    const userMsg = { role: "user", content: input.trim() };
+    const text = input.trim();
+    const userMsg = { role: "user", content: text };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setIsGenerating(true);
-    // AI-ответ подключится после деплоя на VPS
-    await new Promise(r => setTimeout(r, 1000));
-    setMessages((prev) => [...prev, { role: "assistant", content: "Чат будет доступен после подключения к серверу. Сейчас это предпросмотр интерфейса." }]);
-    setIsGenerating(false);
+    setError(null);
+
+    try {
+      const res = await fetch(`${API_BASE}/chats/send`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ message: text, model, chat_id: null }),
+      });
+      const data = await res.json();
+      if (res.ok && data.content) {
+        setMessages((prev) => [...prev, { role: "assistant", content: data.content }]);
+        if (data.balance_remaining !== undefined) setBalance(data.balance_remaining);
+      } else {
+        const detail = data.detail || "Ошибка сервера";
+        setError(detail);
+        setMessages((prev) => [...prev, {
+          role: "assistant",
+          content: `⚠️ ${detail}\n\nAPI-ключи ещё не подключены — заполни их в .env, и чат заработает.`,
+        }]);
+      }
+    } catch (e) {
+      setError(String(e));
+      setMessages((prev) => [...prev, { role: "assistant", content: "⚠️ Сервер недоступен" }]);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const handleKeyDown = (e) => {
@@ -48,8 +93,13 @@ export default function ChatPage() {
 
   return (
     <div className="flex h-screen bg-[#08080c] overflow-hidden">
+      {/* Sidebar */}
       <div className={`${sidebarOpen ? "w-64" : "w-0"} transition-all duration-300 bg-[#0d0d14] border-r border-white/[0.06] flex flex-col overflow-hidden flex-shrink-0`}>
         <div className="p-4">
+          <a href="/" className="flex items-center gap-2 mb-4">
+            <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-purple-600 rounded flex items-center justify-center text-[10px]">⚡</div>
+            <span className="font-semibold text-sm">AI Combiner</span>
+          </a>
           <button onClick={newChat} className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-2.5 font-medium transition-colors flex items-center justify-center gap-2">
             <span className="text-lg">+</span> Новый чат
           </button>
@@ -58,21 +108,28 @@ export default function ChatPage() {
           </button>
         </div>
         <div className="flex-1 overflow-y-auto px-2">
-          {chats.map((chat) => (
-            <div key={chat.id} className="px-3 py-2.5 rounded-lg cursor-pointer text-sm text-gray-400 hover:bg-white/5 hover:text-gray-200 transition-colors">
-              {chat.title}
-            </div>
-          ))}
+          {chats.length === 0 ? (
+            <div className="px-3 py-2 text-xs text-gray-600">История пуста</div>
+          ) : (
+            chats.map((chat) => (
+              <div key={chat.id} className="px-3 py-2.5 rounded-lg cursor-pointer text-sm text-gray-400 hover:bg-white/5 hover:text-gray-200 transition-colors">
+                {chat.title}
+              </div>
+            ))
+          )}
         </div>
         <div className="p-4 border-t border-white/[0.06]">
           <div className="text-xs text-gray-500 mb-2">Остаток сегодня:</div>
           <div className="w-full bg-white/10 rounded-full h-2">
-            <div className="bg-emerald-400 h-2 rounded-full" style={{ width: "100%" }}></div>
+            <div className="bg-emerald-400 h-2 rounded-full transition-all" style={{ width: balance !== null ? `${Math.min(100, balance * 200)}%` : "100%" }}></div>
           </div>
-          <div className="text-xs text-gray-500 mt-1">100% осталось</div>
+          <div className="text-xs text-gray-500 mt-1">
+            {balance !== null ? `$${balance.toFixed(3)}` : "$0.500 (Free)"}
+          </div>
         </div>
       </div>
 
+      {/* Main */}
       <div className="flex-1 flex flex-col">
         <div className="border-b border-white/[0.06] px-4 py-3 flex items-center justify-between">
           <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-gray-400 hover:text-white transition-colors">☰</button>
@@ -88,13 +145,14 @@ export default function ChatPage() {
             {messages.length === 0 && (
               <div className="text-center py-20">
                 <div className="text-5xl mb-4">⚡</div>
-                <h2 className="text-2xl font-semibold mb-2">AI Aggregator</h2>
-                <p className="text-gray-500">Напиши сообщение, чтобы начать диалог</p>
+                <h2 className="text-2xl font-semibold mb-2">AI Combiner</h2>
+                <p className="text-gray-500 mb-1">Напиши сообщение, чтобы начать диалог</p>
+                <p className="text-gray-600 text-sm">GLM 5.3, 5.2, 5.1, DeepSeek — переключай модель сверху</p>
               </div>
             )}
             {messages.map((msg, i) => (
               <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-                <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                <div className={`max-w-[80%] rounded-2xl px-4 py-3 whitespace-pre-wrap ${
                   msg.role === "user"
                     ? "bg-blue-600 text-white rounded-br-sm"
                     : "bg-[#0d0d14] border border-white/[0.06] rounded-bl-sm"
@@ -103,6 +161,17 @@ export default function ChatPage() {
                 </div>
               </div>
             ))}
+            {isGenerating && (
+              <div className="flex justify-start">
+                <div className="bg-[#0d0d14] border border-white/[0.06] rounded-2xl rounded-bl-sm px-4 py-3">
+                  <span className="inline-flex gap-1">
+                    <span className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce"></span>
+                    <span className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce" style={{animationDelay:'0.15s'}}></span>
+                    <span className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce" style={{animationDelay:'0.3s'}}></span>
+                  </span>
+                </div>
+              </div>
+            )}
             <div ref={messagesEndRef} />
           </div>
         </div>
@@ -120,6 +189,7 @@ export default function ChatPage() {
               {isGenerating ? "⏳" : "➤"}
             </button>
           </div>
+          {error && <div className="max-w-3xl mx-auto mt-2 text-xs text-red-400">{error}</div>}
         </div>
       </div>
     </div>

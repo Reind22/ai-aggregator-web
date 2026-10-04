@@ -141,7 +141,7 @@ export default function Home() {
             <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-purple-600 rounded-lg flex items-center justify-center">
               <span className="text-sm font-bold">⚡</span>
             </div>
-            <span className="font-semibold text-[15px] tracking-tight">AI Aggregator</span>
+            <span className="font-semibold text-[15px] tracking-tight">AI Combiner</span>
           </div>
           <nav className="flex items-center gap-7 text-sm">
             <a href="#features" className="text-gray-400 hover:text-white transition-colors hidden md:block">Возможности</a>
@@ -178,7 +178,7 @@ export default function Home() {
               Начать бесплатно
             </Link>
             <a
-              href="https://t.me/your_bot"
+              href="https://t.me/aicombinernet_bot?utm_source=website"
               target="_blank"
               className="border border-white/10 hover:border-white/25 px-8 py-3.5 rounded-xl font-semibold text-base transition-all hover:bg-white/5"
             >
@@ -197,7 +197,7 @@ export default function Home() {
                 <div className="w-3 h-3 rounded-full bg-yellow-500/60"></div>
                 <div className="w-3 h-3 rounded-full bg-green-500/60"></div>
                 <div className="ml-3 text-xs text-gray-600 bg-white/[0.04] rounded-md px-3 py-0.5">
-                  aiaggregator.app/chat
+                  aicombiner.net/chat
                 </div>
               </div>
               {/* Fake chat UI */}
@@ -345,12 +345,12 @@ export default function Home() {
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-sm">
           <div className="flex items-center gap-2 text-gray-600">
             <div className="w-5 h-5 bg-gradient-to-br from-primary-500 to-purple-600 rounded flex items-center justify-center text-[10px]">⚡</div>
-            AI Aggregator © 2026
+            AI Combiner © 2026
           </div>
           <div className="flex gap-6 text-gray-600">
             <a href="#" className="hover:text-gray-400 transition-colors">Условия использования</a>
             <a href="#" className="hover:text-gray-400 transition-colors">Конфиденциальность</a>
-            <a href="https://t.me/your_bot" className="hover:text-gray-400 transition-colors">Telegram</a>
+            <a href="https://t.me/aicombinernet_bot?utm_source=website" className="hover:text-gray-400 transition-colors">Telegram</a>
           </div>
         </div>
       </footer>

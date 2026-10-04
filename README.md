@@ -1,4 +1,4 @@
-# AI Aggregator — Веб-интерфейс
+# AI Combiner — Веб-интерфейс
 
 Лендинг + чат с нейросетями. Next.js 14 + Tailwind CSS.
 
