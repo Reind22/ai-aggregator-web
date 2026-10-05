@@ -118,22 +118,22 @@ export default function ProfilePage() {
       <main className="max-w-4xl mx-auto px-4 py-10">
         <h1 className="text-3xl font-extrabold text-white mb-8">Профиль</h1>
 
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Аккаунт */}
-          <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6">
+          <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6 min-w-0">
             <h2 className="font-bold text-white mb-4">Аккаунт</h2>
             <div className="space-y-3 text-sm">
-              <div className="flex justify-between">
+              <div className="flex justify-between gap-3 min-w-0">
                 <span className="text-gray-500">ID</span>
                 <span className="text-gray-200 font-mono">#{profile.id}</span>
               </div>
               {profile.email && (
-                <div className="flex justify-between">
+                <div className="flex justify-between gap-3 min-w-0">
                   <span className="text-gray-500">Email</span>
                   <span className="text-gray-200">{profile.email}</span>
                 </div>
               )}
-              <div className="flex justify-between">
+              <div className="flex justify-between gap-3 min-w-0">
                 <span className="text-gray-500">Telegram</span>
                 {profile.telegram_linked ? (
                   <span className="text-[#00FF00]">✓ привязан</span>
@@ -141,7 +141,7 @@ export default function ProfilePage() {
                   <span className="text-gray-600">не привязан</span>
                 )}
               </div>
-              <div className="flex justify-between">
+              <div className="flex justify-between gap-3 min-w-0">
                 <span className="text-gray-500">Discord</span>
                 {profile.discord_linked ? (
                   <span className="text-[#00FF00]">✓ привязан</span>
@@ -149,7 +149,7 @@ export default function ProfilePage() {
                   <span className="text-gray-600">не привязан</span>
                 )}
               </div>
-              <div className="flex justify-between">
+              <div className="flex justify-between gap-3 min-w-0">
                 <span className="text-gray-500">С нами с</span>
                 <span className="text-gray-200">
                   {new Date(profile.created_at).toLocaleDateString("ru-RU")}
@@ -159,7 +159,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Подписка */}
-          <div className="bg-white/[0.03] border border-[#00CC00]/25 rounded-2xl p-6">
+          <div className="bg-white/[0.03] border border-[#00CC00]/25 rounded-2xl p-6 min-w-0">
             <h2 className="font-bold text-white mb-4">Подписка</h2>
             <div className="text-4xl font-extrabold text-white mb-1">
               {TIER_LABELS[profile.tier] || profile.tier}
@@ -178,9 +178,9 @@ export default function ProfilePage() {
           </div>
 
           {/* Статистика */}
-          <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6">
+          <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6 min-w-0">
             <h2 className="font-bold text-white mb-4">Статистика</h2>
-            <div className="grid grid-cols-3 gap-3 text-center">
+            <div className="grid grid-cols-3 gap-2 sm:gap-3 text-center">
               <div>
                 <div className="text-2xl font-extrabold text-white">{profile.stats.chats}</div>
                 <div className="text-xs text-gray-500 mt-1">чатов</div>
@@ -200,14 +200,14 @@ export default function ProfilePage() {
           </div>
 
           {/* Рефералка */}
-          <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6">
+          <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6 min-w-0">
             <h2 className="font-bold text-white mb-1">Реферальная программа</h2>
             <p className="text-xs text-gray-500 mb-4">
               {profile.referral.percent}% с оплат приведённых друзей — пожизненно
             </p>
-            <div className="space-y-2 mb-4">
+            <div className="space-y-2 mb-4 min-w-0">
               <div className="flex items-center gap-2">
-                <code className="flex-1 bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-[#33FF33] font-mono truncate">
+                <code className="flex-1 min-w-0 bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-[#33FF33] font-mono truncate">
                   {profile.referral.link}
                 </code>
                 <button onClick={copyRef} title="Скопировать ссылку-бота" className="bg-[#00FF00] hover:bg-[#00CC00] text-black rounded-lg px-3 py-2 text-xs font-bold transition-colors flex-shrink-0">
@@ -215,7 +215,7 @@ export default function ProfilePage() {
                 </button>
               </div>
               <div className="flex items-center gap-2">
-                <code className="flex-1 bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-gray-300 font-mono truncate">
+                <code className="flex-1 min-w-0 bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-gray-300 font-mono truncate">
                   https://aicombiner.net/ref/{profile.referral.code}
                 </code>
                 <button onClick={copySiteRef} title="Скопировать ссылку-сайт" className="border border-white/15 hover:border-[#00CC00]/60 text-gray-200 rounded-lg px-3 py-2 text-xs font-bold transition-colors flex-shrink-0">
