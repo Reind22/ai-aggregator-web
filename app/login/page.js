@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Logo from "../../components/Logo";
-import TelegramLogin from "../../components/TelegramLogin";
 
 const API_BASE = "/api";
 
@@ -41,14 +40,7 @@ const OAuthButtons = ({ onNotify }) => {
   };
 
   return (
-    <div className="grid grid-cols-3 gap-2">
-      <button onClick={handlers.telegram} title="Telegram"
-        className="flex items-center justify-center gap-2 border border-white/10 hover:border-[#00CC00]/50 rounded-xl py-2.5 text-gray-300 hover:text-white text-sm transition-colors">
-        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M9.04 15.51l-.38 5.32c.54 0 .78-.23 1.06-.5l2.55-2.44 5.28 3.87c.97.53 1.65.25 1.91-.9L23.9 3.8c.31-1.42-.51-1.98-1.45-1.63L1.7 10.9c-1.39.54-1.37 1.32-.24 1.67l4.68 1.46L18.34 6.2c.51-.34.98-.15.6.19L9.04 15.51z"/>
-        </svg>
-        TG
-      </button>
+    <div className="grid grid-cols-2 gap-2">
       <button onClick={handlers.discord} title="Discord"
         className="flex items-center justify-center gap-2 border border-white/10 hover:border-[#5865F2]/60 rounded-xl py-2.5 text-gray-300 hover:text-white text-sm transition-colors">
         <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
@@ -88,6 +80,27 @@ export default function LoginPage() {
       setMode("register");
     }
   }, []);
+
+  // Новый флоу: редирект на oauth.telegram.org
+  const handleTelegramOIDC = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`${API_BASE}/auth/oidc/start`);
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.detail || "Не удалось начать вход через Telegram.");
+        setLoading(false);
+        return;
+      }
+      localStorage.setItem("tg_oidc_state", data.state);
+      if (window.umami) window.umami.track("login-start", { method: "telegram_oidc" });
+      window.location.href = data.auth_url;
+    } catch (e) {
+      setError("Сервер недоступен. Попробуйте позже.");
+      setLoading(false);
+    }
+  };
 
   const handleTelegramAuth = async (user) => {
     setLoading(true);
@@ -196,10 +209,17 @@ export default function LoginPage() {
               : "Бесплатно, $0.50 на запросы каждый день"}
           </p>
 
-          {/* Telegram Login Widget (программная загрузка) */}
-          <div className="mb-4">
-            <TelegramLogin botName="aicombinernet_bot" onAuth={handleTelegramAuth} />
-          </div>
+          {/* Вход через Telegram (OIDC — новый флоу) */}
+          <button
+            onClick={handleTelegramOIDC}
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-2.5 bg-[#229ED9] hover:bg-[#1e8ec4] disabled:opacity-50 text-white rounded-xl py-3 font-bold transition-colors mb-4"
+          >
+            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M9.04 15.51l-.38 5.32c.54 0 .78-.23 1.06-.5l2.55-2.44 5.28 3.87c.97.53 1.65.25 1.91-.9L23.9 3.8c.31-1.42-.51-1.98-1.45-1.63L1.7 10.9c-1.39.54-1.37 1.32-.24 1.67l4.68 1.46L18.34 6.2c.51-.34.98-.15.6.19L9.04 15.51z"/>
+            </svg>
+            Войти через Telegram
+          </button>
 
           {/* Discord / Google */}
           <OAuthButtons onNotify={(msg) => { setNotice(msg); setError(null); }} />
