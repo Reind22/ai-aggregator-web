@@ -72,14 +72,29 @@ export default function ProfilePage() {
 
   if (!token || !profile) {
     return (
-      <div className="min-h-screen bg-surface-dark flex items-center justify-center px-4">
-        <div className="text-center">
-          <div className="mx-auto mb-4 w-fit"><Logo size={56} /></div>
-          <h1 className="text-2xl font-extrabold text-white mb-2">Профиль</h1>
-          <p className="text-gray-500 mb-6">Войди, чтобы увидеть свой профиль</p>
-          <Link href="/login" className="bg-[#00FF00] hover:bg-[#00CC00] text-black px-8 py-3 rounded-xl font-bold transition-colors">
-            Войти
-          </Link>
+      <div className="min-h-screen bg-surface-dark">
+        <header className="border-b border-white/[0.06] sticky top-0 bg-surface-dark/90 backdrop-blur-xl z-40">
+          <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+            <Link href="/" className="flex items-center gap-2.5">
+              <Logo size={28} />
+              <span className="font-extrabold text-[15px] text-white">AI Combiner</span>
+            </Link>
+            <nav className="flex items-center gap-4 text-sm">
+              <Link href="/apikeys" className="text-gray-400 hover:text-white transition-colors">API</Link>
+              <Link href="/chat" className="text-gray-400 hover:text-white transition-colors">Чат</Link>
+              <Link href="/login" className="text-gray-400 hover:text-white transition-colors">Войти</Link>
+            </nav>
+          </div>
+        </header>
+        <div className="flex items-center justify-center px-4" style={{ minHeight: "calc(100vh - 61px)" }}>
+          <div className="text-center">
+            <div className="mx-auto mb-5 w-fit"><Logo size={56} /></div>
+            <h1 className="text-2xl font-extrabold text-white mb-2">Профиль</h1>
+            <p className="text-gray-500 mb-7">Войдите, чтобы увидеть свой профиль</p>
+            <Link href="/login" className="inline-block bg-[#00FF00] hover:bg-[#00CC00] text-black px-8 py-3 min-h-[44px] leading-[44px] rounded-xl font-bold transition-colors">
+              Войти
+            </Link>
+          </div>
         </div>
       </div>
     );

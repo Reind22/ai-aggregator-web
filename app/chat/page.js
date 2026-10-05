@@ -173,7 +173,7 @@ export default function ChatPage() {
         <div className="flex-1 overflow-y-auto px-4 py-6">
           <div className="max-w-3xl mx-auto space-y-4">
             {messages.length === 0 && (
-              <div className="text-center py-20">
+              <div className="text-center flex flex-col items-center justify-center" style={{ minHeight: "60vh" }}>
                 <div className="mx-auto mb-4 w-fit"><Logo size={64} /></div>
                 <h2 className="text-2xl font-extrabold mb-2 text-white">AI Combiner</h2>
                 <p className="text-gray-400 mb-1">Напиши сообщение, чтобы начать диалог</p>
