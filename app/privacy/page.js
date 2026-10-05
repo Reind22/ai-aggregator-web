@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Logo from "../../components/Logo";
 
-export default function PrivacyPage {
+export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-surface-dark">
       <header className="border-b border-white/[0.06] sticky top-0 bg-surface-dark/90 backdrop-blur-xl z-50">
