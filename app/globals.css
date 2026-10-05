@@ -5,6 +5,10 @@
 /* Inter — как в GameStore (веса до 800: заголовки жирнее) */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
+html, body {
+  overflow-x: clip; /* защита от горизонтального overflow на мобиле */
+}
+
 body {
   @apply bg-surface-dark text-gray-100 antialiased font-sans;
   font-weight: 500; /* минимальный вес 500 — базовый текст */
