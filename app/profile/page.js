@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Logo from "../../components/Logo";
+import { apiFetch, logout as doLogout, logoutAll } from "../../lib/api";
 
 const API_BASE = "/api";
 
@@ -27,9 +28,7 @@ export default function ProfilePage() {
       return;
     }
     setToken(saved);
-    fetch(`${API_BASE}/profile/`, {
-      headers: { Authorization: `Bearer ${saved}` },
-    })
+    apiFetch("/profile/")
       .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
       .then((p) => {
         setProfile(p);
@@ -56,9 +55,8 @@ export default function ProfilePage() {
     setTimeout(() => setCopiedSite(false), 2000);
   };
 
-  const logout = () => {
-    localStorage.removeItem("ai_token");
-    localStorage.removeItem("ai_refresh_token");
+  const logout = async () => {
+    await doLogout();
     window.location.href = "/";
   };
 
@@ -236,9 +234,21 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        <button onClick={logout} className="mt-8 text-sm text-gray-600 hover:text-red-400 transition-colors">
-          Выйти из аккаунта
-        </button>
+        <div className="mt-8 flex flex-wrap gap-4 text-sm">
+          <button onClick={logout} className="text-gray-600 hover:text-red-400 transition-colors">
+            Выйти из аккаунта
+          </button>
+          <button
+            onClick={async () => {
+              if (!confirm("Выйти на всех устройствах? Все активные сессии будут завершены.")) return;
+              await logoutAll();
+              window.location.href = "/login";
+            }}
+            className="text-gray-600 hover:text-red-400 transition-colors"
+          >
+            Выйти со всех устройств
+          </button>
+        </div>
       </main>
     </div>
   );

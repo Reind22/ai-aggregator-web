@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Logo from "../../components/Logo";
 import LanguageMenu from "../../components/LanguageMenu";
+import { apiFetch } from "../../lib/api";
 
 const API_BASE = "/api";
 
@@ -47,9 +48,7 @@ export default function ChatPage() {
 
   const loadChats = async (t) => {
     try {
-      const res = await fetch(`${API_BASE}/chats/`, {
-        headers: { Authorization: `Bearer ${t}` },
-      });
+      const res = await apiFetch("/chats/");
       if (res.ok) setChats(await res.json());
     } catch (e) {}
   };
@@ -64,13 +63,10 @@ export default function ChatPage() {
     setError(null);
 
     try {
-      const res = await fetch(`${API_BASE}/chats/send`, {
+      const res = await apiFetch("/chats/send", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({ message: text, model, chat_id: null }),
+        auth: !!token,
+        body: { message: text, model, chat_id: null },
       });
       const data = await res.json();
       if (res.ok && data.content) {

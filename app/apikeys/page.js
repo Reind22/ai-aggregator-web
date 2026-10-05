@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Logo from "../../components/Logo";
+import { apiFetch } from "../../lib/api";
 
 const API_BASE = "/api";
 
@@ -43,9 +44,7 @@ export default function ApiKeysPage() {
 
   const loadKeys = useCallback(async (t) => {
     try {
-      const res = await fetch(`${API_BASE}/api-keys/`, {
-        headers: { Authorization: `Bearer ${t}` },
-      });
+      const res = await apiFetch("/api-keys/");
       if (res.ok) setKeys(await res.json());
       else if (res.status === 401) {
         localStorage.removeItem("ai_token");
@@ -70,19 +69,15 @@ export default function ApiKeysPage() {
     setCreating(true);
     setError(null);
     try {
-      const res = await fetch(`${API_BASE}/api-keys/`, {
+      const res = await apiFetch("/api-keys/", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
+        body: {
           name,
           money_limit_usd: parseFloat(moneyLimit) || 0,
           time_limit_hours: parseInt(timeLimit) || 0,
           models: selectedModels,
           reset_period: resetPeriod,
-        }),
+        },
       });
       const data = await res.json();
       if (res.ok) {
@@ -100,23 +95,16 @@ export default function ApiKeysPage() {
   };
 
   const toggleActive = async (key) => {
-    await fetch(`${API_BASE}/api-keys/${key.id}`, {
+    await apiFetch(`/api-keys/${key.id}`, {
       method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ is_active: !key.is_active }),
+      body: { is_active: !key.is_active },
     });
     loadKeys(token);
   };
 
   const deleteKey = async (key) => {
     if (!confirm(`Удалить ключ «${key.name}»? Действие необратимо.`)) return;
-    await fetch(`${API_BASE}/api-keys/${key.id}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    await apiFetch(`/api-keys/${key.id}`, { method: "DELETE" });
     loadKeys(token);
   };
 
