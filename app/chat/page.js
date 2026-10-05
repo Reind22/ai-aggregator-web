@@ -151,11 +151,20 @@ export default function ChatPage() {
       {/* Main */}
       <div className="flex-1 flex flex-col">
         <div className="border-b border-white/[0.06] bg-[#0d0d14] px-4 py-3 flex items-center justify-between">
-          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-gray-400 hover:text-white transition-colors p-2 -ml-2 min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Меню">
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
+          <div className="flex items-center gap-1">
+            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-gray-400 hover:text-white transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center flex-shrink-0" aria-label="Меню">
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            {/* Лого видно всегда (когда сайдбар закрыт) — быстрый выход на главную */}
+            {(!sidebarOpen || isMobile) && (
+              <a href="/" className="flex items-center gap-2 px-2 min-h-[44px] ml-1 border-l border-white/[0.08] pl-3" title="На главную">
+                <Logo size={24} />
+                <span className="font-extrabold text-sm text-white hidden sm:inline">AI Combiner</span>
+              </a>
+            )}
+          </div>
           {isTemp && <span className="text-[#00FF00] text-sm">Временный чат (автоочистка 24ч)</span>}
           <div className="flex items-center gap-1.5 sm:gap-2">
             <LanguageMenu compact />

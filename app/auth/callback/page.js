@@ -50,6 +50,8 @@ function CallbackInner() {
         }
         localStorage.setItem("ai_token", data.access_token);
         localStorage.setItem("ai_refresh_token", data.refresh_token);
+        // Аватар из Telegram — для иконки профиля в шапке
+        if (data.picture) localStorage.setItem("ai_photo", data.picture);
         localStorage.removeItem("tg_oidc_state");
         if (window.umami) {
           window.umami.track("login-success", { method: "telegram_oidc" });
