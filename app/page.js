@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Logo from "../components/Logo";
 import LanguageMenu from "../components/LanguageMenu";
+import AuthButtons from "../components/AuthButtons";
 
 // SVG иконки (зелёный акцент)
 const iconCls = "w-7 h-7 text-[#00CC00]";
@@ -154,9 +155,7 @@ export default function Home() {
             <a href="#pricing" className="text-gray-400 hover:text-white transition-colors hidden md:block">Тарифы</a>
             <LanguageMenu />
             <Link href="/apikeys" className="text-gray-400 hover:text-white transition-colors hidden md:block font-medium">API</Link>
-            <Link href="/login" className="border border-white/15 hover:border-white/35 text-gray-200 px-4 py-2 rounded-lg font-medium transition-colors">
-              Войти
-            </Link>
+            <AuthButtons />
             <Link href="/chat" className="bg-[#00FF00] hover:bg-[#00CC00] text-black px-3 sm:px-4 py-2 rounded-lg font-bold transition-colors whitespace-nowrap text-[13px] sm:text-sm">
               Открыть чат
             </Link>

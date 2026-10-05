@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Logo from "../../components/Logo";
+import AuthButtons from "../../components/AuthButtons";
 
 export default function PrivacyPage() {
   return (
@@ -14,6 +15,7 @@ export default function PrivacyPage() {
           </Link>
           <div className="flex items-center gap-4 text-sm">
             <Link href="/terms" className="text-gray-400 hover:text-white transition-colors">Соглашение</Link>
+            <AuthButtons />
             <Link href="/" className="text-gray-400 hover:text-white transition-colors">← Главная</Link>
           </div>
         </div>
