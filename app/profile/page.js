@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Logo from "../../components/Logo";
+import AuthMethods from "../../components/AuthMethods";
 import { apiFetch, logout as doLogout, logoutAll } from "../../lib/api";
 
 const API_BASE = "/api";
@@ -18,6 +19,7 @@ export default function ProfilePage() {
   const [token, setToken] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [notifyMsg, setNotifyMsg] = useState(null);
   const [copied, setCopied] = useState(false);
   const [copiedSite, setCopiedSite] = useState(false);
 
@@ -132,20 +134,8 @@ export default function ProfilePage() {
                 </div>
               )}
               <div className="flex justify-between gap-3 min-w-0">
-                <span className="text-gray-500">Telegram</span>
-                {profile.telegram_linked ? (
-                  <span className="text-[#00FF00]">✓ привязан</span>
-                ) : (
-                  <span className="text-gray-600">не привязан</span>
-                )}
-              </div>
-              <div className="flex justify-between gap-3 min-w-0">
-                <span className="text-gray-500">Discord</span>
-                {profile.discord_linked ? (
-                  <span className="text-[#00FF00]">✓ привязан</span>
-                ) : (
-                  <span className="text-gray-600">не привязан</span>
-                )}
+                <span className="text-gray-500">Способы входа</span>
+                <span className="text-gray-500 text-xs">см. блок ниже</span>
               </div>
               <div className="flex justify-between gap-3 min-w-0">
                 <span className="text-gray-500">С нами с</span>
@@ -155,6 +145,14 @@ export default function ProfilePage() {
               </div>
             </div>
           </div>
+
+          {notifyMsg && (
+            <div className="bg-[#00CC00]/10 border border-[#00CC00]/30 rounded-xl px-4 py-3 text-[#33FF33] text-sm">
+              {notifyMsg}
+            </div>
+          )}
+          {/* Способы входа (Telegram/Email/Discord) */}
+          <AuthMethods onNotify={(m) => { setNotifyMsg(m); setTimeout(() => setNotifyMsg(null), 4000); }} />
 
           {/* Подписка */}
           <div className="bg-white/[0.03] border border-[#00CC00]/25 rounded-2xl p-6 min-w-0">

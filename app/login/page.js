@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Logo from "../../components/Logo";
+import EmailCodeFlow from "../../components/EmailCodeFlow";
 
 const API_BASE = "/api";
 
@@ -29,9 +30,16 @@ function humanizeError(detail) {
 const OAuthButtons = ({ onNotify }) => {
   const handlers = {
     telegram: () => onNotify("Telegram: нажми кнопку «Log in with Telegram» выше"),
-    discord: () => {
-      if (window.umami) window.umami.track("oauth-click", { provider: "discord" });
-      onNotify("Вход через Discord скоро заработает — ключи подключаются");
+    discord: async () => {
+      if (window.umami) window.umami.track("login-start", { method: "discord" });
+      try {
+        const r = await fetch(`${API_BASE}/auth/discord/start`);
+        const d = await r.json();
+        if (!r.ok) { onNotify("Discord: не удалось начать вход. Попробуй позже."); return; }
+        window.location.href = d.url;
+      } catch (e) {
+        onNotify("Сервер недоступен. Попробуй позже.");
+      }
     },
     google: () => {
       if (window.umami) window.umami.track("oauth-click", { provider: "google" });
@@ -70,6 +78,7 @@ export default function LoginPage() {
   const [referral, setReferral] = useState("");
   const [error, setError] = useState(null);
   const [notice, setNotice] = useState(null);
+  const [statusMsg, setStatusMsg] = useState(null);
   const [loading, setLoading] = useState(false);
 
   // Реферальный код из /ref/CODE (localStorage) — авто-переключение на регистрацию
@@ -230,6 +239,24 @@ export default function LoginPage() {
             <div className="flex-1 h-px bg-white/10" />
           </div>
 
+          {/* Вход/регистрация по коду из письма (без пароля) */}
+          <EmailCodeFlow
+            mode="login"
+            onAuthed={(d) => {
+              setNotice(null);
+              setError(null);
+              setStatusMsg(d.created ? "Аккаунт создан! Перенаправляю..." : "Вход выполнен. Перенаправляю...");
+              setTimeout(() => router.push("/profile"), 900);
+            }}
+            onNotify={(msg) => { setNotice(msg); setError(null); }}
+          />
+
+          <div className="flex items-center gap-3 my-5">
+            <div className="flex-1 h-px bg-white/10" />
+            <span className="text-xs text-gray-600">или почта + пароль</span>
+            <div className="flex-1 h-px bg-white/10" />
+          </div>
+
           <form onSubmit={submit} className="space-y-3">
             <input
               type="email"
@@ -264,6 +291,11 @@ export default function LoginPage() {
               </>
             )}
 
+            {statusMsg && (
+              <div className="bg-[#00CC00]/10 border border-[#00CC00]/30 rounded-xl px-4 py-3 text-[#33FF33] text-xs leading-relaxed">
+                {statusMsg}
+              </div>
+            )}
             {error && (
               <div className="bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3 text-red-300 text-xs leading-relaxed">
                 {error}
