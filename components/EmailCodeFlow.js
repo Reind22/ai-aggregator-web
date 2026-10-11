@@ -31,6 +31,8 @@ export default function EmailCodeFlow({ mode = "login", onAuthed, onLinked, onNo
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [resendIn, setResendIn] = useState(0);
+  const [password, setPassword] = useState("");
+  const [showPwdTip, setShowPwdTip] = useState(false);
 
   const startResendTimer = () => {
     setResendIn(30);
@@ -81,7 +83,7 @@ export default function EmailCodeFlow({ mode = "login", onAuthed, onLinked, onNo
       if (mode === "link") {
         const r = await apiFetch(`/auth/email/verify`, {
           method: "POST",
-          body: { email, code, purpose: mode },
+          body: { email, code, purpose: mode, password: password || undefined },
         });
         d = await r.json();
         if (!r.ok) throw new Error(detailToText(d.detail, "Неверный код"));
@@ -148,9 +150,24 @@ export default function EmailCodeFlow({ mode = "login", onAuthed, onLinked, onNo
             autoFocus
             className="w-full bg-black/40 border border-white/15 focus:border-[#00FF00]/60 rounded-xl px-4 py-3 text-white text-center text-2xl tracking-[0.5em] placeholder:text-gray-700 outline-none transition-colors"
           />
+          {mode === "link" && (
+            <>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Пароль для входа по почте (мин. 8, опционально)"
+                autoComplete="new-password"
+                className="w-full bg-black/40 border border-white/15 focus:border-[#00FF00]/60 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-gray-600 outline-none transition-colors"
+              />
+              {password && password.length < 8 && (
+                <p className="text-yellow-500/80 text-xs">Минимум 8 символов — или оставь поле пустым</p>
+              )}
+            </>
+          )}
           <button
             onClick={verifyCode}
-            disabled={loading || code.length !== 6}
+            disabled={loading || code.length !== 6 || (password.length > 0 && password.length < 8)}
             className="w-full bg-[#00FF00] hover:bg-[#00CC00] disabled:opacity-50 text-black rounded-xl py-3 font-bold transition-colors"
           >
             {loading ? "Проверяю..." : mode === "login" ? "Войти" : "Привязать"}

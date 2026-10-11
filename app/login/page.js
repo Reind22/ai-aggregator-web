@@ -251,13 +251,11 @@ export default function LoginPage() {
             onNotify={(msg) => { setNotice(msg); setError(null); }}
           />
 
-          <div className="flex items-center gap-3 my-5">
-            <div className="flex-1 h-px bg-white/10" />
-            <span className="text-xs text-gray-600">или почта + пароль</span>
-            <div className="flex-1 h-px bg-white/10" />
-          </div>
-
-          <form onSubmit={submit} className="space-y-3">
+          <details className="mt-5">
+            <summary className="text-xs text-gray-500 hover:text-gray-300 cursor-pointer select-none text-center transition-colors">
+              Войти по почте + пароль (старый способ)
+            </summary>
+            <form onSubmit={submit} className="space-y-3 mt-4">
             <input
               type="email"
               placeholder="Email"
@@ -315,6 +313,7 @@ export default function LoginPage() {
               {loading ? "Секунду..." : mode === "login" ? "Войти" : "Создать аккаунт"}
             </button>
           </form>
+          </details>
 
           <div className="text-center mt-5 text-sm">
             {mode === "login" ? (

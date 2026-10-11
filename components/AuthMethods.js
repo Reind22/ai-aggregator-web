@@ -29,6 +29,7 @@ export default function AuthMethods({ onNotify }) {
   const [linking, setLinking] = useState(null); // 'email' | 'discord' | null
   const [busy, setBusy] = useState(null);
   const [error, setError] = useState(null);
+  const showErr = (m) => { setError(m); setTimeout(() => setError(null), 6000); };
 
   const load = async () => {
     try {
@@ -37,7 +38,7 @@ export default function AuthMethods({ onNotify }) {
       const d = await r.json();
       setMethods(d.methods || []);
     } catch (e) {
-      setError(e.message);
+      showErr(e.message);
       setMethods([]);
     }
   };
@@ -55,7 +56,7 @@ export default function AuthMethods({ onNotify }) {
       if (!r.ok) throw new Error(d.detail || "Не удалось начать привязку");
       window.location.href = d.url;
     } catch (e) {
-      setError(e.message);
+      showErr(e.message);
       setBusy(null);
     }
   };
@@ -70,7 +71,7 @@ export default function AuthMethods({ onNotify }) {
       await load();
       onNotify && onNotify(`${METHOD_META[method]?.label || method}: отвязано`);
     } catch (e) {
-      setError(e.message);
+      showErr(e.message);
     } finally {
       setBusy(null);
     }
@@ -145,7 +146,7 @@ export default function AuthMethods({ onNotify }) {
 
       {/* Флоу привязки email */}
       {linking === "email" && (
-        <div className="mt-4 bg-black/30 border border-white/[0.08] rounded-xl p-4">
+        <div className="mt-3 border-t border-white/[0.06] pt-3">
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm font-medium text-gray-200">Привязка Email</span>
             <button

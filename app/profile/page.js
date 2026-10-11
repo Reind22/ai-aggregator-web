@@ -147,7 +147,7 @@ export default function ProfilePage() {
           </div>
 
           {notifyMsg && (
-            <div className="bg-[#00CC00]/10 border border-[#00CC00]/30 rounded-xl px-4 py-3 text-[#33FF33] text-sm">
+            <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-[#0d1117] border border-[#00FF00]/40 rounded-xl px-5 py-3 text-[#00FF00] text-sm shadow-lg shadow-black/50">
               {notifyMsg}
             </div>
           )}
