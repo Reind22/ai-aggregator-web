@@ -53,8 +53,7 @@ export default function EmailCodeFlow({ mode = "login", onAuthed, onLinked, onNo
       const req = mode === "link"
         ? apiFetch(`/auth/email/send-code`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, purpose: mode }),
+            body: { email, purpose: mode },
           })
         : fetch(`${API_BASE}/auth/email/send-code`, {
             method: "POST",
@@ -82,8 +81,7 @@ export default function EmailCodeFlow({ mode = "login", onAuthed, onLinked, onNo
       if (mode === "link") {
         const r = await apiFetch(`/auth/email/verify`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, code, purpose: mode }),
+          body: { email, code, purpose: mode },
         });
         d = await r.json();
         if (!r.ok) throw new Error(detailToText(d.detail, "Неверный код"));
