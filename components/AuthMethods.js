@@ -28,6 +28,7 @@ export default function AuthMethods({ onNotify }) {
   const [methods, setMethods] = useState(null);
   const [linking, setLinking] = useState(null); // 'email' | 'discord' | null
   const [busy, setBusy] = useState(null);
+  const [confirmUnlink, setConfirmUnlink] = useState(null); // method|null
   const [error, setError] = useState(null);
   const showErr = (m) => { setError(m); setTimeout(() => setError(null), 6000); };
 
@@ -121,7 +122,7 @@ export default function AuthMethods({ onNotify }) {
                   <span className="text-[#00FF00] text-sm">✓ привязано</span>
                   {canUnlink && (
                     <button
-                      onClick={() => unlink(m)}
+                      onClick={() => setConfirmUnlink(m)}
                       disabled={busy === m}
                       className="text-gray-500 hover:text-red-400 text-xs px-2 py-1 transition-colors disabled:opacity-40"
                       title="Отвязать"
@@ -157,6 +158,32 @@ export default function AuthMethods({ onNotify }) {
             </button>
           </div>
           <EmailCodeFlow mode="link" onLinked={onLinkedEmail} />
+        </div>
+      )}
+
+      {confirmUnlink && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70" onClick={() => setConfirmUnlink(null)}>
+          <div className="bg-[#0d1117] border border-white/15 rounded-2xl p-6 max-w-sm w-[90%] shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <h4 className="text-white font-bold mb-2">Отвязать {METHOD_META[confirmUnlink]?.label}?</h4>
+            <p className="text-gray-400 text-sm mb-5">
+              Вход этим способом перестанет работать. Аккаунт и данные останутся.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setConfirmUnlink(null)}
+                className="px-4 py-2 rounded-lg text-gray-300 hover:text-white text-sm border border-white/10 transition-colors"
+              >
+                Отмена
+              </button>
+              <button
+                onClick={async () => { const m = confirmUnlink; setConfirmUnlink(null); await unlink(m); }}
+                disabled={busy === confirmUnlink}
+                className="px-4 py-2 rounded-lg bg-red-500/90 hover:bg-red-500 text-white text-sm font-medium transition-colors disabled:opacity-40"
+              >
+                {busy === confirmUnlink ? "..." : "Отвязать"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
