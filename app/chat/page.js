@@ -69,9 +69,10 @@ export default function ChatPage() {
         body: { message: text, model, chat_id: null },
       });
       const data = await res.json();
-      if (res.ok && data.content) {
-        setMessages((prev) => [...prev, { role: "assistant", content: data.content }]);
-        if (data.balance_remaining !== undefined) setBalance(data.balance_remaining);
+      const answer = data.response ?? data.content;
+      if (res.ok && answer) {
+        setMessages((prev) => [...prev, { role: "assistant", content: answer }]);
+        if (data.remaining_balance_cents !== undefined) setBalance(data.remaining_balance_cents / 100);
       } else {
         const detail = data.detail || "Ошибка сервера";
         setError(detail);
