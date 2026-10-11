@@ -16,6 +16,7 @@ export default function ChatPage() {
   const [isMobile, setIsMobile] = useState(false);
   const [isTemp, setIsTemp] = useState(false);
   const [chats, setChats] = useState([]);
+  const [currentChatId, setCurrentChatId] = useState(null);
   const [token, setToken] = useState(null);
   const [balance, setBalance] = useState(null);
   const [error, setError] = useState(null);
@@ -60,6 +61,7 @@ export default function ChatPage() {
       const msgs = await res.json();
       setMessages(msgs.map((m) => ({ role: m.role, content: m.content })));
       setIsTemp(false);
+      setCurrentChatId(id);
       setSidebarOpen(window.innerWidth >= 768);
     } catch (e) {}
   };
@@ -77,7 +79,7 @@ export default function ChatPage() {
       const res = await apiFetch("/chats/send", {
         method: "POST",
         auth: !!token,
-        body: { message: text, model, chat_id: null, is_temp: isTemp },
+        body: { message: text, model, chat_id: currentChatId, is_temp: isTemp },
       });
       const data = await res.json();
       const answer = data.response ?? data.content;
@@ -105,7 +107,7 @@ export default function ChatPage() {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
   };
 
-  const newChat = () => { setMessages([]); setIsTemp(false); };
+  const newChat = () => { setMessages([]); setIsTemp(false); setCurrentChatId(null); };
   const tempChat = () => { setMessages([]); setIsTemp(true); };
 
   return (
@@ -135,7 +137,7 @@ export default function ChatPage() {
           <button onClick={newChat} className="w-full bg-[#00FF00] hover:bg-[#00CC00] text-black rounded-lg py-2.5 font-bold transition-colors flex items-center justify-center gap-2">
             <span className="text-lg">+</span> Новый чат
           </button>
-          <button onClick={tempChat} className="w-full mt-2 border border-white/10 hover:border-[#00CC00]/50 rounded-lg py-2 text-sm text-gray-300 transition-colors">
+          <button onClick={() => { tempChat(); setCurrentChatId(null); }} className="w-full mt-2 border border-white/10 hover:border-[#00CC00]/50 rounded-lg py-2 text-sm text-gray-300 transition-colors">
             Временный чат
           </button>
         </div>
