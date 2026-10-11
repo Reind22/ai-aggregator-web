@@ -86,6 +86,7 @@ export default function ChatPage() {
       if (res.ok && answer) {
         setMessages((prev) => [...prev, { role: "assistant", content: answer }]);
         if (data.remaining_balance_cents !== undefined) setBalance(data.remaining_balance_cents / 100);
+        if (data.chat_id) setCurrentChatId(data.chat_id);  // фиксирую чат для продолжения
         loadChats();  // новый чат появился в истории
       } else {
         const detail = data.detail || "Ошибка сервера";
