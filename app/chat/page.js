@@ -66,13 +66,14 @@ export default function ChatPage() {
       const res = await apiFetch("/chats/send", {
         method: "POST",
         auth: !!token,
-        body: { message: text, model, chat_id: null },
+        body: { message: text, model, chat_id: null, is_temp: isTemp },
       });
       const data = await res.json();
       const answer = data.response ?? data.content;
       if (res.ok && answer) {
         setMessages((prev) => [...prev, { role: "assistant", content: answer }]);
         if (data.remaining_balance_cents !== undefined) setBalance(data.remaining_balance_cents / 100);
+        loadChats();  // новый чат появился в истории
       } else {
         const detail = data.detail || "Ошибка сервера";
         setError(detail);
@@ -132,7 +133,7 @@ export default function ChatPage() {
             <div className="px-3 py-2 text-xs text-ink-mute">История пуста</div>
           ) : (
             chats.map((chat) => (
-              <div key={chat.id} className="px-3 py-2.5 rounded-lg cursor-pointer text-sm text-gray-400 hover:bg-white/5 hover:text-gray-200 transition-colors">
+              <div key={chat.id} onClick={() => openChat(chat.id)} className="px-3 py-2.5 rounded-lg cursor-pointer text-sm text-gray-400 hover:bg-white/5 hover:text-gray-200 transition-colors">
                 {chat.title}
               </div>
             ))
