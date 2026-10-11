@@ -31,10 +31,7 @@ export default function AuthMethods({ onNotify }) {
 
   const load = async () => {
     try {
-      const token = localStorage.getItem("ai_token");
-      const r = await fetch(`${API_BASE}/auth/methods`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const r = await apiFetch(`${API_BASE}/auth/methods`);
       if (!r.ok) throw new Error("Не удалось загрузить способы входа");
       const d = await r.json();
       setMethods(d.methods || []);
@@ -52,10 +49,7 @@ export default function AuthMethods({ onNotify }) {
     setBusy("discord");
     setError(null);
     try {
-      const token = localStorage.getItem("ai_token");
-      const r = await fetch(`${API_BASE}/auth/discord/start?link=1`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const r = await apiFetch(`${API_BASE}/auth/discord/start?link=1`);
       const d = await r.json();
       if (!r.ok) throw new Error(d.detail || "Не удалось начать привязку");
       window.location.href = d.url;
@@ -69,11 +63,7 @@ export default function AuthMethods({ onNotify }) {
     setBusy(method);
     setError(null);
     try {
-      const token = localStorage.getItem("ai_token");
-      const r = await fetch(`${API_BASE}/auth/methods/${method}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const r = await apiFetch(`${API_BASE}/auth/methods/${method}`, { method: "DELETE" });
       const d = await r.json();
       if (!r.ok) throw new Error(d.detail || "Не удалось отвязать");
       await load();

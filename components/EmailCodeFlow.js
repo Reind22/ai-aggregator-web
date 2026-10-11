@@ -7,6 +7,7 @@
  *   mode="link"  — ввод почты → код → привязка к текущему аккаунту (onLinked)
  */
 import { useState } from "react";
+import { apiFetch } from "../lib/api";
 
 const API_BASE = "/api";
 
@@ -36,11 +37,18 @@ export default function EmailCodeFlow({ mode = "login", onAuthed, onLinked, onNo
     }
     setLoading(true);
     try {
-      const r = await fetch(`${API_BASE}/auth/email/send-code`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, purpose: mode }),
-      });
+      const req = mode === "link"
+        ? apiFetch(`${API_BASE}/auth/email/send-code`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, purpose: mode }),
+          })
+        : fetch(`${API_BASE}/auth/email/send-code`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, purpose: mode }),
+          });
+      const r = await req;
       const d = await r.json();
       if (!r.ok) throw new Error(d.detail || "Не удалось отправить код");
       setStage("code");
@@ -57,16 +65,24 @@ export default function EmailCodeFlow({ mode = "login", onAuthed, onLinked, onNo
     setError(null);
     setLoading(true);
     try {
-      const headers = { "Content-Type": "application/json" };
-      const token = localStorage.getItem("ai_token");
-      if (mode === "link" && token) headers["Authorization"] = `Bearer ${token}`;
-      const r = await fetch(`${API_BASE}/auth/email/verify`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({ email, code, purpose: mode }),
-      });
-      const d = await r.json();
-      if (!r.ok) throw new Error(d.detail || "Неверный код");
+      let d;
+      if (mode === "link") {
+        const r = await apiFetch(`${API_BASE}/auth/email/verify`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, code, purpose: mode }),
+        });
+        d = await r.json();
+        if (!r.ok) throw new Error(d.detail || "Неверный код");
+      } else {
+        const r = await fetch(`${API_BASE}/auth/email/verify`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, code, purpose: mode }),
+        });
+        d = await r.json();
+        if (!r.ok) throw new Error(d.detail || "Неверный код");
+      }
       if (mode === "login") {
         localStorage.setItem("ai_token", d.access_token);
         localStorage.setItem("ai_refresh_token", d.refresh_token);
