@@ -53,6 +53,17 @@ export default function ChatPage() {
     } catch (e) {}
   };
 
+  const openChat = async (id) => {
+    try {
+      const res = await apiFetch(`/chats/${id}/messages`);
+      if (!res.ok) return;
+      const msgs = await res.json();
+      setMessages(msgs.map((m) => ({ role: m.role, content: m.content })));
+      setIsTemp(false);
+      setSidebarOpen(window.innerWidth >= 768);
+    } catch (e) {}
+  };
+
   const sendMessage = async () => {
     if (!input.trim() || isGenerating) return;
     const text = input.trim();
