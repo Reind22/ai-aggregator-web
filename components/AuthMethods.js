@@ -32,7 +32,7 @@ export default function AuthMethods({ onNotify }) {
 
   const load = async () => {
     try {
-      const r = await apiFetch(`${API_BASE}/auth/methods`);
+      const r = await apiFetch(`/auth/methods`);
       if (!r.ok) throw new Error("Не удалось загрузить способы входа");
       const d = await r.json();
       setMethods(d.methods || []);
@@ -50,7 +50,7 @@ export default function AuthMethods({ onNotify }) {
     setBusy("discord");
     setError(null);
     try {
-      const r = await apiFetch(`${API_BASE}/auth/discord/start?link=1`);
+      const r = await apiFetch(`/auth/discord/start?link=1`);
       const d = await r.json();
       if (!r.ok) throw new Error(d.detail || "Не удалось начать привязку");
       window.location.href = d.url;
@@ -64,7 +64,7 @@ export default function AuthMethods({ onNotify }) {
     setBusy(method);
     setError(null);
     try {
-      const r = await apiFetch(`${API_BASE}/auth/methods/${method}`, { method: "DELETE" });
+      const r = await apiFetch(`/auth/methods/${method}`, { method: "DELETE" });
       const d = await r.json();
       if (!r.ok) throw new Error(d.detail || "Не удалось отвязать");
       await load();

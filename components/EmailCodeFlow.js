@@ -38,7 +38,7 @@ export default function EmailCodeFlow({ mode = "login", onAuthed, onLinked, onNo
     setLoading(true);
     try {
       const req = mode === "link"
-        ? apiFetch(`${API_BASE}/auth/email/send-code`, {
+        ? apiFetch(`/auth/email/send-code`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, purpose: mode }),
@@ -67,7 +67,7 @@ export default function EmailCodeFlow({ mode = "login", onAuthed, onLinked, onNo
     try {
       let d;
       if (mode === "link") {
-        const r = await apiFetch(`${API_BASE}/auth/email/verify`, {
+        const r = await apiFetch(`/auth/email/verify`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, code, purpose: mode }),
