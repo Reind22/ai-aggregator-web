@@ -11,6 +11,19 @@ import { apiFetch } from "../lib/api";
 
 const API_BASE = "/api";
 
+// detail из FastAPI бывает строкой, массивом объектов (422) или объектом — привожу к тексту
+function detailToText(detail, fallback) {
+  if (!detail) return fallback;
+  if (typeof detail === "string") return detail;
+  if (Array.isArray(detail)) {
+    const msgs = detail.map((x) => (typeof x === "string" ? x : x.msg || "")).filter(Boolean);
+    if (msgs.length) return msgs.join("; ");
+    return fallback;
+  }
+  if (typeof detail === "object") return detail.msg || detail.message || fallback;
+  return String(detail);
+}
+
 export default function EmailCodeFlow({ mode = "login", onAuthed, onLinked, onNotify }) {
   const [stage, setStage] = useState("email"); // email → code
   const [email, setEmail] = useState("");
@@ -50,7 +63,7 @@ export default function EmailCodeFlow({ mode = "login", onAuthed, onLinked, onNo
           });
       const r = await req;
       const d = await r.json();
-      if (!r.ok) throw new Error(d.detail || "Не удалось отправить код");
+      if (!r.ok) throw new Error(detailToText(d.detail, "Не удалось отправить код"));
       setStage("code");
       startResendTimer();
       onNotify && onNotify("Код отправлен на почту");
@@ -73,7 +86,7 @@ export default function EmailCodeFlow({ mode = "login", onAuthed, onLinked, onNo
           body: JSON.stringify({ email, code, purpose: mode }),
         });
         d = await r.json();
-        if (!r.ok) throw new Error(d.detail || "Неверный код");
+        if (!r.ok) throw new Error(detailToText(d.detail, "Неверный код"));
       } else {
         const r = await fetch(`${API_BASE}/auth/email/verify`, {
           method: "POST",
@@ -81,7 +94,7 @@ export default function EmailCodeFlow({ mode = "login", onAuthed, onLinked, onNo
           body: JSON.stringify({ email, code, purpose: mode }),
         });
         d = await r.json();
-        if (!r.ok) throw new Error(d.detail || "Неверный код");
+        if (!r.ok) throw new Error(detailToText(d.detail, "Неверный код"));
       }
       if (mode === "login") {
         localStorage.setItem("ai_token", d.access_token);
