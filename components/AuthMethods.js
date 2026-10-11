@@ -162,6 +162,17 @@ export default function AuthMethods({ onNotify }) {
       {error && (
         <div className="mt-3 bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3 text-red-300 text-xs leading-relaxed">
           {error}
+          {error.includes("вход") || error.includes("401") ? (
+            <button
+              onClick={() => {
+                localStorage.clear();
+                window.location.href = "/login";
+              }}
+              className="ml-2 underline text-white hover:text-[#00FF00]"
+            >
+              Войти заново
+            </button>
+          ) : null}
         </div>
       )}
     </div>
