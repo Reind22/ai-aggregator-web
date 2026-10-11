@@ -7,6 +7,7 @@
  */
 import { useState, useEffect } from "react";
 import EmailCodeFlow from "./EmailCodeFlow";
+import { apiFetch } from "../lib/api";
 
 const API_BASE = "/api";
 
