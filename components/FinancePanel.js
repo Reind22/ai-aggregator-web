@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { apiFetch } from "../lib/api";
 import { BarChart, PieChart, LineChart } from "./Charts";
 
-const fmt$ = (cents) => `$${(cents / 100).toFixed(4)}`;
+const fmt$ = (cents) => `$${(cents / 100).toFixed(5)}`;
 const fmt2$ = (cents) => `$${(cents / 100).toFixed(2)}`;
 
 export default function FinancePanel({ profile }) {
