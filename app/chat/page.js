@@ -19,6 +19,8 @@ export default function ChatPage() {
   const [currentChatId, setCurrentChatId] = useState(null);
   const [chatsHasMore, setChatsHasMore] = useState(false);
   const [chatsLoading, setChatsLoading] = useState(false);
+  const [headerVisible, setHeaderVisible] = useState(true);
+  const lastScrollY = useRef(0);
   const [token, setToken] = useState(null);
   const [balance, setBalance] = useState(null);
   const [error, setError] = useState(null);
@@ -192,6 +194,16 @@ export default function ChatPage() {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
   };
 
+  // Мобильный UX: шапка прячется при скролле вниз, мгновенно появляется при скролле вверх
+  const handleMessagesScroll = (e) => {
+    const y = e.target.scrollTop;
+    const delta = y - lastScrollY.current;
+    if (y < 40) setHeaderVisible(true);
+    else if (delta > 8) setHeaderVisible(false);
+    else if (delta < -8) setHeaderVisible(true);
+    lastScrollY.current = y;
+  };
+
   const newChat = () => { setMessages([]); setIsTemp(false); setCurrentChatId(null); };
   const tempChat = () => { setMessages([]); setIsTemp(true); };
 
@@ -261,7 +273,9 @@ export default function ChatPage() {
 
       {/* Main */}
       <div className="flex-1 flex flex-col">
-        <div className="border-b border-white/[0.06] bg-[#0d0d14] px-4 py-3 flex items-center justify-between">
+        <div
+          className={`border-b border-white/[0.06] bg-[#0d0d14] px-4 py-3 flex items-center justify-between sticky top-0 z-30 transition-transform duration-200 ${headerVisible ? "translate-y-0" : "-translate-y-full"}`}
+        >
           <div className="flex items-center gap-1">
             <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-gray-400 hover:text-white transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center flex-shrink-0" aria-label="Меню">
               <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -286,7 +300,7 @@ export default function ChatPage() {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-4 py-6">
+        <div className="flex-1 overflow-y-auto px-4 py-6 overscroll-contain" onScroll={handleMessagesScroll}>
           <div className="max-w-3xl mx-auto space-y-4">
             {messages.length === 0 && (
               <div className="text-center flex flex-col items-center justify-center" style={{ minHeight: "60vh" }}>
