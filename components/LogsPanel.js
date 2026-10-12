@@ -6,7 +6,7 @@
 import { useEffect, useState } from "react";
 import { apiFetch } from "../lib/api";
 
-const fmt$ = (mc) => `$${(mc / 100000).toFixed(5)}`;
+const fmt$ = (usd) => `$${Number(usd).toFixed(5)}`;
 const fmtDate = (iso) => new Date(iso).toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
 
 export default function LogsPanel({ onNotify }) {

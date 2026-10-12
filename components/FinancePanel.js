@@ -7,8 +7,8 @@ import { useEffect, useState } from "react";
 import { apiFetch } from "../lib/api";
 import { BarChart, PieChart, LineChart } from "./Charts";
 
-const fmt$ = (mc) => `$${(mc / 100000).toFixed(5)}`;
-const fmt2$ = (cents) => `$${(cents / 100).toFixed(2)}`;
+const fmt$ = (usd) => `$${Number(usd).toFixed(5)}`;
+const fmt2$ = (usd) => `$${Number(usd).toFixed(2)}`;
 
 export default function FinancePanel({ profile }) {
   const [data, setData] = useState(null);
@@ -26,7 +26,7 @@ export default function FinancePanel({ profile }) {
 
   if (!data) return <p className="text-gray-500 text-sm py-8 text-center">Загрузка…</p>;
 
-  const models = [...data.by_model].sort((a, b) => b.cost_millicents - a.cost_millicents);
+  const models = [...data.by_model].sort((a, b) => b.cost_usd - a.cost_usd);
   const byDay = data.by_day;
   const tokensTotal = data.total_input_tokens + data.total_output_tokens;
 
@@ -38,12 +38,12 @@ export default function FinancePanel({ profile }) {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
         <div className="border border-white/10 rounded-xl p-3">
           <div className="text-xs text-gray-500">Баланс</div>
-          <div className="text-xl font-bold text-[#00FF00]">{fmt2$(data.balance_cents)}</div>
+          <div className="text-xl font-bold text-[#00FF00]">{fmt2$(data.balance_usd)}</div>
           <div className="text-[10px] text-gray-500">тариф {data.tier}</div>
         </div>
         <div className="border border-white/10 rounded-xl p-3">
           <div className="text-xs text-gray-500">Расход за {days} дн.</div>
-          <div className="text-xl font-bold">{fmt$(data.total_cost_millicents)}</div>
+          <div className="text-xl font-bold">{fmt$(data.total_cost_usd)}</div>
         </div>
         <div className="border border-white/10 rounded-xl p-3">
           <div className="text-xs text-gray-500">Токены за {days} дн.</div>
@@ -55,7 +55,7 @@ export default function FinancePanel({ profile }) {
         <div className="border border-white/10 rounded-xl p-3">
           <div className="text-xs text-gray-500">Средний запрос</div>
           <div className="text-xl font-bold">
-            {fmt$(byDay.length ? Math.round(data.total_cost_millicents / Math.max(1, byDay.reduce((s, d) => s + (d.input_tokens + d.output_tokens > 0 ? 1 : 0), 0))) : 0)}
+            {fmt$(byDay.length ? Math.round(data.total_cost_usd / Math.max(1, byDay.reduce((s, d) => s + (d.input_tokens + d.output_tokens > 0 ? 1 : 0), 0))) : 0)}
           </div>
         </div>
       </div>
@@ -79,7 +79,7 @@ export default function FinancePanel({ profile }) {
         {/* Расход по моделям — круговая */}
         <div className="border border-white/10 rounded-xl p-4">
           <h3 className="text-sm font-medium mb-3">Расход по моделям</h3>
-          <PieChart data={models} valueKey="cost_millicents" nameKey="model" />
+          <PieChart data={models} valueKey="cost_usd" nameKey="model" />
         </div>
 
         {/* Расход по дням — столбики/линия */}
@@ -104,9 +104,9 @@ export default function FinancePanel({ profile }) {
             </div>
           </div>
           {mode === "bar" ? (
-            <BarChart data={byDay} valueKey="cost_millicents" label="$ в день" />
+            <BarChart data={byDay} valueKey="cost_usd" label="$ в день" />
           ) : (
-            <LineChart data={byDay} valueKey="cost_millicents" label="$ в день" />
+            <LineChart data={byDay} valueKey="cost_usd" label="$ в день" />
           )}
         </div>
       </div>

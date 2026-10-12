@@ -138,8 +138,8 @@ export default function ChatPage() {
             }
             if (ev.chat_id) setCurrentChatId(ev.chat_id);
             if (ev.usage) {
-              // финальные цифры: input/output/cost_cents
-              if (typeof ev.usage.cost_cents === "number") setBalance((b) => b);
+              // финальные цифры: input/output/cost_usd
+              if (typeof ev.usage.cost_usd === "number") setBalance((b) => b);
             }
             if (ev.done) finished = true;
           } catch (_) {}
