@@ -22,6 +22,7 @@ export default function ChatPage() {
   const [headerVisible, setHeaderVisible] = useState(true);
   const lastScrollY = useRef(0);
   const autoScrolling = useRef(false);
+  const followStream = useRef(true);
   const [token, setToken] = useState(null);
   const [balance, setBalance] = useState(null);
   const [error, setError] = useState(null);
@@ -56,13 +57,14 @@ export default function ChatPage() {
   }, []);
 
   useEffect(() => {
+    // Автоскролл только к ОТПРАВЛЕННОМУ юзером сообщению (один раз, до начала стрима).
+    // Во время стрима не дёргаем скролл — иначе гонка с ручным скроллом ломает видимость шапки.
     if (!messages.length) return;
     const last = messages[messages.length - 1];
-    // Автоскролл к новому сообщению не трогает видимость шапки (последний кусок стрима = тоже сообщение)
-    if (last.role === "user" || last.role === "assistant") {
+    if (last.role === "user") {
       autoScrolling.current = true;
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-      setTimeout(() => { autoScrolling.current = false; }, 700);
+      setTimeout(() => { autoScrolling.current = false; }, 800);
     }
   }, [messages]);
 
@@ -112,6 +114,7 @@ export default function ChatPage() {
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setIsGenerating(true);
+    followStream.current = true;  // новый вопрос — возвращаемся в follow-режим
     setError(null);
 
     try {
@@ -157,6 +160,13 @@ export default function ChatPage() {
             : prev;
           return [...base, { role: "assistant", content: piece }];
         });
+        // Follow-режим: мгновенно к низу (без smooth — не мешает шапке)
+        if (followStream.current && messagesEndRef.current) {
+          autoScrolling.current = true;
+          messagesEndRef.current.scrollIntoView({ behavior: "instant" });
+          lastScrollY.current = messagesEndRef.current.parentElement?.scrollTop ?? 0;
+          requestAnimationFrame(() => { autoScrolling.current = false; });
+        }
       };
 
       while (true) {
@@ -204,12 +214,10 @@ export default function ChatPage() {
 
   // Мобильный UX: шапка прячется при скролле вниз, мгновенно появляется при скролле вверх
   const handleMessagesScroll = (e) => {
-    if (autoScrolling.current) {
-      lastScrollY.current = e.target.scrollTop;
-      return;
-    }
     const y = e.target.scrollTop;
     const delta = y - lastScrollY.current;
+    // Юзер скроллит вверх во время стрима — выключаем follow (не тащим его вниз)
+    if (delta < -8) followStream.current = false;
     if (y < 40) setHeaderVisible(true);
     else if (delta > 8) setHeaderVisible(false);
     else if (delta < -8) setHeaderVisible(true);
