@@ -23,10 +23,17 @@ export default function ChatPage() {
   const messagesEndRef = useRef(null);
 
   const models = [
-    { id: "glm-5.3-flash", name: "GLM 5.3 Flash", tier: "Free" },
-    { id: "glm-5.3-flashx", name: "GLM 5.3 FlashX", tier: "Basic" },
-    { id: "glm-5.2", name: "GLM 5.2", tier: "Pro" },
-    { id: "glm-5.3", name: "GLM 5.3", tier: "Ultra" },
+    { id: "glm-5.3-flash", name: "GLM 5.3 Flash" },
+    { id: "glm-5.3-flashx", name: "GLM 5.3 FlashX" },
+    { id: "glm-5.2", name: "GLM 5.2" },
+    { id: "glm-5.3", name: "GLM 5.3" },
+    { id: "glm-5.1", name: "GLM 5.1" },
+    { id: "mimo-v2.6-flash", name: "MiMo v2.6 Flash" },
+    { id: "mimo-v2.6-pro", name: "MiMo v2.6 Pro" },
+    { id: "mimo-v2.5-pro", name: "MiMo v2.5 Pro" },
+    { id: "mimo-v2.5", name: "MiMo v2.5" },
+    { id: "deepseek-flash", name: "DeepSeek Flash" },
+    { id: "deepseek-v4-pro", name: "DeepSeek V4 Pro" },
   ];
 
   useEffect(() => {
@@ -241,7 +248,7 @@ export default function ChatPage() {
             <LanguageMenu compact />
             <select value={model} onChange={(e) => setModel(e.target.value)}
               className="bg-[#0d0d14] border border-white/10 rounded-lg px-2 sm:px-3 py-1.5 text-xs sm:text-sm text-gray-200 outline-none focus:border-[#00CC00] transition-colors max-w-[140px] sm:max-w-none">
-              {models.map((m) => (<option key={m.id} value={m.id}>{m.name} ({m.tier})</option>))}
+              {models.map((m) => (<option key={m.id} value={m.id}>{m.name}</option>))}
             </select>
           </div>
         </div>
