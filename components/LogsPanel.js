@@ -6,7 +6,7 @@
 import { useEffect, useState } from "react";
 import { apiFetch } from "../lib/api";
 
-const fmt$ = (usd) => `$${Number(usd).toFixed(5)}`;
+const fmt$ = (usd) => `$${Number(usd ?? 0).toFixed(5)}`;
 const fmtDate = (iso) => new Date(iso).toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
 
 export default function LogsPanel({ onNotify }) {
@@ -62,7 +62,7 @@ export default function LogsPanel({ onNotify }) {
                   <td className="py-2 px-2 text-right text-gray-300">{l.input_tokens.toLocaleString("ru-RU")}</td>
                   <td className="py-2 px-2 text-right text-gray-300">{l.output_tokens.toLocaleString("ru-RU")}</td>
                   <td className="py-2 px-2 text-right text-gray-500">{l.cached_tokens ? l.cached_tokens.toLocaleString("ru-RU") : "—"}</td>
-                  <td className="py-2 px-2 text-right text-[#00CC00]">{fmt$(l.cost_millicents)}</td>
+                  <td className="py-2 px-2 text-right text-[#00CC00]">{fmt$(l.cost_usd)}</td>
                 </tr>
               ))}
             </tbody>

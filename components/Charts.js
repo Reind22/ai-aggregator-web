@@ -8,9 +8,9 @@
 
 import { useState } from "react";
 
-const fmt$ = (cents) => `$${(cents / 100).toFixed(5)}`;
+const fmt$ = (usd) => `$${Number(usd ?? 0).toFixed(5)}`;
 const compact = (v) =>
-  new Intl.NumberFormat("ru-RU", { notation: "compact", maximumFractionDigits: 1 }).format(v);
+  new Intl.NumberFormat("ru-RU", { notation: "compact", maximumFractionDigits: 1 }).format(Number(v ?? 0));
 
 // Подписи Y-шкалы: max, середина, 0
 const ticks = (max, fmt) => {
@@ -53,7 +53,7 @@ export function BarChart({ data, valueKey, label = "", format = fmt$, height = 1
   return (
     <div>
       <div className="flex gap-1.5">
-        <Scale max={max} fmt={format === fmt$ ? (v) => "$" + (v / 100).toFixed(2) : compact} height={height} />
+        <Scale max={max} fmt={format === fmt$ ? (v) => "$" + Number(v ?? 0).toFixed(2) : compact} height={height} />
         <div className="flex-1 min-w-0">
           <svg viewBox={`0 0 100 ${H}`} preserveAspectRatio="none" className="w-full" style={{ height }}>
             {data.map((d, i) => {
