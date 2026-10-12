@@ -7,6 +7,9 @@
  */
 import { useState } from "react";
 import AuthMethods from "./AuthMethods";
+import LogsPanel from "./LogsPanel";
+import FinancePanel from "./FinancePanel";
+import RefPanel from "./RefPanel";
 import Sessions from "./Sessions";
 
 const TIER_LABELS = { free: "Free", basic: "Basic", pro: "Pro", ultra: "Ultra" };
@@ -16,6 +19,8 @@ const TABS = [
   { id: "security", label: "Безопасность" },
   { id: "keys", label: "API-ключи" },
   { id: "ref", label: "Рефералы" },
+  { id: "logs", label: "Логи" },
+  { id: "finance", label: "Финансы" },
 ];
 
 export default function ProfileTabs({ profile, notify, logout, logoutAllDevices, children }) {
@@ -86,7 +91,9 @@ export default function ProfileTabs({ profile, notify, logout, logoutAllDevices,
         {tab === "overview" && <OverviewTab profile={profile} />}
         {tab === "security" && <SecurityTab notify={notify} />}
         {tab === "keys" && <KeysTab stats={profile.stats} />}
-        {tab === "ref" && <RefTab profile={profile} />}
+        {tab === "ref" && <RefPanel profile={profile} onNotify={notify} />}
+        {tab === "logs" && <LogsPanel onNotify={notify} />}
+        {tab === "finance" && <FinancePanel profile={profile} />}
       </div>
     </div>
   );
