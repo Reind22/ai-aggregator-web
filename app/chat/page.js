@@ -76,25 +76,80 @@ export default function ChatPage() {
     setError(null);
 
     try {
-      const res = await apiFetch("/chats/send", {
+      // Стриминг через SSE: ответ появляется по мере генерации
+      const res = await fetch(`${API_BASE}/chats/send/stream`, {
         method: "POST",
-        auth: !!token,
-        body: { message: text, model, chat_id: currentChatId, is_temp: isTemp },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ message: text, model, chat_id: currentChatId, is_temp: isTemp }),
       });
-      const data = await res.json();
-      const answer = data.response ?? data.content;
-      if (res.ok && answer) {
-        setMessages((prev) => [...prev, { role: "assistant", content: answer }]);
-        if (data.remaining_balance_cents !== undefined) setBalance(data.remaining_balance_cents / 100);
-        if (data.chat_id) setCurrentChatId(data.chat_id);  // фиксирую чат для продолжения
-        loadChats();  // новый чат появился в истории
-      } else {
-        const detail = data.detail || "Ошибка сервера";
+
+      if (!res.ok || !res.body) {
+        // Ошибка может быть JSON или plain text
+        let detail = "Ошибка сервера";
+        try {
+          const j = await res.json();
+          detail = j.detail || detail;
+        } catch (_) {
+          const t = await res.text();
+          if (t) detail = "Сервер недоступен";
+        }
         setError(detail);
         setMessages((prev) => [...prev, {
           role: "assistant",
-          content: `⚠️ ${detail}\n\nAI-ответы появятся после подключения API-ключей модели.`,
+          content: `⚠️ ${detail}`,
         }]);
+        return;
+      }
+
+      // Читаем SSE-поток
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let assistantText = "";
+      let finished = false;
+
+      const appendAssistant = (piece) => {
+        setMessages((prev) => {
+          const base = prev[prev.length - 1]?.role === "assistant" && !finished
+            ? prev.slice(0, -1)
+            : prev;
+          return [...base, { role: "assistant", content: piece }];
+        });
+      };
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop();  // незавершённая строка — в следующий чанк
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          const payload = line.slice(6);
+          if (payload === "[DONE]") continue;
+          try {
+            const ev = JSON.parse(payload);
+            if (ev.text) {
+              assistantText += ev.text;
+              appendAssistant(assistantText);
+            }
+            if (ev.chat_id) setCurrentChatId(ev.chat_id);
+            if (ev.usage) {
+              // финальные цифры: input/output/cost_cents
+              if (typeof ev.usage.cost_cents === "number") setBalance((b) => b);
+            }
+            if (ev.done) finished = true;
+          } catch (_) {}
+        }
+      }
+
+      if (assistantText) {
+        loadChats();  // чат появился/обновился в истории
+      } else if (!finished) {
+        setMessages((prev) => [...prev, { role: "assistant", content: "⚠️ Пустой ответ сервера" }]);
       }
     } catch (e) {
       setError(String(e));
