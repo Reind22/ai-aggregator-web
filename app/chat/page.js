@@ -20,11 +20,6 @@ export default function ChatPage() {
   const [chatsHasMore, setChatsHasMore] = useState(false);
   const [chatsLoading, setChatsLoading] = useState(false);
   const [headerVisible, setHeaderVisible] = useState(true);
-  const lastScrollY = useRef(0);
-  const autoScrolling = useRef(false);
-  const headerRef = useRef(null);
-  const [headerH, setHeaderH] = useState(56);
-  const followStream = useRef(true);
   const [token, setToken] = useState(null);
   const [balance, setBalance] = useState(null);
   const [error, setError] = useState(null);
@@ -45,10 +40,7 @@ export default function ChatPage() {
   ];
 
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-      if (headerRef.current) setHeaderH(headerRef.current.offsetHeight);
-    };
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
     window.addEventListener("resize", checkMobile);
     const saved = localStorage.getItem("ai_token");
@@ -61,17 +53,13 @@ export default function ChatPage() {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
+  // Автоскролл к отправленному сообщению
   useEffect(() => {
-    // Автоскролл только к ОТПРАВЛЕННОМУ юзером сообщению (один раз, до начала стрима).
-    // Во время стрима не дёргаем скролл — иначе гонка с ручным скроллом ломает видимость шапки.
-    if (!messages.length) return;
     const last = messages[messages.length - 1];
-    if (last.role === "user") {
-      autoScrolling.current = true;
+    if (last && last.role === "user") {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-      setTimeout(() => { autoScrolling.current = false; }, 800);
     }
-  }, [messages]);
+  }, [messages.length]);
 
   const loadChats = async () => {
     try {
@@ -119,7 +107,6 @@ export default function ChatPage() {
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setIsGenerating(true);
-    followStream.current = true;  // новый вопрос — возвращаемся в follow-режим
     setError(null);
 
     try {
@@ -165,13 +152,6 @@ export default function ChatPage() {
             : prev;
           return [...base, { role: "assistant", content: piece }];
         });
-        // Follow-режим: мгновенно к низу (без smooth — не мешает шапке)
-        if (followStream.current && messagesEndRef.current) {
-          autoScrolling.current = true;
-          messagesEndRef.current.scrollIntoView({ behavior: "instant" });
-          lastScrollY.current = messagesEndRef.current.parentElement?.scrollTop ?? 0;
-          requestAnimationFrame(() => { autoScrolling.current = false; });
-        }
       };
 
       while (true) {
@@ -217,15 +197,14 @@ export default function ChatPage() {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
   };
 
-  // Мобильный UX: шапка прячется при скролле вниз, мгновенно появляется при скролле вверх
+  // Шапка: показывается при скролле вверх, прячется при скролле вниз (мобильный UX)
+  const lastScrollY = useRef(0);
   const handleMessagesScroll = (e) => {
     const y = e.target.scrollTop;
     const delta = y - lastScrollY.current;
-    // Юзер скроллит вверх во время стрима — выключаем follow (не тащим его вниз)
-    if (delta < -8) followStream.current = false;
-    if (y < 40) setHeaderVisible(true);
-    else if (delta > 8) setHeaderVisible(false);
-    else if (delta < -8) setHeaderVisible(true);
+    if (y < 40) setHeaderVisible(true);        // у верха — всегда показываем
+    else if (delta > 6) setHeaderVisible(false);  // тянем вниз — прячем
+    else if (delta < -6) setHeaderVisible(true);  // тянем вверх — показываем
     lastScrollY.current = y;
   };
 
@@ -299,9 +278,7 @@ export default function ChatPage() {
       {/* Main */}
       <div className="flex-1 flex flex-col">
         <div
-          ref={headerRef}
-          className={`border-b border-white/[0.06] bg-[#0d0d14] px-4 py-3 flex items-center justify-between z-30 transition-[margin] duration-200 overflow-hidden flex-shrink-0`}
-          style={{ marginTop: headerVisible ? 0 : -headerH }}
+          className={`border-b border-white/[0.06] bg-[#0d0d14] px-4 py-3 flex items-center justify-between overflow-hidden transition-all duration-200 ${headerVisible ? "max-h-20 opacity-100" : "max-h-0 opacity-0"}`}
         >
           <div className="flex items-center gap-1">
             <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-gray-400 hover:text-white transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center flex-shrink-0" aria-label="Меню">
