@@ -22,6 +22,8 @@ export default function ChatPage() {
   const [headerVisible, setHeaderVisible] = useState(true);
   const lastScrollY = useRef(0);
   const autoScrolling = useRef(false);
+  const headerRef = useRef(null);
+  const [headerH, setHeaderH] = useState(56);
   const followStream = useRef(true);
   const [token, setToken] = useState(null);
   const [balance, setBalance] = useState(null);
@@ -43,7 +45,10 @@ export default function ChatPage() {
   ];
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+      if (headerRef.current) setHeaderH(headerRef.current.offsetHeight);
+    };
     checkMobile();
     window.addEventListener("resize", checkMobile);
     const saved = localStorage.getItem("ai_token");
@@ -294,7 +299,9 @@ export default function ChatPage() {
       {/* Main */}
       <div className="flex-1 flex flex-col">
         <div
-          className={`border-b border-white/[0.06] bg-[#0d0d14] px-4 py-3 flex items-center justify-between sticky top-0 z-30 transition-transform duration-200 ${headerVisible ? "translate-y-0" : "-translate-y-full"}`}
+          ref={headerRef}
+          className={`border-b border-white/[0.06] bg-[#0d0d14] px-4 py-3 flex items-center justify-between z-30 transition-[margin] duration-200 overflow-hidden flex-shrink-0`}
+          style={{ marginTop: headerVisible ? 0 : -headerH }}
         >
           <div className="flex items-center gap-1">
             <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-gray-400 hover:text-white transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center flex-shrink-0" aria-label="Меню">
