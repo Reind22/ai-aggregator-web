@@ -17,6 +17,8 @@ export default function ChatPage() {
   const [isTemp, setIsTemp] = useState(false);
   const [chats, setChats] = useState([]);
   const [currentChatId, setCurrentChatId] = useState(null);
+  const [chatsHasMore, setChatsHasMore] = useState(false);
+  const [chatsLoading, setChatsLoading] = useState(false);
   const [token, setToken] = useState(null);
   const [balance, setBalance] = useState(null);
   const [error, setError] = useState(null);
@@ -54,11 +56,31 @@ export default function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const loadChats = async (t) => {
+  const loadChats = async () => {
     try {
-      const res = await apiFetch("/chats/");
-      if (res.ok) setChats(await res.json());
+      setChatsLoading(true);
+      const res = await apiFetch("/chats/?limit=30");
+      if (res.ok) {
+        const data = await res.json();
+        setChats(data.chats || []);
+        setChatsHasMore(!!data.has_more);
+      }
     } catch (e) {}
+    finally { setChatsLoading(false); }
+  };
+
+  const loadMoreChats = async () => {
+    if (chatsLoading || !chatsHasMore) return;
+    try {
+      setChatsLoading(true);
+      const res = await apiFetch(`/chats/?limit=30&offset=${chats.length}`);
+      if (res.ok) {
+        const data = await res.json();
+        setChats((prev) => [...prev, ...(data.chats || [])]);
+        setChatsHasMore(!!data.has_more);
+      }
+    } catch (e) {}
+    finally { setChatsLoading(false); }
   };
 
   const openChat = async (id) => {
@@ -208,11 +230,22 @@ export default function ChatPage() {
           {chats.length === 0 ? (
             <div className="px-3 py-2 text-xs text-ink-mute">История пуста</div>
           ) : (
-            chats.map((chat) => (
+            <>
+            {chats.map((chat) => (
               <div key={chat.id} onClick={() => openChat(chat.id)} className="px-3 py-2.5 rounded-lg cursor-pointer text-sm text-gray-400 hover:bg-white/5 hover:text-gray-200 transition-colors">
                 {chat.title}
               </div>
-            ))
+            ))}
+            {chatsHasMore && (
+              <button
+                onClick={loadMoreChats}
+                disabled={chatsLoading}
+                className="w-full mt-1 mb-2 px-3 py-2 text-xs text-[#00CC00] hover:bg-white/5 rounded-lg transition-colors disabled:opacity-40"
+              >
+                {chatsLoading ? "Загрузка…" : "Загрузить ещё"}
+              </button>
+            )}
+            </>
           )}
         </div>
         <div className="p-4 border-t border-white/[0.06]">
