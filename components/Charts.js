@@ -53,7 +53,7 @@ export function BarChart({ data, valueKey, label = "", format = fmt$, height = 1
   return (
     <div>
       <div className="flex gap-1.5">
-        <Scale max={max} fmt={format === fmt$ ? fmt$ : compact} height={height} />
+        <Scale max={max} fmt={format === fmt$ ? (v) => "$" + (v / 100).toFixed(2) : compact} height={height} />
         <div className="flex-1 min-w-0">
           <svg viewBox={`0 0 100 ${H}`} preserveAspectRatio="none" className="w-full" style={{ height }}>
             {data.map((d, i) => {
@@ -67,7 +67,7 @@ export function BarChart({ data, valueKey, label = "", format = fmt$, height = 1
                   width={w * 0.7}
                   height={h}
                   rx="0.6"
-                  className={`transition-colors cursor-pointer ${isSel ? "fill-[#00FF00]" : "fill-[#00CC00] hover:fill-[#00FF00]"}`}
+                  className={`transition-all cursor-pointer ${isSel ? "fill-[#7CFF7C] stroke-[#FFFFFF] stroke-[0.4]" : "fill-[#00CC00] hover:fill-[#00FF00]"}`}
                   onClick={() => setSel(isSel ? null : i)}
                 >
                   <title>{`${d.date}: ${format(d[valueKey])}`}</title>
