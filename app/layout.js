@@ -1,5 +1,12 @@
 import "./globals.css";
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  interactiveWidget: "resizes-content",
+};
+
 export const metadata = {
   title: "AI Combiner — нейросети в Telegram, Discord и браузере",
   description:

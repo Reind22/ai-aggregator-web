@@ -212,7 +212,7 @@ export default function ChatPage() {
   const tempChat = () => { setMessages([]); setIsTemp(true); };
 
   return (
-    <div className="flex h-screen bg-surface-dark overflow-hidden">
+    <div className="flex h-screen bg-surface-dark overflow-hidden" style={{ height: "100dvh" }}>
       {/* Sidebar — белый */}
       {/* Overlay для мобилы */}
       {sidebarOpen && isMobile && (
