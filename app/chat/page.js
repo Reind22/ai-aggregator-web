@@ -21,6 +21,7 @@ export default function ChatPage() {
   const [chatsLoading, setChatsLoading] = useState(false);
   const [headerVisible, setHeaderVisible] = useState(true);
   const lastScrollY = useRef(0);
+  const autoScrolling = useRef(false);
   const [token, setToken] = useState(null);
   const [balance, setBalance] = useState(null);
   const [error, setError] = useState(null);
@@ -55,7 +56,14 @@ export default function ChatPage() {
   }, []);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (!messages.length) return;
+    const last = messages[messages.length - 1];
+    // Автоскролл к новому сообщению не трогает видимость шапки (последний кусок стрима = тоже сообщение)
+    if (last.role === "user" || last.role === "assistant") {
+      autoScrolling.current = true;
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      setTimeout(() => { autoScrolling.current = false; }, 700);
+    }
   }, [messages]);
 
   const loadChats = async () => {
@@ -196,6 +204,10 @@ export default function ChatPage() {
 
   // Мобильный UX: шапка прячется при скролле вниз, мгновенно появляется при скролле вверх
   const handleMessagesScroll = (e) => {
+    if (autoScrolling.current) {
+      lastScrollY.current = e.target.scrollTop;
+      return;
+    }
     const y = e.target.scrollTop;
     const delta = y - lastScrollY.current;
     if (y < 40) setHeaderVisible(true);
