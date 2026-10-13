@@ -234,6 +234,13 @@ export default function ChatPage() {
               <Logo size={24} />
               <span className="font-extrabold text-sm text-white">AI Combiner</span>
             </a>
+            {!isMobile && (
+              <button onClick={() => setSidebarOpen(false)} className="text-gray-500 hover:text-white transition-colors min-w-[36px] min-h-[36px] flex items-center justify-center" aria-label="Свернуть панель" title="Свернуть панель">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                </svg>
+              </button>
+            )}
             {isMobile && (
               <button onClick={() => setSidebarOpen(false)} className="text-gray-500 hover:text-white p-1.5 min-w-[36px] min-h-[36px] flex items-center justify-center" aria-label="Закрыть меню">
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -298,17 +305,19 @@ export default function ChatPage() {
       {/* Main */}
       <div className="flex-1 flex flex-col">
         <div
-          className={`border-b border-white/[0.06] bg-[#0d0d14] px-4 py-3 flex items-center justify-between overflow-hidden transition-all duration-200 ${headerVisible ? "max-h-20 opacity-100" : "max-h-0 opacity-0"}`}
+          className={`border-b border-white/[0.06] bg-[#0d0d14] px-4 flex items-center justify-between overflow-hidden transition-all duration-200 ${headerVisible ? "max-h-20 opacity-100 py-3" : "max-h-0 opacity-0 py-0"}`}
         >
+          {/* Мобайл: бургер открывает панель; десктоп: панель открыта постоянно, бургер в шапке не нужен */}
           <div className="flex items-center gap-1">
-            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-gray-400 hover:text-white transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center flex-shrink-0" aria-label="Меню">
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-            {/* Лого видно всегда (когда сайдбар закрыт) — быстрый выход на главную */}
+            {isMobile && !sidebarOpen && (
+              <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-gray-400 hover:text-white transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center flex-shrink-0" aria-label="Меню">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+            )}
             {(!sidebarOpen || isMobile) && (
-              <a href="/" className="flex items-center gap-2 px-2 min-h-[44px] ml-1 border-l border-white/[0.08] pl-3" title="На главную">
+              <a href="/" className="flex items-center gap-2 px-2 min-h-[44px] border-l border-white/[0.08] pl-3" title="На главную">
                 <Logo size={24} />
                 <span className="font-extrabold text-sm text-white hidden sm:inline">AI Combiner</span>
               </a>
@@ -380,9 +389,11 @@ export default function ChatPage() {
                 e.target.value = "";
               }} />
             <button onClick={() => fileInputRef.current?.click()} disabled={isGenerating}
-              className="border border-white/10 hover:border-[#00CC00]/50 rounded-xl px-3 text-gray-400 hover:text-white transition-colors disabled:opacity-40"
+              className="border border-white/10 hover:border-[#00CC00]/50 rounded-xl px-3 text-gray-400 hover:text-white transition-colors disabled:opacity-40 flex items-center justify-center min-h-[48px]"
               title="Прикрепить текстовый файл (до 64 КБ)" aria-label="Прикрепить файл">
-              📎
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48" />
+              </svg>
             </button>
             <textarea value={input} onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
