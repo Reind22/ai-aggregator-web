@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 
 // Языки интерфейса
 const LANGS = [
@@ -12,6 +13,11 @@ export default function LanguageMenu({ compact = false }) {
   const [open, setOpen] = useState(false);
   const [lang, setLang] = useState("ru");
   const ref = useRef(null);
+  const btnRef = useRef(null);
+  const [pos, setPos] = useState(null); // {top, right} для fixed-портала
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
     const saved = localStorage.getItem("ai_lang") || "ru";
@@ -35,10 +41,19 @@ export default function LanguageMenu({ compact = false }) {
 
   const current = LANGS.find((l) => l.code === lang);
 
+  const toggle = () => {
+    if (!open && btnRef.current) {
+      const r = btnRef.current.getBoundingClientRect();
+      setPos({ top: r.bottom + 4, right: window.innerWidth - r.right });
+    }
+    setOpen(!open);
+  };
+
   return (
     <div className="relative" ref={ref}>
       <button
-        onClick={() => setOpen(!open)}
+        ref={btnRef}
+        onClick={toggle}
         className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-white transition-colors px-2.5 py-2 min-h-[44px] rounded-lg hover:bg-white/5"
         aria-label="Выбор языка"
       >
@@ -49,8 +64,11 @@ export default function LanguageMenu({ compact = false }) {
         </svg>
       </button>
 
-      {open && (
-        <div className="absolute right-0 top-full mt-1 bg-[#0d0d14] border border-white/10 rounded-xl shadow-xl overflow-hidden min-w-[140px] z-50">
+      {open && mounted && pos && createPortal(
+        <div
+          style={{ position: "fixed", top: pos.top, right: pos.right }}
+          className="bg-[#0d0d14] border border-white/10 rounded-xl shadow-xl overflow-hidden min-w-[140px] z-[100]"
+        >
           {LANGS.map((l) => (
             <button
               key={l.code}
@@ -70,7 +88,8 @@ export default function LanguageMenu({ compact = false }) {
               )}
             </button>
           ))}
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
