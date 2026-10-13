@@ -3,6 +3,7 @@
 /**
  * Страница /pricing — публичный прайс-лист всех моделей.
  * Наша цена = рынок −10% (кроме помеченных). Вход/выход за 1M токенов.
+ * Мобильные: карточки; десктоп: таблица.
  */
 import { useEffect, useState } from "react";
 import Logo from "../../components/Logo";
@@ -11,8 +12,10 @@ import AuthButtons from "../../components/AuthButtons";
 export default function PricingPage() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
+    setLoggedIn(!!localStorage.getItem("ai_token"));
     (async () => {
       try {
         const res = await fetch("/api/dashboard/pricing");
@@ -46,39 +49,79 @@ export default function PricingPage() {
         {loading ? (
           <p className="text-gray-500 py-10 text-center">Загрузка…</p>
         ) : (
-          <div className="overflow-x-auto -mx-4 px-4">
-          <table className="w-full text-sm border-collapse min-w-[480px]">
-            <thead>
-              <tr className="text-left text-gray-400 border-b border-white/10">
-                <th className="py-3 px-2">Модель</th>
-                <th className="py-3 px-2">Бренд</th>
-                <th className="py-3 px-2 text-right">Вход, $/1M</th>
-                <th className="py-3 px-2 text-right">Выход, $/1M</th>
-              </tr>
-            </thead>
-            <tbody>
+          <div>
+            {/* Мобильные карточки */}
+            <div className="md:hidden space-y-3">
               {items.map((it) => (
-                <tr key={it.model} className="border-b border-white/5 hover:bg-white/5">
-                  <td className="py-2.5 px-2 font-medium text-white">{it.model}{it.note && <span className="ml-2 text-[10px] text-amber-400 border border-amber-400/30 rounded px-1">{it.note === "peak" ? "peak-цена" : it.note}</span>}</td>
-                  <td className="py-2.5 px-2 text-gray-400">{it.brand}</td>
-                  <td className="py-2.5 px-2 text-right text-[#00FF00] font-semibold">{fmt(it.our_input)}</td>
-                  <td className="py-2.5 px-2 text-right text-[#00FF00] font-semibold">{fmt(it.our_output)}</td>
-                </tr>
+                <div key={it.model} className="border border-white/10 rounded-xl p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-medium text-white text-sm">{it.model}</span>
+                    {it.note && (
+                      <span className="text-[10px] text-amber-400 border border-amber-400/30 rounded px-1 whitespace-nowrap">
+                        {it.note === "peak" ? "peak-цена" : it.note}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex gap-4 text-sm">
+                    <div>
+                      <span className="text-gray-500 text-xs block">Вход / 1M</span>
+                      <span className="text-[#00FF00] font-semibold">{fmt(it.our_input)}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-500 text-xs block">Выход / 1M</span>
+                      <span className="text-[#00FF00] font-semibold">{fmt(it.our_output)}</span>
+                    </div>
+                    <div className="ml-auto text-right">
+                      <span className="text-gray-500 text-xs block">Бренд</span>
+                      <span className="text-gray-400">{it.brand}</span>
+                    </div>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+
+            {/* Десктопная таблица */}
+            <div className="hidden md:block">
+              <table className="w-full text-sm border-collapse">
+                <thead>
+                  <tr className="text-left text-gray-400 border-b border-white/10">
+                    <th className="py-3 px-2">Модель</th>
+                    <th className="py-3 px-2">Бренд</th>
+                    <th className="py-3 px-2 text-right">Вход, $/1M</th>
+                    <th className="py-3 px-2 text-right">Выход, $/1M</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {items.map((it) => (
+                    <tr key={it.model} className="border-b border-white/5 hover:bg-white/5">
+                      <td className="py-2.5 px-2 font-medium text-white">
+                        {it.model}
+                        {it.note && (
+                          <span className="ml-2 text-[10px] text-amber-400 border border-amber-400/30 rounded px-1 whitespace-nowrap">
+                            {it.note === "peak" ? "peak-цена" : it.note}
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-2.5 px-2 text-gray-400">{it.brand}</td>
+                      <td className="py-2.5 px-2 text-right text-[#00FF00] font-semibold">{fmt(it.our_input)}</td>
+                      <td className="py-2.5 px-2 text-right text-[#00FF00] font-semibold">{fmt(it.our_output)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 
         <div className="mt-8 text-xs text-gray-500 space-y-1">
-          <p>* Для DeepSeek Flash действует единая круглоcуточная ставка.</p>
+          <p>* Для DeepSeek Flash действует единая круглосуточная ставка.</p>
           <p>* Кэшированные входные токены (при повторных запросах с тем же контекстом) тарифицируются по сниженной ставке cache read — значительно дешевле обычного входа.</p>
           <p>* Бесплатный тариф: 0,50 $ в день на любые модели.</p>
         </div>
 
         <div className="mt-10 text-center">
-          <a href={typeof window !== "undefined" && localStorage.getItem("ai_token") ? "/chat" : "/login"} className="inline-block bg-[#00FF00] hover:bg-[#00CC00] text-black font-bold rounded-xl px-8 py-3 transition-colors">
-            {typeof window !== "undefined" && localStorage.getItem("ai_token") ? "Открыть чат" : "Начать бесплатно"}
+          <a href={loggedIn ? "/chat" : "/login"} className="inline-block bg-[#00FF00] hover:bg-[#00CC00] text-black font-bold rounded-xl px-8 py-3 transition-colors">
+            {loggedIn ? "Открыть чат" : "Начать бесплатно"}
           </a>
         </div>
       </div>
