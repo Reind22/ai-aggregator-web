@@ -7,6 +7,8 @@ export const viewport = {
   interactiveWidget: "resizes-content",
 };
 
+import Script from "next/script";
+
 export const metadata = {
   title: "AI Combiner — нейросети в Telegram, Discord и браузере",
   description:
@@ -25,7 +27,12 @@ export default function RootLayout({ children }) {
           data-website-id="ec84b85d-15d0-458a-ac86-f124532d2c30"
         ></script>
       </head>
-      <body>{children}</body>
+      <body>{children}      <Script
+        src="https://stats.aicombiner.net/recorder.js"
+        data-website-id="ec84b85d-15d0-458a-ac86-f124532d2c30"
+        strategy="afterInteractive"
+      />
+    </body>
     </html>
   );
 }

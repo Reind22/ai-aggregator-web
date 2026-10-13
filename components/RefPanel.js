@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { apiFetch } from "../lib/api";
 import { LineChart, BarChart } from "./Charts";
 
-const fmt2$ = (cents) => `$${(cents / 100).toFixed(2)}`;
+const fmt2$ = (usd) => `$${Number(usd ?? 0).toFixed(2)}`;
 
 export default function RefPanel({ profile, onNotify }) {
   const [data, setData] = useState(null);
@@ -63,11 +63,11 @@ export default function RefPanel({ profile, onNotify }) {
         </div>
         <div className="border border-white/10 rounded-xl p-3">
           <div className="text-xs text-gray-500">Пополнений рефералов</div>
-          <div className="text-2xl font-bold">{fmt2$(data.total_payments_cents)}</div>
+          <div className="text-2xl font-bold">{fmt2$(data.total_payments_usd)}</div>
         </div>
         <div className="border border-white/10 rounded-xl p-3">
           <div className="text-xs text-gray-500">Ваш доход (10%)</div>
-          <div className="text-2xl font-bold text-[#00FF00]">{fmt2$(data.commission_cents)}</div>
+          <div className="text-2xl font-bold text-[#00FF00]">{fmt2$(data.commission_usd)}</div>
         </div>
         <div className="border border-white/10 rounded-xl p-3">
           <div className="text-xs text-gray-500">Код</div>
@@ -108,9 +108,9 @@ export default function RefPanel({ profile, onNotify }) {
           </div>
           {payData.length ? (
             payMode === "bar" ? (
-              <BarChart data={payData} valueKey="amount_cents" label="$ пополнений/день" />
+              <BarChart data={payData} valueKey="amount_usd" label="$ пополнений/день" />
             ) : (
-              <LineChart data={payData} valueKey="amount_cents" label="$ пополнений/день" />
+              <LineChart data={payData} valueKey="amount_usd" label="$ пополнений/день" />
             )
           ) : (
             <p className="text-gray-500 text-sm py-8 text-center">Пополнений пока нет</p>

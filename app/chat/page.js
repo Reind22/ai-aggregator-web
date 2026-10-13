@@ -372,7 +372,7 @@ export default function ChatPage() {
         <div className="border-t border-white/[0.06] bg-[#0d0d14] p-4">
           {attachedFile && (
             <div className="max-w-3xl mx-auto mb-2 flex items-center gap-2 text-xs text-gray-400 bg-white/5 border border-white/10 rounded-lg px-3 py-2">
-              <span>📎 {attachedFile.name} ({(attachedFile.content.length / 1024).toFixed(1)} КБ)</span>
+              <span>📎 {attachedFile.name} ({(attachedFile.content.length / 1024).toFixed(0)} КБ)</span>
               <button onClick={() => setAttachedFile(null)} className="ml-auto text-gray-500 hover:text-red-400" aria-label="Убрать файл">✕</button>
             </div>
           )}
@@ -381,7 +381,7 @@ export default function ChatPage() {
               onChange={async (e) => {
                 const f = e.target.files?.[0];
                 if (!f) return;
-                if (f.size > 64 * 1024) { setError("Файл больше 64 КБ"); return; }
+                if (f.size > 1024 * 1024) { setError("Файл больше 1 МБ"); return; }
                 try {
                   const text = await f.text();
                   setAttachedFile({ name: f.name, content: text });
@@ -390,7 +390,7 @@ export default function ChatPage() {
               }} />
             <button onClick={() => fileInputRef.current?.click()} disabled={isGenerating}
               className="border border-white/10 hover:border-[#00CC00]/50 rounded-xl px-3 text-gray-400 hover:text-white transition-colors disabled:opacity-40 flex items-center justify-center min-h-[48px]"
-              title="Прикрепить текстовый файл (до 64 КБ)" aria-label="Прикрепить файл">
+              title="Прикрепить текстовый файл (до 1 МБ)" aria-label="Прикрепить файл">
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48" />
               </svg>

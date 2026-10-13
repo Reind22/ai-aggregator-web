@@ -33,7 +33,7 @@ const OAuthButtons = ({ onNotify }) => {
     discord: async () => {
       if (window.umami) window.umami.track("login-start", { method: "discord" });
       try {
-        const r = await fetch(`${API_BASE}/auth/discord/start`);
+        const r = await fetch(`${API_BASE}/auth/discord/start?ref=${encodeURIComponent(localStorage.getItem("ai_referral") || "")}`);
         const d = await r.json();
         if (!r.ok) { onNotify("Discord: не удалось начать вход. Попробуй позже."); return; }
         window.location.href = d.url;

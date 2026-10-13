@@ -39,7 +39,7 @@ function CallbackInner() {
     fetch(`${API_BASE}/auth/oidc/callback`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code }),
+      body: JSON.stringify({ code, referral_code: localStorage.getItem("ai_referral") || undefined }),
     })
       .then(async (r) => ({ ok: r.ok, data: await r.json() }))
       .then(({ ok, data }) => {
