@@ -40,22 +40,20 @@ export default function PricingPage() {
           Стоимость за 1 миллион токенов. Оплата по факту — с дневного баланса, только за использованные токены.
         </p>
         <p className="text-gray-500 text-sm mb-6">
-          Наши цены в среднем на 10% ниже официального рынка. Поддержка кэширования (cache read) у части моделей — кэшированные входные токены считаются по сниженной ставке.
+          Кэшированные входные токены (повторные запросы с тем же контекстом) тарифицируются по сниженной ставке.
         </p>
 
         {loading ? (
           <p className="text-gray-500 py-10 text-center">Загрузка…</p>
         ) : (
-          <table className="w-full text-sm border-collapse">
+          <div className="overflow-x-auto -mx-4 px-4">
+          <table className="w-full text-sm border-collapse min-w-[480px]">
             <thead>
               <tr className="text-left text-gray-400 border-b border-white/10">
                 <th className="py-3 px-2">Модель</th>
                 <th className="py-3 px-2">Бренд</th>
-                <th className="py-3 px-2 text-right">Рынок, вход</th>
-                <th className="py-3 px-2 text-right">Наша, вход</th>
-                <th className="py-3 px-2 text-right">Рынок, выход</th>
-                <th className="py-3 px-2 text-right">Наша, выход</th>
-                <th className="py-3 px-2 text-right">Скидка</th>
+                <th className="py-3 px-2 text-right">Вход, $/1M</th>
+                <th className="py-3 px-2 text-right">Выход, $/1M</th>
               </tr>
             </thead>
             <tbody>
@@ -63,25 +61,25 @@ export default function PricingPage() {
                 <tr key={it.model} className="border-b border-white/5 hover:bg-white/5">
                   <td className="py-2.5 px-2 font-medium text-white">{it.model}{it.note && <span className="ml-2 text-[10px] text-amber-400 border border-amber-400/30 rounded px-1">{it.note === "peak" ? "peak-цена" : it.note}</span>}</td>
                   <td className="py-2.5 px-2 text-gray-400">{it.brand}</td>
-                  <td className="py-2.5 px-2 text-right text-gray-500 line-through">{fmt(it.official_input)}</td>
                   <td className="py-2.5 px-2 text-right text-[#00FF00] font-semibold">{fmt(it.our_input)}</td>
-                  <td className="py-2.5 px-2 text-right text-gray-500 line-through">{fmt(it.official_output)}</td>
                   <td className="py-2.5 px-2 text-right text-[#00FF00] font-semibold">{fmt(it.our_output)}</td>
-                  <td className="py-2.5 px-2 text-right text-gray-300">{it.discount_pct > 0 ? `−${it.discount_pct}%` : "—"}</td>
                 </tr>
               ))}
             </tbody>
           </table>
+          </div>
         )}
 
         <div className="mt-8 text-xs text-gray-500 space-y-1">
-          <p>* «Рынок» — официальный прайс провайдера модели. Для DeepSeek Flash указана пиковая ставка провайдера; наша цена действует круглосуточно.</p>
-          <p>* Кэшированные входные токены (при повторных запросах с тем же контекстом) тарифицируются по ставке cache read — дешевле входа в 10–50 раз.</p>
+          <p>* Для DeepSeek Flash действует единая круглоcуточная ставка.</p>
+          <p>* Кэшированные входные токены (при повторных запросах с тем же контекстом) тарифицируются по сниженной ставке cache read — значительно дешевле обычного входа.</p>
           <p>* Бесплатный тариф: 0,50 $ в день на любые модели.</p>
         </div>
 
         <div className="mt-10 text-center">
-          <a href="/login" className="inline-block bg-[#00FF00] hover:bg-[#00CC00] text-black font-bold rounded-xl px-8 py-3 transition-colors">Начать бесплатно</a>
+          <a href={typeof window !== "undefined" && localStorage.getItem("ai_token") ? "/chat" : "/login"} className="inline-block bg-[#00FF00] hover:bg-[#00CC00] text-black font-bold rounded-xl px-8 py-3 transition-colors">
+            {typeof window !== "undefined" && localStorage.getItem("ai_token") ? "Открыть чат" : "Начать бесплатно"}
+          </a>
         </div>
       </div>
     </div>
