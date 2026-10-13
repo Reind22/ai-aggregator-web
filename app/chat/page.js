@@ -345,12 +345,18 @@ export default function ChatPage() {
             )}
             {messages.map((msg, i) => (
               <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-                <div className={`max-w-[80%] rounded-2xl px-4 py-3 [overflow-wrap:anywhere] ${
+                <div className={`group relative max-w-[80%] rounded-2xl px-4 py-3 [overflow-wrap:anywhere] ${
                   msg.role === "user"
                     ? "bg-[#00CC00] text-black rounded-br-sm font-medium whitespace-pre-wrap"
                     : "bg-white/[0.06] border border-white/[0.06] rounded-bl-sm text-gray-200"
                 }`}>
                   {msg.role === "user" ? msg.content : <MarkdownRenderer content={msg.content} />}
+                  <button
+                    onClick={() => navigator.clipboard.writeText(msg.content)}
+                    title="Копировать"
+                    aria-label="Копировать сообщение"
+                    className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity bg-black/60 hover:bg-black/80 text-gray-300 hover:text-white rounded-md px-1.5 py-0.5 text-[11px]"
+                  >копировать</button>
                 </div>
               </div>
             ))}
