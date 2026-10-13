@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Logo from "../../components/Logo";
+import MarkdownRenderer from "../../components/MarkdownRenderer";
 import LanguageMenu from "../../components/LanguageMenu";
 import { apiFetch } from "../../lib/api";
 
@@ -316,12 +317,12 @@ export default function ChatPage() {
             )}
             {messages.map((msg, i) => (
               <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-                <div className={`max-w-[80%] rounded-2xl px-4 py-3 whitespace-pre-wrap ${
+                <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${
                   msg.role === "user"
-                    ? "bg-[#00CC00] text-black rounded-br-sm font-medium"
+                    ? "bg-[#00CC00] text-black rounded-br-sm font-medium whitespace-pre-wrap"
                     : "bg-white/[0.06] border border-white/[0.06] rounded-bl-sm text-gray-200"
                 }`}>
-                  {msg.content}
+                  {msg.role === "user" ? msg.content : <MarkdownRenderer content={msg.content} />}
                 </div>
               </div>
             ))}
