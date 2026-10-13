@@ -82,6 +82,11 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   // Реферальный код из /ref/CODE (localStorage) — авто-переключение на регистрацию
+  // Залогиненный юзер на /login не нужен — сразу на главную
+  useEffect(() => {
+    if (localStorage.getItem("ai_token")) router.replace("/");
+  }, []);
+
   useEffect(() => {
     const savedRef = localStorage.getItem("ai_referral");
     if (savedRef && !referral) {

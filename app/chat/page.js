@@ -309,8 +309,8 @@ export default function ChatPage() {
         >
           {/* Мобайл: бургер открывает панель; десктоп: панель открыта постоянно, бургер в шапке не нужен */}
           <div className="flex items-center gap-1">
-            {isMobile && !sidebarOpen && (
-              <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-gray-400 hover:text-white transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center flex-shrink-0" aria-label="Меню">
+            {!sidebarOpen && (
+              <button onClick={() => setSidebarOpen(true)} className="text-gray-400 hover:text-white transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center flex-shrink-0" aria-label="Меню">
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
@@ -345,7 +345,7 @@ export default function ChatPage() {
             )}
             {messages.map((msg, i) => (
               <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-                <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                <div className={`max-w-[80%] rounded-2xl px-4 py-3 [overflow-wrap:anywhere] ${
                   msg.role === "user"
                     ? "bg-[#00CC00] text-black rounded-br-sm font-medium whitespace-pre-wrap"
                     : "bg-white/[0.06] border border-white/[0.06] rounded-bl-sm text-gray-200"

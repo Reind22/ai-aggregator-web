@@ -83,7 +83,7 @@ export default function EmailCodeFlow({ mode = "login", onAuthed, onLinked, onNo
       if (mode === "link") {
         const r = await apiFetch(`/auth/email/verify`, {
           method: "POST",
-          body: { email, code, purpose: mode, password: password || undefined },
+          body: { email, code, purpose: mode, password: password || undefined, referral_code: (typeof window !== "undefined" && mode === "register") ? localStorage.getItem("ai_referral") || undefined : undefined },
         });
         d = await r.json();
         if (!r.ok) throw new Error(detailToText(d.detail, "Неверный код"));
@@ -91,7 +91,7 @@ export default function EmailCodeFlow({ mode = "login", onAuthed, onLinked, onNo
         const r = await fetch(`${API_BASE}/auth/email/verify`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, code, purpose: mode }),
+          body: JSON.stringify({ email, code, purpose: mode, referral_code: (typeof window !== "undefined" && mode === "register") ? localStorage.getItem("ai_referral") || undefined : undefined }),
         });
         d = await r.json();
         if (!r.ok) throw new Error(detailToText(d.detail, "Неверный код"));
