@@ -21,10 +21,12 @@ export default function ChatPage() {
   const [chatsHasMore, setChatsHasMore] = useState(false);
   const [chatsLoading, setChatsLoading] = useState(false);
   const [headerVisible, setHeaderVisible] = useState(true);
+  const [attachedFile, setAttachedFile] = useState(null); // {name, content}
   const [token, setToken] = useState(null);
   const [balance, setBalance] = useState(null);
   const [error, setError] = useState(null);
   const messagesEndRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   const models = [
     { id: "glm-5.3-flash", name: "GLM 5.3 Flash" },
@@ -104,7 +106,7 @@ export default function ChatPage() {
   const sendMessage = async () => {
     if (!input.trim() || isGenerating) return;
     const text = input.trim();
-    const userMsg = { role: "user", content: text };
+    const userMsg = { role: "user", content: attachedFile ? `${text}\n\n📎 ${attachedFile.name}` : text };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setIsGenerating(true);
@@ -118,7 +120,10 @@ export default function ChatPage() {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        body: JSON.stringify({ message: text, model, chat_id: currentChatId, is_temp: isTemp }),
+        body: JSON.stringify({
+          message: text, model, chat_id: currentChatId, is_temp: isTemp,
+          file_name: attachedFile?.name || null, file_content: attachedFile?.content || null,
+        }),
       });
 
       if (!res.ok || !res.body) {
@@ -191,6 +196,7 @@ export default function ChatPage() {
       setMessages((prev) => [...prev, { role: "assistant", content: "⚠️ Сервер недоступен" }]);
     } finally {
       setIsGenerating(false);
+      setAttachedFile(null);
     }
   };
 
@@ -249,8 +255,21 @@ export default function ChatPage() {
           ) : (
             <>
             {chats.map((chat) => (
-              <div key={chat.id} onClick={() => openChat(chat.id)} className="px-3 py-2.5 rounded-lg cursor-pointer text-sm text-gray-400 hover:bg-white/5 hover:text-gray-200 transition-colors">
-                {chat.title}
+              <div key={chat.id} onClick={() => openChat(chat.id)} className="group flex items-center justify-between px-3 py-2.5 rounded-lg cursor-pointer text-sm text-gray-400 hover:bg-white/5 hover:text-gray-200 transition-colors">
+                <span className="truncate">{chat.title}</span>
+                <button
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    if (!confirm("Удалить чат «" + (chat.title || "") + "»?")) return;
+                    const res = await apiFetch(`/chats/${chat.id}`, { method: "DELETE", auth: !!token });
+                    if (res.ok) {
+                      setChats((prev) => prev.filter((c) => c.id !== chat.id));
+                      if (currentChatId === chat.id) { setCurrentChatId(null); setMessages([]); }
+                    }
+                  }}
+                  className="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-red-400 transition-all flex-shrink-0 ml-2 px-1"
+                  title="Удалить чат" aria-label="Удалить чат"
+                >✕</button>
               </div>
             ))}
             {chatsHasMore && (
@@ -342,7 +361,29 @@ export default function ChatPage() {
         </div>
 
         <div className="border-t border-white/[0.06] bg-[#0d0d14] p-4">
+          {attachedFile && (
+            <div className="max-w-3xl mx-auto mb-2 flex items-center gap-2 text-xs text-gray-400 bg-white/5 border border-white/10 rounded-lg px-3 py-2">
+              <span>📎 {attachedFile.name} ({(attachedFile.content.length / 1024).toFixed(1)} КБ)</span>
+              <button onClick={() => setAttachedFile(null)} className="ml-auto text-gray-500 hover:text-red-400" aria-label="Убрать файл">✕</button>
+            </div>
+          )}
           <div className="max-w-3xl mx-auto flex gap-3">
+            <input type="file" ref={fileInputRef} className="hidden"
+              onChange={async (e) => {
+                const f = e.target.files?.[0];
+                if (!f) return;
+                if (f.size > 64 * 1024) { setError("Файл больше 64 КБ"); return; }
+                try {
+                  const text = await f.text();
+                  setAttachedFile({ name: f.name, content: text });
+                } catch (err) { setError("Не удалось прочитать файл"); }
+                e.target.value = "";
+              }} />
+            <button onClick={() => fileInputRef.current?.click()} disabled={isGenerating}
+              className="border border-white/10 hover:border-[#00CC00]/50 rounded-xl px-3 text-gray-400 hover:text-white transition-colors disabled:opacity-40"
+              title="Прикрепить текстовый файл (до 64 КБ)" aria-label="Прикрепить файл">
+              📎
+            </button>
             <textarea value={input} onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Напиши сообщение..."
