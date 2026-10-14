@@ -40,6 +40,11 @@ export default function ChatPage() {
     { id: "mimo-v2.5", name: "MiMo v2.5" },
     { id: "deepseek-flash", name: "DeepSeek Flash" },
     { id: "deepseek-v4-pro", name: "DeepSeek V4 Pro" },
+    { id: "claude-opus-5-5", name: "Claude Opus 5.5", soon: true },
+    { id: "claude-opus-5", name: "Claude Opus 5", soon: true },
+    { id: "gpt-6.1-sol", name: "GPT-6.1 Sol", soon: true },
+    { id: "gpt-6-sol", name: "GPT-6 Sol", soon: true },
+    { id: "gemini-3.8-flash", name: "Gemini 3.8 Flash", soon: true },
   ];
 
   useEffect(() => {
@@ -328,7 +333,7 @@ export default function ChatPage() {
             <LanguageMenu compact />
             <select value={model} onChange={(e) => setModel(e.target.value)}
               className="bg-[#0d0d14] border border-white/10 rounded-lg px-2 sm:px-3 py-1.5 text-xs sm:text-sm text-gray-200 outline-none focus:border-[#00CC00] transition-colors max-w-[140px] sm:max-w-none">
-              {models.map((m) => (<option key={m.id} value={m.id}>{m.name}</option>))}
+              {models.map((m) => (<option key={m.id} value={m.id} disabled={m.soon}>{m.name}{m.soon ? " — скоро" : ""}</option>))}
             </select>
           </div>
         </div>

@@ -56,10 +56,8 @@ export default function PricingPage() {
                 <div key={it.model} className="border border-white/10 rounded-xl p-3">
                   <div className="flex items-center justify-between mb-2">
                     <span className="font-medium text-white text-sm">{it.model}</span>
-                    {it.note && (
-                      <span className="text-[10px] text-amber-400 border border-amber-400/30 rounded px-1 whitespace-nowrap">
-                        {it.note === "peak" ? "peak-цена" : it.note}
-                      </span>
+                    {it.soon && (
+                      <span className="text-[10px] text-sky-400 border border-sky-400/30 rounded px-1 whitespace-nowrap">скоро</span>
                     )}
                   </div>
                   <div className="flex gap-4 text-sm">
@@ -96,10 +94,8 @@ export default function PricingPage() {
                     <tr key={it.model} className="border-b border-white/5 hover:bg-white/5">
                       <td className="py-2.5 px-2 font-medium text-white">
                         {it.model}
-                        {it.note && (
-                          <span className="ml-2 text-[10px] text-amber-400 border border-amber-400/30 rounded px-1 whitespace-nowrap">
-                            {it.note === "peak" ? "peak-цена" : it.note}
-                          </span>
+                        {it.soon && (
+                          <span className="ml-2 text-[10px] text-sky-400 border border-sky-400/30 rounded px-1 whitespace-nowrap">скоро</span>
                         )}
                       </td>
                       <td className="py-2.5 px-2 text-gray-400">{it.brand}</td>
