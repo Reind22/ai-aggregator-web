@@ -50,7 +50,7 @@ export default function ChatPage() {
     { id: "grok-4.6", name: "Grok 4.6" },
   ];
 
-  const [modelStatuses, setModelStatuses] = React.useState({});
+  const [modelStatuses, setModelStatuses] = useState({});
 
   useEffect(() => {
     // Статусы моделей (green/yellow/red) — обновление раз в 60с
