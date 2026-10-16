@@ -50,7 +50,17 @@ export default function ChatPage() {
     { id: "grok-4.6", name: "Grok 4.6" },
   ];
 
+  const [modelStatuses, setModelStatuses] = React.useState({});
+
   useEffect(() => {
+    // Статусы моделей (green/yellow/red) — обновление раз в 60с
+    const fetchStatuses = () => {
+      apiFetch("/chats/models/status").then((d) => {
+        if (d && d.statuses) setModelStatuses(d.statuses);
+      }).catch(() => {});
+    };
+    fetchStatuses();
+    const st = setInterval(fetchStatuses, 60000);
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
     window.addEventListener("resize", checkMobile);
@@ -336,7 +346,11 @@ export default function ChatPage() {
             <LanguageMenu compact />
             <select value={model} onChange={(e) => setModel(e.target.value)}
               className="bg-[#0d0d14] border border-white/10 rounded-lg px-2 sm:px-3 py-1.5 text-xs sm:text-sm text-gray-200 outline-none focus:border-[#00CC00] transition-colors max-w-[140px] sm:max-w-none">
-              {models.map((m) => (<option key={m.id} value={m.id} disabled={m.soon}>{m.name}{m.soon ? " — скоро" : ""}</option>))}
+              {models.map((m) => {
+                  const st = (modelStatuses[m.id] || {}).status || "green";
+                  const dot = st === "red" ? "🔴" : st === "yellow" ? "🟡" : "🟢";
+                  return <option key={m.id} value={m.id} disabled={m.soon}>{dot} {m.name}{m.soon ? " — скоро" : ""}</option>;
+                })}
             </select>
           </div>
         </div>
