@@ -29,25 +29,69 @@ export default function ChatPage() {
   const fileInputRef = useRef(null);
 
   const models = [
-    // Zhipu 特价 — честный канал
+    // ═══ Zhipu GLM ═══
     { id: "glm-5.3-flash", name: "GLM 5.3 Flash" },
     { id: "glm-5.3-flashx", name: "GLM 5.3 FlashX" },
     { id: "glm-5.2", name: "GLM 5.2" },
     { id: "glm-5.3", name: "GLM 5.3" },
-    // Claude Plus 精品 — настоящий Claude
+    { id: "glm-5.1", name: "GLM 5.1" },
+    // ═══ Claude (Anthropic) ═══
     { id: "claude-opus-5-5", name: "Claude Opus 5.5" },
     { id: "claude-opus-5", name: "Claude Opus 5" },
     { id: "claude-sonnet-5", name: "Claude Sonnet 5" },
+    { id: "claude-sonnet-4-6", name: "Claude Sonnet 4.6" },
     { id: "claude-haiku-4-5", name: "Claude Haiku 4.5" },
-    // Codex Pro 外接版 — настоящий OpenAI
+    { id: "claude-opus-4-8", name: "Claude Opus 4.8" },
+    { id: "claude-opus-4-7", name: "Claude Opus 4.7" },
+    { id: "claude-opus-4-6", name: "Claude Opus 4.6" },
+    // ═══ OpenAI GPT ═══
     { id: "gpt-6.1-sol", name: "GPT-6.1 Sol" },
     { id: "gpt-6-sol", name: "GPT-6 Sol" },
-    // Gemini 1x — честный
+    { id: "gpt-6-astra", name: "GPT-6 Astra" },
+    { id: "gpt-5.6-sol", name: "GPT-5.6 Sol" },
+    { id: "gpt-5.6-terra", name: "GPT-5.6 Terra" },
+    // ═══ Google Gemini ═══
     { id: "gemini-3.8-flash", name: "Gemini 3.8 Flash" },
-    // Qwen / Kimi / Grok — честные
+    { id: "gemini-3.7-flash", name: "Gemini 3.7 Flash" },
+    { id: "gemini-3.6-flash", name: "Gemini 3.6 Flash" },
+    { id: "gemini-3.5-flash", name: "Gemini 3.5 Flash" },
+    { id: "gemini-3.1-pro", name: "Gemini 3.1 Pro" },
+    { id: "gemini-3-pro", name: "Gemini 3 Pro" },
+    { id: "gemini-2.5-pro", name: "Gemini 2.5 Pro" },
+    // ═══ Alibaba Qwen ═══
     { id: "qwen3.8-max", name: "Qwen 3.8 Max" },
+    { id: "qwen3.8-flash", name: "Qwen 3.8 Flash" },
+    { id: "qwen3.7-plus", name: "Qwen 3.7 Plus" },
+    // ═══ Moonshot Kimi ═══
     { id: "kimi-k2.6", name: "Kimi K2.6" },
+    { id: "kimi-k2.7-code", name: "Kimi K2.7 Code" },
+    { id: "kimi-k3", name: "Kimi K3" },
+    // ═══ xAI Grok ═══
+    { id: "grok-4.7", name: "Grok 4.7" },
+    { id: "grok-4.7-build-fast", name: "Grok 4.7 Build Fast" },
     { id: "grok-4.6", name: "Grok 4.6" },
+    { id: "grok-4.5", name: "Grok 4.5" },
+    { id: "grok-4.3", name: "Grok 4.3" },
+    { id: "grok-4.20-0309-reasoning", name: "Grok 4.20 Reasoning" },
+    { id: "grok-4.20-0309-non-reasoning", name: "Grok 4.20" },
+    { id: "grok-4.20-multi-agent-0309", name: "Grok 4.20 Multi-Agent" },
+    { id: "grok-build-0.1", name: "Grok Build 0.1" },
+    // ═══ Xiaomi MiMo ═══
+    { id: "mimo-v2.6-flash", name: "MiMo v2.6 Flash" },
+    { id: "mimo-v2.6-pro", name: "MiMo v2.6 Pro" },
+    { id: "mimo-v2.5-pro", name: "MiMo v2.5 Pro" },
+    { id: "mimo-v2.5", name: "MiMo v2.5" },
+    // ═══ DeepSeek ═══
+    { id: "deepseek-flash", name: "DeepSeek Flash" },
+    { id: "deepseek-v4-pro", name: "DeepSeek V4 Pro" },
+    // ═══ Tencent Hunyuan ═══
+    { id: "hy4-preview", name: "Hunyuan H4 Preview" },
+    { id: "hy3", name: "Hunyuan H3" },
+    // ═══ MiniMax ═══
+    { id: "minimax-m3", name: "MiniMax M3" },
+    { id: "minimax-m2.7", name: "MiniMax M2.7" },
+    // ═══ Meta Muse ═══
+    { id: "muse-spark-1.3-contributor", name: "Muse Spark 1.3" },
   ];
 
   const [modelStatuses, setModelStatuses] = useState({});
