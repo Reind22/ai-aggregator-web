@@ -29,22 +29,25 @@ export default function ChatPage() {
   const fileInputRef = useRef(null);
 
   const models = [
+    // Zhipu 特价 — честный канал
     { id: "glm-5.3-flash", name: "GLM 5.3 Flash" },
     { id: "glm-5.3-flashx", name: "GLM 5.3 FlashX" },
     { id: "glm-5.2", name: "GLM 5.2" },
     { id: "glm-5.3", name: "GLM 5.3" },
-    { id: "glm-5.1", name: "GLM 5.1" },
-    { id: "mimo-v2.6-flash", name: "MiMo v2.6 Flash" },
-    { id: "mimo-v2.6-pro", name: "MiMo v2.6 Pro" },
-    { id: "mimo-v2.5-pro", name: "MiMo v2.5 Pro" },
-    { id: "mimo-v2.5", name: "MiMo v2.5" },
-    { id: "deepseek-flash", name: "DeepSeek Flash" },
-    { id: "deepseek-v4-pro", name: "DeepSeek V4 Pro" },
-    { id: "claude-opus-5-5", name: "Claude Opus 5.5", soon: true },
-    { id: "claude-opus-5", name: "Claude Opus 5", soon: true },
-    { id: "gpt-6.1-sol", name: "GPT-6.1 Sol", soon: true },
-    { id: "gpt-6-sol", name: "GPT-6 Sol", soon: true },
-    { id: "gemini-3.8-flash", name: "Gemini 3.8 Flash", soon: true },
+    // Claude Plus 精品 — настоящий Claude
+    { id: "claude-opus-5-5", name: "Claude Opus 5.5" },
+    { id: "claude-opus-5", name: "Claude Opus 5" },
+    { id: "claude-sonnet-5", name: "Claude Sonnet 5" },
+    { id: "claude-haiku-4-5", name: "Claude Haiku 4.5" },
+    // Codex Pro 外接版 — настоящий OpenAI
+    { id: "gpt-6.1-sol", name: "GPT-6.1 Sol" },
+    { id: "gpt-6-sol", name: "GPT-6 Sol" },
+    // Gemini 1x — честный
+    { id: "gemini-3.8-flash", name: "Gemini 3.8 Flash" },
+    // Qwen / Kimi / Grok — честные
+    { id: "qwen3.8-max", name: "Qwen 3.8 Max" },
+    { id: "kimi-k2.6", name: "Kimi K2.6" },
+    { id: "grok-4.6", name: "Grok 4.6" },
   ];
 
   useEffect(() => {
