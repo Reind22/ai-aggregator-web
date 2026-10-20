@@ -55,19 +55,19 @@ export default function PricingPage() {
               {items.map((it) => (
                 <div key={it.model} className="border border-white/10 rounded-xl p-3">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="font-medium text-white text-sm">{it.model}</span>
+                    <span className="font-medium text-white text-sm">{it.display_name || it.model}</span>
                     {it.soon && (
                       <span className="text-[10px] text-sky-400 border border-sky-400/30 rounded px-1 whitespace-nowrap">скоро</span>
                     )}
                   </div>
                   <div className="flex gap-4 text-sm">
                     <div>
-                      <span className="text-gray-500 text-xs block">Вход / 1M</span>
-                      <span className="text-[#00FF00] font-semibold">{fmt(it.our_input)}</span>
+                      <span className="text-gray-500 text-xs block">{it.request_price ? 'Цена/вызов' : 'Вход / 1M'}</span>
+                      <span className="text-[#00FF00] font-semibold">{it.request_price ? ('$' + it.request_price.toFixed(3)) : fmt(it.our_input)}</span>
                     </div>
                     <div>
                       <span className="text-gray-500 text-xs block">Выход / 1M</span>
-                      <span className="text-[#00FF00] font-semibold">{fmt(it.our_output)}</span>
+                      <span className="text-[#00FF00] font-semibold">{it.request_price ? '—' : fmt(it.our_output)}</span>
                     </div>
                     <div className="ml-auto text-right">
                       <span className="text-gray-500 text-xs block">Бренд</span>
@@ -93,14 +93,18 @@ export default function PricingPage() {
                   {items.map((it) => (
                     <tr key={it.model} className="border-b border-white/5 hover:bg-white/5">
                       <td className="py-2.5 px-2 font-medium text-white">
-                        {it.model}
+                        {it.display_name || it.model}
                         {it.soon && (
                           <span className="ml-2 text-[10px] text-sky-400 border border-sky-400/30 rounded px-1 whitespace-nowrap">скоро</span>
                         )}
                       </td>
                       <td className="py-2.5 px-2 text-gray-400">{it.brand}</td>
-                      <td className="py-2.5 px-2 text-right text-[#00FF00] font-semibold">{fmt(it.our_input)}</td>
-                      <td className="py-2.5 px-2 text-right text-[#00FF00] font-semibold">{fmt(it.our_output)}</td>
+                      <td className="py-2.5 px-2 text-right text-[#00FF00] font-semibold">
+                        {it.request_price ? ('$' + it.request_price.toFixed(3) + ' / вызов') : fmt(it.our_input)}
+                      </td>
+                      <td className="py-2.5 px-2 text-right text-[#00FF00] font-semibold">
+                        {it.request_price ? '—' : fmt(it.our_output)}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
