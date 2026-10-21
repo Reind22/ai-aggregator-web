@@ -10,9 +10,29 @@ export const viewport = {
 import Script from "next/script";
 
 export const metadata = {
-  title: "AI Combiner — нейросети в Telegram, Discord и браузере",
-  description:
-    "Доступ к GLM, DeepSeek и другим моделям через Telegram, Discord и веб-чат. Бесплатный тариф.",
+  metadataBase: new URL('https://aicombiner.net'),
+  title: {
+    default: 'AI Combiner — нейросети в Telegram, Discord и браузере',
+    template: '%s | AI Combiner',
+  },
+  description: 'Доступ к GLM, DeepSeek, Claude, GPT и 90+ моделям через Telegram, Discord и веб-чат. Бесплатный тариф, оплата по факту.',
+  keywords: ['AI Combiner', 'нейросети', 'ИИ чат', 'GLM', 'DeepSeek', 'Claude', 'GPT', 'бесплатный ИИ', 'нейросеть онлайн', 'ИИ телеграм бот'],
+  openGraph: {
+    type: 'website',
+    locale: 'ru_RU',
+    url: 'https://aicombiner.net',
+    siteName: 'AI Combiner',
+    title: 'AI Combiner — нейросети в Telegram, Discord и браузере',
+    description: '90+ ИИ-моделей в одном чате. Telegram-бот, Discord-бот и веб. Бесплатный дневной баланс.',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'AI Combiner — нейросети в одном чате',
+    description: '90+ ИИ-моделей: Telegram, Discord, веб. Бесплатный тариф.',
+  },
+  alternates: {
+    canonical: '/',
+  },
 };
 
 export default function RootLayout({ children }) {
