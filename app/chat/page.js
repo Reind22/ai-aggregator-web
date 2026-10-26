@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Logo from "../../components/Logo";
+import ModelPickerModal from "../../components/ModelPickerModal";
 import MarkdownRenderer from "../../components/MarkdownRenderer";
 import LanguageMenu from "../../components/LanguageMenu";
 import { apiFetch } from "../../lib/api";
@@ -136,12 +137,18 @@ export default function ChatPage() {
   ];
 
   const [modelStatuses, setModelStatuses] = useState({});
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [usageCounts, setUsageCounts] = useState({});
 
   useEffect(() => {
     // Статусы моделей (green/yellow/red) — обновление раз в 60с
     const fetchStatuses = () => {
       apiFetch("/chats/models/status").then((d) => {
         if (d && d.statuses) setModelStatuses(d.statuses);
+      }).catch(() => {});
+      // Популярность моделей (сообщения за 30 дней) — сортировка в пикере
+      apiFetch("/chats/models/usage").then((d) => {
+        if (d && d.usage) setUsageCounts(d.usage);
       }).catch(() => {});
     };
     fetchStatuses();
@@ -429,14 +436,15 @@ export default function ChatPage() {
           {isTemp && <span className="text-[#00FF00] text-sm">Временный чат (автоочистка 24ч)</span>}
           <div className="flex items-center gap-1.5 sm:gap-2">
             <LanguageMenu compact />
-            <select value={model} onChange={(e) => setModel(e.target.value)}
-              className="bg-[#0d0d14] border border-white/10 rounded-lg px-2 sm:px-3 py-1.5 text-xs sm:text-sm text-gray-200 outline-none focus:border-[#00CC00] transition-colors max-w-[140px] sm:max-w-none">
-              {models.map((m) => {
-                  const st = (modelStatuses[m.id] || {}).status || "green";
-                  const dot = st === "red" ? "🔴" : st === "yellow" ? "🟡" : "🟢";
-                  return <option key={m.id} value={m.id} disabled={m.soon}>{dot} {m.name}{m.soon ? " — скоро" : ""}</option>;
-                })}
-            </select>
+            <button onClick={() => setPickerOpen(true)}
+              className="bg-[#0d0d14] border border-white/10 rounded-lg px-2 sm:px-3 py-1.5 text-xs sm:text-sm text-gray-200 outline-none focus:border-[#00CC00] transition-colors max-w-[170px] sm:max-w-none flex items-center gap-1.5">
+              <span className="truncate">{(models.find((mm) => mm.id === model) || {}).name || model}</span>
+              <span className="text-gray-500 text-[10px]">▾</span>
+            </button>
+            <ModelPickerModal open={pickerOpen} onClose={() => setPickerOpen(false)}
+              models={models} modelStatuses={modelStatuses} current={model}
+              usageCounts={usageCounts}
+              onPick={(id) => { setModel(id); setPickerOpen(false); }} />
           </div>
         </div>
 
