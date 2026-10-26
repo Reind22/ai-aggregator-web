@@ -30,10 +30,14 @@ const TYPE_ICONS = { text: "📝", image: "🖼️", audio: "🎙️", video: "�
 
 export function modelType(mid) {
   const m = (mid || "").toLowerCase();
-  if (/(^|[^a-z])(gpt-image|imagine-image|nano-banana|flash-image|image-2|image-2\.5)/.test(m) && !/video/.test(m)) return "image";
-  if (/(video|imagine-video)/.test(m)) return "video";
+  // Видео-генерация (проверять ДО image: kling/veo/vidu/wan/seedance генерируют видео)
+  if (/(video|kling|veo|viduq|wan-|seedance|minimax-h3)/.test(m)) return "video";
+  // Изображения
+  if (/(gpt-image|imagine-image|nano-banana|flash-image|image-2|image-2\.5|image-preview)/.test(m)) return "image";
+  // Аудио
   if (/(tts|audio|voice|speech|whisper|chirp)/.test(m)) return "audio";
-  if (/(text|flash|sol|luna|astra|terra|haiku|sonnet|opus|fable|glm|mimo|deepseek|qwen|kimi|grok-4|minimax-m|muse|hy\d|hy4)/.test(m)) return "text";
+  // Текст (основные семейства)
+  if (/(text|flash|sol|luna|astra|terra|haiku|sonnet|opus|fable|glm|mimo|deepseek|qwen|kimi|grok-4|grok-build|minimax-m|muse|hy\d|hy4)/.test(m)) return "text";
   return "other";
 }
 
