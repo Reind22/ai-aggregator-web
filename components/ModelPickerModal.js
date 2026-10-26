@@ -228,7 +228,7 @@ export default function ModelPickerModal({ open, onClose, models, modelStatuses,
         </div>
 
         {/* Плейсхолдеры типов ИИ */}
-        <div className="px-3 pt-3 flex gap-1.5 overflow-x-auto pb-1">
+        <div className="px-3 pt-3 flex gap-1.5 overflow-x-auto pb-2">
           {MODEL_TYPES.map((t) => {
             const count = t.id === "all" ? models.length : enriched.filter(m => m.type === t.id).length;
             return (
