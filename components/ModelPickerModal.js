@@ -288,8 +288,8 @@ export default function ModelPickerModal({ open, onClose, models, modelStatuses,
         case "name": return m.name.toLowerCase();
         case "date": return m.date || "";
         case "ctx": return m.ctx ?? -1;
-        case "in": return m.pi ?? m.req ?? Infinity;
-        case "out": return m.po ?? m.req ?? Infinity;
+        case "in": return m.pi ?? (m.req != null ? m.req * 1000 : Infinity);   // per-request ×1000 → эквивалент, в конец при asc
+        case "out": return m.po ?? (m.req != null ? m.req * 1000 : Infinity);
         case "uses": return m.uses ?? 0;
         default: return m.uses ?? 0;
       }
