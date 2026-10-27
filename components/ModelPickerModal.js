@@ -448,7 +448,7 @@ export default function ModelPickerModal({ open, onClose, models, modelStatuses,
                       {m.po != null ? `$${m.po < 0.01 ? m.po.toFixed(4) : m.po < 1 ? m.po.toFixed(3) : m.po.toFixed(2)}` : "—"}
                     </td>
                     <td className="px-2 py-2 text-right text-gray-400 whitespace-nowrap">
-                      {m.pi != null && m.req == null ? `$${((m.pi) * 0.25).toFixed(4)}` : "—"}
+                      {m.pi != null && m.req == null ? `$${(m.cache ?? m.pi * 0.25).toFixed(4)}` : "—"}
                     </td>
                     <td className="px-2 py-2 text-right text-gray-400 whitespace-nowrap">{m.ctx != null ? fmtCtx(m.ctx) : "—"}</td>
                     <td className="px-2 py-2 text-right text-gray-400 whitespace-nowrap">{m.date || "—"}</td>
