@@ -14,6 +14,7 @@
  */
 
 import { useState, useMemo, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 
 const MODEL_TYPES = [
   { id: "all",   label: "Все",         icon: "grid" },
@@ -383,8 +384,12 @@ export default function ModelPickerModal({ open, onClose, models, modelStatuses,
                 <path d="M1 1l4 4 4-4" strokeLinecap="round"/>
               </svg>
             </button>
-            {brandOpen && (
-              <div className="absolute right-0 top-full mt-1 w-56 max-h-72 overflow-y-auto bg-[#16161f] border border-white/15 rounded-xl shadow-2xl z-10 py-1">
+            {brandOpen && createPortal(
+              <div className="fixed right-0 mt-1 w-56 max-h-72 overflow-y-auto bg-[#16161f] border border-white/15 rounded-xl shadow-2xl z-[100] py-1"
+                style={{
+                  top: (brandRef.current?.getBoundingClientRect().bottom || 0) + 4,
+                  right: typeof window !== "undefined" ? window.innerWidth - (brandRef.current?.getBoundingClientRect().right || window.innerWidth) : 16,
+                }}>
                 <button onClick={() => setBrandSel([])}
                   className={"w-full text-left px-3 py-1.5 text-xs hover:bg-white/5 " + (brandSel.length === 0 ? "text-[#00CC00]" : "text-gray-300")}>
                   Все бренды
@@ -403,7 +408,7 @@ export default function ModelPickerModal({ open, onClose, models, modelStatuses,
                     <span className="text-gray-300">{b}</span>
                   </button>
                 ))}
-              </div>
+              </div>, document.body
             )}
           </div>
         </div>

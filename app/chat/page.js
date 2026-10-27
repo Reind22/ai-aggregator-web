@@ -13,7 +13,7 @@ export default function ChatPage() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
-  const [model, setModel] = useState("glm-5.3-flash");
+  const [model, setModel] = useState("claude-haiku-5-5");
   const [sidebarOpen, setSidebarOpen] = useState(false); // мобайл: закрыт
   const [isMobile, setIsMobile] = useState(false);
   const [isTemp, setIsTemp] = useState(false);
