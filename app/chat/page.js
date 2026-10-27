@@ -29,7 +29,7 @@ export default function ChatPage() {
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
 
-  const models = [
+  const fallbackModels = [
     // ═══ Zhipu GLM ═══
     { id: "glm-5.3-flash", name: "GLM 5.3 Flash" },
     { id: "glm-5.3-flashx", name: "GLM 5.3 FlashX" },
@@ -136,9 +136,16 @@ export default function ChatPage() {
     { id: "wan-3.0", name: "Wan 3.0 (R)" },
   ];
 
-  const [modelStatuses, setModelStatuses] = useState({});
+  const [models, setModels] = useState(fallbackModels);
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [modelStatuses, setModelStatuses] = useState({});
   const [usageCounts, setUsageCounts] = useState({});
+
+  useEffect(() => {
+    apiFetch("/models").then((data) => {
+      if (Array.isArray(data) && data.length) setModels(data);
+    }).catch(() => {});
+  }, []);
 
   useEffect(() => {
     // Статусы моделей (green/yellow/red) — обновление раз в 60с
