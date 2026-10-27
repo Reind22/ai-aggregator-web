@@ -246,11 +246,14 @@ export default function ModelPickerModal({ open, onClose, models, modelStatuses,
   const [brandSel, setBrandSel] = useState([]);        // мультивыбор брендов
   const [brandOpen, setBrandOpen] = useState(false);
   const brandRef = useRef(null);
+  const brandMenuRef = useRef(null);
 
   // Закрытие дропдауна брендов по клику вне
   useEffect(() => {
     if (!brandOpen) return;
-    const h = (e) => { if (brandRef.current && !brandRef.current.contains(e.target)) setBrandOpen(false); };
+    const h = (e) => {
+      if (brandRef.current && !brandRef.current.contains(e.target) && brandMenuRef.current && !brandMenuRef.current.contains(e.target)) setBrandOpen(false);
+    };
     document.addEventListener("mousedown", h);
     return () => document.removeEventListener("mousedown", h);
   }, [brandOpen]);
@@ -385,7 +388,7 @@ export default function ModelPickerModal({ open, onClose, models, modelStatuses,
               </svg>
             </button>
             {brandOpen && createPortal(
-              <div className="fixed right-0 mt-1 w-56 max-h-72 overflow-y-auto bg-[#16161f] border border-white/15 rounded-xl shadow-2xl z-[100] py-1"
+              <div ref={brandMenuRef} className="fixed right-0 mt-1 w-56 max-h-72 overflow-y-auto bg-[#16161f] border border-white/15 rounded-xl shadow-2xl z-[100] py-1"
                 style={{
                   top: (brandRef.current?.getBoundingClientRect().bottom || 0) + 4,
                   right: typeof window !== "undefined" ? window.innerWidth - (brandRef.current?.getBoundingClientRect().right || window.innerWidth) : 16,

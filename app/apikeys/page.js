@@ -28,6 +28,7 @@ function humanReset(p) {
 
 export default function ApiKeysPage() {
   const [token, setToken] = useState(null);
+  const [allModels, setAllModels] = useState([]);
   const [keys, setKeys] = useState([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -59,6 +60,9 @@ export default function ApiKeysPage() {
     if (saved) {
       setToken(saved);
       loadKeys(saved);
+      apiFetch("/models").then((data) => {
+        if (Array.isArray(data)) setAllModels(data);
+      }).catch(() => {});
     } else {
       setLoading(false);
     }
@@ -242,7 +246,7 @@ export default function ApiKeysPage() {
                   Модели <span className="text-gray-700">(ничего не выбрано = все)</span>
                 </label>
                 <div className="space-y-1.5">
-                  {ALL_MODELS.map((m) => (
+                  {allModels.map((m) => (
                     <label key={m.id} className="flex items-center gap-2.5 text-sm text-gray-300 cursor-pointer hover:text-white transition-colors">
                       <input type="checkbox" checked={selectedModels.includes(m.id)}
                         onChange={() => toggleModel(m.id)}
@@ -283,7 +287,7 @@ export default function ApiKeysPage() {
                   <div>Интервал: <span className="text-gray-300">{k.time_limit_hours > 0 ? `${k.time_limit_hours} ч` : "нет"}</span></div>
                   <div>Сброс: <span className="text-gray-300">{humanReset(k.reset_period)}</span></div>
                   <div className="col-span-2">
-                    Модели: <span className="text-gray-300">{k.models && k.models.length > 0 ? k.models.map((m) => ALL_MODELS.find((a) => a.id === m)?.name || m).join(", ") : "все"}</span>
+                    Модели: <span className="text-gray-300">{k.models && k.models.length > 0 ? k.models.map((m) => allModels.find((a) => a.id === m)?.name || m).join(", ") : "все"}</span>
                   </div>
                 </div>
                 <div className="flex gap-2">
