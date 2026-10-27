@@ -180,12 +180,14 @@ const MODEL_META = {
   "grok-4.20-0309-non-reasoning": { pi: 1.5, po: 6.0, ctx: 0.13, date: "2025-03" },
   "grok-4.20-multi-agent-0309": { pi: 1.5, po: 6.0, ctx: 0.13, date: "2025-03" },
   "grok-build-0.1":  { pi: 0.6,   po: 2.4,   ctx: 0.13, date: "2025-04" },
+  "grok-4.7-build-fast": { pi: 0.12, po: 0.36, ctx: 0.5, date: "2025-10" },
   "mimo-v2.6-flash": { pi: 0.126, po: 0.252, ctx: 1,    date: "2025-08" },
   "mimo-v2.6-pro":   { pi: 0.392, po: 0.783, ctx: 1,    date: "2025-08" },
   "mimo-v2.5-pro":   { pi: 0.392, po: 0.783, ctx: 1,    date: "2025-07" },
   "mimo-v2.5":       { pi: 0.126, po: 0.252, ctx: 1,    date: "2025-07" },
   "deepseek-flash":  { pi: 0.165, po: 0.66,  ctx: 1,    date: "2025-08" },
   "deepseek-v4-pro": { pi: 0.81,  po: 2.43,  ctx: 1,    date: "2025-08" },
+  "deepseek-flash":  { pi: 0.165, po: 0.66, ctx: 1, date: "2025-08" },
   "hy4-preview":     { pi: 0.32,  po: 1.27,  ctx: 0.256,date: "2025-09" },
   "hy3":             { pi: 0.024, po: 0.095, ctx: 0.256,date: "2025-07" },
   "minimax-m3":      { pi: 0.06,  po: 0.24,  ctx: 1,    date: "2025-06" },
@@ -288,8 +290,8 @@ export default function ModelPickerModal({ open, onClose, models, modelStatuses,
         case "name": return m.name.toLowerCase();
         case "date": return m.date || "";
         case "ctx": return m.ctx ?? -1;
-        case "in": return m.pi ?? (m.req != null ? m.req * 1000 : Infinity);   // per-request ×1000 → эквивалент, в конец при asc
-        case "out": return m.po ?? (m.req != null ? m.req * 1000 : Infinity);
+        case "in": return m.pi ?? (m.req != null ? m.req * 1000 : 1e9);   // нет цены → 1e9 (конец списка, NaN-safe)
+        case "out": return m.po ?? (m.req != null ? m.req * 1000 : 1e9);
         case "uses": return m.uses ?? 0;
         default: return m.uses ?? 0;
       }
