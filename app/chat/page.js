@@ -8,6 +8,7 @@ import LanguageMenu from "../../components/LanguageMenu";
 import { apiFetch } from "../../lib/api";
 
 const API_BASE = "/api";
+const MAX_MESSAGE_CHARS = 64000;
 
 export default function ChatPage() {
   const [messages, setMessages] = useState([]);
@@ -223,6 +224,10 @@ export default function ChatPage() {
   const sendMessage = async () => {
     if (!input.trim() || isGenerating) return;
     const text = input.trim();
+    if (text.length > MAX_MESSAGE_CHARS) {
+      setError(`Сообщение слишком длинное: ${text.length.toLocaleString("ru-RU")} из ${MAX_MESSAGE_CHARS.toLocaleString("ru-RU")} символов`);
+      return;
+    }
     const userMsg = { role: "user", content: attachedFile ? `${text}\n\n📎 ${attachedFile.name}` : text };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
@@ -529,6 +534,9 @@ export default function ChatPage() {
               className="flex-1 bg-[#0d0d14] border border-white/10 rounded-xl px-4 py-3 resize-none outline-none focus:border-[#00CC00] transition-colors placeholder:text-gray-600 text-gray-100"
               rows={1} disabled={isGenerating}
               style={{ minHeight: "48px", maxHeight: "200px" }} />
+            <div className={`absolute right-20 -top-5 text-[10px] ${input.length > MAX_MESSAGE_CHARS ? "text-red-400" : "text-gray-500"}`}>
+              {input.length.toLocaleString("ru-RU")} / {MAX_MESSAGE_CHARS.toLocaleString("ru-RU")}
+            </div>
             <button onClick={sendMessage} disabled={!input.trim() || isGenerating}
               className="bg-[#00FF00] hover:bg-[#00CC00] disabled:opacity-30 disabled:cursor-not-allowed text-[#0A2A0A] rounded-xl px-5 font-semibold transition-colors">
               {isGenerating ? (
