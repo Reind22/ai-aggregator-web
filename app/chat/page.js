@@ -28,8 +28,10 @@ export default function ChatPage() {
   const [token, setToken] = useState(null);
   const [balance, setBalance] = useState(null);
   const [error, setError] = useState(null);
+  const [composerExpanded, setComposerExpanded] = useState(false);
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
+  const textareaRef = useRef(null);
 
   const fallbackModels = [
     // ═══ Zhipu GLM ═══
@@ -377,6 +379,17 @@ export default function ChatPage() {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
   };
 
+  const resizeComposer = () => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    const maxHeight = composerExpanded ? Math.floor(window.innerHeight * 0.55) : 160;
+    el.style.height = `${Math.min(el.scrollHeight, maxHeight)}px`;
+    el.style.overflowY = el.scrollHeight > maxHeight ? "auto" : "hidden";
+  };
+
+  useEffect(() => { resizeComposer(); }, [input, composerExpanded]);
+
   // Шапка: показывается при скролле вверх, прячется при скролле вниз (мобильный UX)
   const lastScrollY = useRef(0);
   const handleMessagesScroll = (e) => {
@@ -526,7 +539,7 @@ export default function ChatPage() {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-4 py-6 overscroll-contain" onScroll={handleMessagesScroll}>
+        <div className="flex-1 overflow-y-auto px-4 pt-6 pb-36 overscroll-contain" onScroll={handleMessagesScroll}>
           <div className="max-w-3xl mx-auto space-y-4">
             {messages.length === 0 && (
               <div className="text-center flex flex-col items-center justify-center" style={{ minHeight: "60vh" }}>
@@ -589,7 +602,7 @@ export default function ChatPage() {
           </div>
         </div>
 
-        <div className="border-t border-white/[0.06] bg-[#0d0d14] p-4">
+        <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-white/[0.08] bg-[#0d0d14]/95 backdrop-blur-md px-4 py-3">
           {attachedFile && (
             <div className="max-w-3xl mx-auto mb-2 flex items-center gap-2 text-xs text-gray-400 bg-white/5 border border-white/10 rounded-lg px-3 py-2">
               <span>📎 {attachedFile.name} ({(attachedFile.content.length / 1024).toFixed(0)} КБ)</span>
@@ -615,12 +628,22 @@ export default function ChatPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48" />
               </svg>
             </button>
-            <textarea value={input} onChange={(e) => setInput(e.target.value)}
+            <textarea ref={textareaRef} value={input} onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Напиши сообщение..."
               className="flex-1 bg-[#0d0d14] border border-white/10 rounded-xl px-4 py-3 resize-none outline-none focus:border-[#00CC00] transition-colors placeholder:text-gray-600 text-gray-100"
               rows={1} disabled={isGenerating}
-              style={{ minHeight: "48px", maxHeight: "200px" }} />
+              style={{ minHeight: "48px", maxHeight: composerExpanded ? "55vh" : "160px" }} />
+            {(input.length > 1000 || composerExpanded) && (
+              <button onClick={() => setComposerExpanded((v) => !v)} type="button"
+                title={composerExpanded ? "Свернуть поле ввода" : "Развернуть поле ввода"}
+                aria-label={composerExpanded ? "Свернуть поле ввода" : "Развернуть поле ввода"}
+                className="absolute right-20 -top-8 p-1.5 rounded-md text-gray-400 hover:text-white hover:bg-white/10 transition-colors">
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                  {composerExpanded ? <path d="M8 13l4 4 4-4M8 6l4 4 4-4" strokeLinecap="round" strokeLinejoin="round" /> : <path d="M8 11l4-4 4 4M8 18l4-4 4 4" strokeLinecap="round" strokeLinejoin="round" />}
+                </svg>
+              </button>
+            )}
             <div className={`absolute right-20 -top-5 text-[10px] ${input.length > MAX_MESSAGE_CHARS ? "text-red-400" : "text-gray-500"}`}>
               {input.length.toLocaleString("ru-RU")} / {MAX_MESSAGE_CHARS.toLocaleString("ru-RU")}
             </div>
