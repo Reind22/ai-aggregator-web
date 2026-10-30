@@ -338,7 +338,10 @@ export default function ChatPage() {
               assistantText += ev.text;
               appendAssistant(assistantText);
             }
-            if (ev.chat_id) setCurrentChatId(ev.chat_id);
+            if (ev.chat_id) {
+              setCurrentChatId(ev.chat_id);
+              try { localStorage.setItem("ai_current_chat_id", String(ev.chat_id)); } catch (_) {}
+            }
             if (ev.message_id) {
               setMessages((prev) => {
                 const index = targetAssistantIndex !== null ? targetAssistantIndex : prev.length - 1;
@@ -360,18 +363,16 @@ export default function ChatPage() {
       }
 
       if (assistantText) {
-        setMessages((prev) => {
-          const index = targetAssistantIndex !== null ? targetAssistantIndex : prev.length - 1;
-          const current = prev[index];
-          if (!current || current.role !== "assistant") return prev;
-          const variants = current.variants || [];
-          if (targetAssistantIndex !== null) {
-            return prev.map((msg, i) => i === index
-              ? { ...msg, content: assistantText, variants: [...variants, assistantText], variantIndex: variants.length }
-              : msg);
-          }
-          return prev.map((msg, i) => i === index ? { ...msg, content: assistantText } : msg);
-        });
+        if (isRegeneration && currentChatId) {
+          await openChat(currentChatId);
+        } else {
+          setMessages((prev) => {
+            const index = targetAssistantIndex !== null ? targetAssistantIndex : prev.length - 1;
+            const current = prev[index];
+            if (!current || current.role !== "assistant") return prev;
+            return prev.map((msg, i) => i === index ? { ...msg, content: assistantText } : msg);
+          });
+        }
         loadChats();  // чат появился/обновился в истории
       } else if (!finished) {
         setMessages((prev) => [...prev, { role: "assistant", content: "⚠️ Пустой ответ сервера" }]);
