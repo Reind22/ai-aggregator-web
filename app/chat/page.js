@@ -337,7 +337,12 @@ export default function ChatPage() {
             if (ev.message_id) {
               setMessages((prev) => {
                 const index = targetAssistantIndex !== null ? targetAssistantIndex : prev.length - 1;
-                return prev.map((msg, i) => i === index ? { ...msg, id: ev.message_id } : msg);
+                return prev.map((msg, i) => i === index ? {
+                  ...msg,
+                  id: ev.message_id,
+                  variants: ev.variants || msg.variants,
+                  variantIndex: ev.variants?.length ? ev.variants.length - 1 : msg.variantIndex,
+                } : msg);
               });
             }
             if (ev.usage) {
