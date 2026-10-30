@@ -544,6 +544,14 @@ export default function ChatPage() {
                     : "bg-white/[0.06] border border-white/[0.06] rounded-bl-sm text-gray-200"
                 }`}>
                   {msg.role === "user" ? msg.content : <MarkdownRenderer content={msg.content} />}
+                  {msg.role === "user" && (
+                    <div className="mt-2 pt-1 border-t border-black/10 flex justify-end">
+                      <button onClick={() => copyMessage(msg.content)} title="Копировать" aria-label="Копировать промпт"
+                        className="p-1 rounded-md text-black/50 hover:bg-black/10 hover:text-black transition-colors">
+                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                      </button>
+                    </div>
+                  )}
                   {msg.role === "assistant" && !msg.content.startsWith("⚠️") && (
                     <div className="mt-3 pt-2 border-t border-white/[0.08] flex items-center gap-1 text-gray-500">
                       <button onClick={() => copyMessage(msg.content)} title="Копировать" aria-label="Копировать сообщение"
@@ -616,7 +624,7 @@ export default function ChatPage() {
             <div className={`absolute right-20 -top-5 text-[10px] ${input.length > MAX_MESSAGE_CHARS ? "text-red-400" : "text-gray-500"}`}>
               {input.length.toLocaleString("ru-RU")} / {MAX_MESSAGE_CHARS.toLocaleString("ru-RU")}
             </div>
-            <button onClick={sendMessage} disabled={!input.trim() || isGenerating}
+            <button onClick={() => sendMessage()} disabled={!input.trim() || isGenerating}
               className="bg-[#00FF00] hover:bg-[#00CC00] disabled:opacity-30 disabled:cursor-not-allowed text-[#0A2A0A] rounded-xl px-5 font-semibold transition-colors">
               {isGenerating ? (
               <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
