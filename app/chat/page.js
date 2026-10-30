@@ -388,9 +388,9 @@ export default function ChatPage() {
     const el = textareaRef.current;
     if (!el) return;
     el.style.height = "auto";
-    const maxHeight = composerExpanded ? Math.floor(window.innerHeight * 0.55) : 160;
-    el.style.height = `${Math.min(el.scrollHeight, maxHeight)}px`;
-    el.style.overflowY = el.scrollHeight > maxHeight ? "auto" : "hidden";
+    const maxHeight = composerExpanded ? window.innerHeight - 180 : 160;
+    el.style.height = composerExpanded ? "100%" : `${Math.min(el.scrollHeight, maxHeight)}px`;
+    el.style.overflowY = composerExpanded ? "auto" : (el.scrollHeight > maxHeight ? "auto" : "hidden");
   };
 
   useEffect(() => { resizeComposer(); }, [input, composerExpanded]);
@@ -607,14 +607,41 @@ export default function ChatPage() {
           </div>
         </div>
 
-        <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-white/[0.08] bg-[#0d0d14]/95 backdrop-blur-md px-4 py-3">
+        <div className={`fixed z-30 transition-all duration-200 ${composerExpanded ? "inset-0 bg-[#090d13] px-4 py-4 sm:px-8 sm:py-6" : "bottom-4 left-4 right-4 sm:bottom-6"}`}>
+          <div className={`${composerExpanded ? "h-full max-w-5xl mx-auto flex flex-col" : "max-w-3xl mx-auto rounded-2xl border border-white/10 bg-[#111720]/95 shadow-2xl backdrop-blur-xl p-3"}`}>
+          {composerExpanded && (
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm font-semibold text-gray-200">Сообщение</span>
+              <button onClick={() => setComposerExpanded(false)} type="button" aria-label="Свернуть поле ввода" title="Свернуть" className="p-2 rounded-lg text-gray-300 hover:text-white hover:bg-white/10">
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M8 13l4 4 4-4M8 6l4 4 4-4" strokeLinecap="round" strokeLinejoin="round" /></svg>
+              </button>
+            </div>
+          )}
           {attachedFile && (
             <div className="max-w-3xl mx-auto mb-2 flex items-center gap-2 text-xs text-gray-400 bg-white/5 border border-white/10 rounded-lg px-3 py-2">
               <span>📎 {attachedFile.name} ({(attachedFile.content.length / 1024).toFixed(0)} КБ)</span>
               <button onClick={() => setAttachedFile(null)} className="ml-auto text-gray-500 hover:text-red-400" aria-label="Убрать файл">✕</button>
             </div>
           )}
-          <div className="max-w-3xl mx-auto flex gap-3">
+          <div className={`relative ${composerExpanded ? "flex-1 min-h-0" : ""}`}>
+            <textarea ref={textareaRef} value={input} onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Напиши сообщение..."
+              className={`w-full bg-[#0d0d14] border border-white/10 rounded-xl px-4 py-3 resize-none outline-none focus:border-[#00CC00] transition-colors placeholder:text-gray-600 text-gray-100 ${composerExpanded ? "h-full min-h-0" : "min-h-[48px]"}`}
+              rows={1} disabled={isGenerating}
+              style={{ height: composerExpanded ? "100%" : undefined, maxHeight: composerExpanded ? "100%" : "160px" }} />
+            {(input.length > 1000 || composerExpanded) && !composerExpanded && (
+              <button onClick={() => setComposerExpanded(true)} type="button"
+                title="Открыть редактор на весь экран" aria-label="Открыть поле ввода на весь экран"
+                className="absolute right-2 top-2 p-1.5 rounded-md text-gray-400 hover:text-white hover:bg-white/10 transition-colors">
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M8 3H5a2 2 0 0 0-2 2v3m13-5h3a2 2 0 0 1 2 2v3M3 16v3a2 2 0 0 0 2 2h3m13-5v3a2 2 0 0 1-2 2h-3" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </button>
+            )}
+            <div className={`absolute right-3 bottom-2 text-[10px] ${input.length > MAX_MESSAGE_CHARS ? "text-red-400" : "text-gray-500"}`}>
+              {input.length.toLocaleString("ru-RU")} / {MAX_MESSAGE_CHARS.toLocaleString("ru-RU")}
+            </div>
+          </div>
+          <div className={`flex items-center gap-3 ${composerExpanded ? "mt-3 justify-end" : "mt-2"}`}>
             <input type="file" ref={fileInputRef} className="hidden"
               onChange={async (e) => {
                 const f = e.target.files?.[0];
@@ -627,46 +654,25 @@ export default function ChatPage() {
                 e.target.value = "";
               }} />
             <button onClick={() => fileInputRef.current?.click()} disabled={isGenerating}
-              className="border border-white/10 hover:border-[#00CC00]/50 rounded-xl px-3 text-gray-400 hover:text-white transition-colors disabled:opacity-40 flex items-center justify-center min-h-[48px]"
+              className="w-12 h-12 flex-shrink-0 border border-white/10 hover:border-[#00CC00]/50 rounded-xl text-gray-400 hover:text-white transition-colors disabled:opacity-40 flex items-center justify-center"
               title="Прикрепить текстовый файл (до 1 МБ)" aria-label="Прикрепить файл">
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
               </svg>
             </button>
-            <textarea ref={textareaRef} value={input} onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Напиши сообщение..."
-              className="flex-1 bg-[#0d0d14] border border-white/10 rounded-xl px-4 py-3 resize-none outline-none focus:border-[#00CC00] transition-colors placeholder:text-gray-600 text-gray-100"
-              rows={1} disabled={isGenerating}
-              style={{ minHeight: "48px", maxHeight: composerExpanded ? "55vh" : "160px" }} />
-            {(input.length > 1000 || composerExpanded) && (
-              <button onClick={() => setComposerExpanded((v) => !v)} type="button"
-                title={composerExpanded ? "Свернуть поле ввода" : "Развернуть поле ввода"}
-                aria-label={composerExpanded ? "Свернуть поле ввода" : "Развернуть поле ввода"}
-                className="absolute right-20 -top-8 p-1.5 rounded-md text-gray-400 hover:text-white hover:bg-white/10 transition-colors">
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                  {composerExpanded ? <path d="M8 13l4 4 4-4M8 6l4 4 4-4" strokeLinecap="round" strokeLinejoin="round" /> : <path d="M8 11l4-4 4 4M8 18l4-4 4 4" strokeLinecap="round" strokeLinejoin="round" />}
-                </svg>
-              </button>
-            )}
-            <div className={`absolute right-20 -top-5 text-[10px] ${input.length > MAX_MESSAGE_CHARS ? "text-red-400" : "text-gray-500"}`}>
-              {input.length.toLocaleString("ru-RU")} / {MAX_MESSAGE_CHARS.toLocaleString("ru-RU")}
-            </div>
+            {attachedFile && <span className="text-xs text-gray-400 truncate flex-1">{attachedFile.name} ({(attachedFile.content.length / 1024).toFixed(0)} КБ)</span>}
             <button onClick={() => sendMessage()} disabled={!input.trim() || isGenerating}
-              className="bg-[#00FF00] hover:bg-[#00CC00] disabled:opacity-30 disabled:cursor-not-allowed text-[#0A2A0A] rounded-xl px-5 font-semibold transition-colors">
+              className="w-12 h-12 flex-shrink-0 bg-[#00FF00] hover:bg-[#00CC00] disabled:opacity-30 disabled:cursor-not-allowed text-[#0A2A0A] rounded-xl flex items-center justify-center font-semibold transition-colors"
+              aria-label="Отправить сообщение" title="Отправить">
               {isGenerating ? (
-              <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-              </svg>
-            ) : (
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
-              </svg>
-            )}
+                <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-90" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.37 0 0 5.37 0 12h4z"/></svg>
+              ) : (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 12 3.27 3.13A59.77 59.77 0 0 1 21.49 12 59.77 59.77 0 0 1 3.27 20.88L6 12Zm0 0h7.5"/></svg>
+              )}
             </button>
           </div>
           {error && <div className="max-w-3xl mx-auto mt-2 text-xs text-red-400">{error}</div>}
+          </div>
         </div>
       </div>
     </div>
