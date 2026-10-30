@@ -29,6 +29,7 @@ export default function ChatPage() {
   const [balance, setBalance] = useState(null);
   const [error, setError] = useState(null);
   const [composerExpanded, setComposerExpanded] = useState(false);
+  const [composerNeedsExpand, setComposerNeedsExpand] = useState(false);
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
   const textareaRef = useRef(null);
@@ -391,6 +392,7 @@ export default function ChatPage() {
     const maxHeight = composerExpanded ? window.innerHeight - 180 : 160;
     el.style.height = composerExpanded ? "100%" : `${Math.min(el.scrollHeight, maxHeight)}px`;
     el.style.overflowY = composerExpanded ? "auto" : (el.scrollHeight > maxHeight ? "auto" : "hidden");
+    setComposerNeedsExpand(!composerExpanded && (el.scrollHeight > maxHeight || input.length >= 300));
   };
 
   useEffect(() => { resizeComposer(); }, [input, composerExpanded]);
@@ -608,7 +610,7 @@ export default function ChatPage() {
         </div>
 
         <div className={`fixed z-30 transition-all duration-200 ${composerExpanded ? "inset-0 bg-[#090d13] px-4 py-4 sm:px-8 sm:py-6" : "bottom-4 left-4 right-4 sm:bottom-6"}`}>
-          <div className={`${composerExpanded ? "h-full max-w-5xl mx-auto flex flex-col" : "max-w-3xl mx-auto rounded-2xl border border-white/10 bg-[#111720]/95 shadow-2xl backdrop-blur-xl p-3"}`}>
+          <div className={`${composerExpanded ? "h-full max-w-5xl mx-auto flex flex-col" : "max-w-3xl mx-auto rounded-2xl border border-white/10 bg-[#111720]/95 shadow-2xl backdrop-blur-xl p-3 flex items-end gap-2"}`}>
           {composerExpanded && (
             <div className="flex items-center justify-between mb-3">
               <span className="text-sm font-semibold text-gray-200">Сообщение</span>
@@ -630,7 +632,7 @@ export default function ChatPage() {
               className={`w-full bg-[#0d0d14] border border-white/10 rounded-xl px-4 py-3 resize-none outline-none focus:border-[#00CC00] transition-colors placeholder:text-gray-600 text-gray-100 ${composerExpanded ? "h-full min-h-0" : "min-h-[48px]"}`}
               rows={1} disabled={isGenerating}
               style={{ height: composerExpanded ? "100%" : undefined, maxHeight: composerExpanded ? "100%" : "160px" }} />
-            {(input.length > 1000 || composerExpanded) && !composerExpanded && (
+            {composerNeedsExpand && !composerExpanded && (
               <button onClick={() => setComposerExpanded(true)} type="button"
                 title="Открыть редактор на весь экран" aria-label="Открыть поле ввода на весь экран"
                 className="absolute right-2 top-2 p-1.5 rounded-md text-gray-400 hover:text-white hover:bg-white/10 transition-colors">
@@ -641,7 +643,7 @@ export default function ChatPage() {
               {input.length.toLocaleString("ru-RU")} / {MAX_MESSAGE_CHARS.toLocaleString("ru-RU")}
             </div>
           </div>
-          <div className={`flex items-center gap-3 ${composerExpanded ? "mt-3 justify-end" : "mt-2"}`}>
+          <div className={composerExpanded ? "mt-3 flex items-center justify-between gap-3" : "contents"}>
             <input type="file" ref={fileInputRef} className="hidden"
               onChange={async (e) => {
                 const f = e.target.files?.[0];
