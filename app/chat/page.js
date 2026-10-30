@@ -171,7 +171,10 @@ export default function ChatPage() {
     const saved = localStorage.getItem("ai_token");
     if (saved) {
       setToken(saved);
-      loadChats(saved);
+      const savedChatId = localStorage.getItem("ai_current_chat_id");
+      loadChats(saved).then(() => {
+        if (savedChatId) openChat(Number(savedChatId));
+      });
     }
     // На десктопе сайдбар открыт по умолчанию
     if (window.innerWidth >= 768) setSidebarOpen(true);
@@ -230,6 +233,7 @@ export default function ChatPage() {
       setIsTemp(false);
       setCurrentChatId(id);
       setBranchPoint(null);
+      try { localStorage.setItem("ai_current_chat_id", String(id)); } catch (_) {}
       setSidebarOpen(window.innerWidth >= 768);
     } catch (e) {}
   };
@@ -408,8 +412,8 @@ export default function ChatPage() {
     lastScrollY.current = y;
   };
 
-  const newChat = () => { setMessages([]); setIsTemp(false); setCurrentChatId(null); };
-  const tempChat = () => { setMessages([]); setIsTemp(true); };
+  const newChat = () => { setMessages([]); setIsTemp(false); setCurrentChatId(null); setBranchPoint(null); try { localStorage.removeItem("ai_current_chat_id"); } catch (_) {} };
+  const tempChat = () => { setMessages([]); setIsTemp(true); setCurrentChatId(null); setBranchPoint(null); try { localStorage.removeItem("ai_current_chat_id"); } catch (_) {} };
 
   const copyMessage = async (content) => {
     try { await navigator.clipboard.writeText(content); }
@@ -609,8 +613,8 @@ export default function ChatPage() {
           </div>
         </div>
 
-        <div className={`fixed z-30 transition-all duration-200 ${composerExpanded ? "inset-0 bg-[#090d13] px-4 py-4 sm:px-8 sm:py-6" : "bottom-4 left-4 right-4 sm:bottom-6"}`}>
-          <div className={`${composerExpanded ? "h-full max-w-5xl mx-auto flex flex-col" : "max-w-3xl mx-auto rounded-2xl border border-white/10 bg-[#111720]/95 shadow-2xl backdrop-blur-xl p-3 flex items-end gap-2"}`}>
+        <div className={`fixed z-30 transition-all duration-200 ${composerExpanded ? "inset-0 bg-[#090d13] px-4 py-4 sm:px-8 sm:py-6" : sidebarOpen && !isMobile ? "bottom-4 left-64 right-4 sm:bottom-6" : "bottom-4 left-4 right-4 sm:bottom-6"}`}>
+          <div className={`${composerExpanded ? "h-full max-w-5xl mx-auto flex flex-col" : "max-w-5xl mx-auto rounded-2xl border border-white/10 bg-[#0d0d14]/95 shadow-2xl backdrop-blur-xl p-3 flex items-end gap-2"}`}>
           {composerExpanded && (
             <div className="flex items-center justify-between mb-3">
               <span className="text-sm font-semibold text-gray-200">Сообщение</span>
