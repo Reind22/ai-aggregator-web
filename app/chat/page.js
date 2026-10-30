@@ -638,7 +638,7 @@ export default function ChatPage() {
             catch (err) { setError("Не удалось прочитать файл"); }
             e.target.value = "";
           }} />
-          <div className={composerExpanded ? "flex-1 min-h-0 flex flex-col" : "max-w-3xl mx-auto flex items-center gap-2"}>
+          <div className={composerExpanded ? "flex-1 min-h-0 flex flex-col" : "max-w-5xl mx-auto flex items-center gap-2"}>
             {!composerExpanded && (
               <button onClick={() => fileInputRef.current?.click()} disabled={isGenerating}
                 className="order-1 w-12 h-12 flex-shrink-0 border border-white/10 hover:border-[#00CC00]/50 rounded-xl text-gray-400 hover:text-white transition-colors disabled:opacity-40 flex items-center justify-center"
