@@ -24,6 +24,7 @@ export default function ChatPage() {
   const [chatsLoading, setChatsLoading] = useState(false);
   const [headerVisible, setHeaderVisible] = useState(true);
   const [attachedFile, setAttachedFile] = useState(null); // {name, content}
+  const [branchPoint, setBranchPoint] = useState(null); // {messageId, variantIndex}
   const [token, setToken] = useState(null);
   const [balance, setBalance] = useState(null);
   const [error, setError] = useState(null);
@@ -214,9 +215,18 @@ export default function ChatPage() {
       const res = await apiFetch(`/chats/${id}/messages`);
       if (!res.ok) return;
       const msgs = await res.json();
-      setMessages(msgs.map((m) => ({ role: m.role, content: m.content })));
+      setMessages(msgs.map((m) => ({
+        id: m.id,
+        role: m.role,
+        content: m.content,
+        variants: m.variants || (m.role === "assistant" ? [m.content] : undefined),
+        variantIndex: m.role === "assistant" && m.variants?.length
+          ? Math.max(0, m.variants.indexOf(m.content))
+          : 0,
+      })));
       setIsTemp(false);
       setCurrentChatId(id);
+      setBranchPoint(null);
       setSidebarOpen(window.innerWidth >= 768);
     } catch (e) {}
   };
@@ -228,16 +238,21 @@ export default function ChatPage() {
       ? [...messages.slice(0, regenerateIndex)].reverse().find((m) => m.role === "user")
       : null;
     if (isRegeneration && !sourceUser) return;
-    if (!isRegeneration && !input.trim()) return;
-    const text = isRegeneration ? sourceUser.content : input.trim();
+    const text = isRegeneration ? "" : input.trim();
+    if (!isRegeneration && !text) return;
     if (text.length > MAX_MESSAGE_CHARS) {
       setError(`Сообщение слишком длинное: ${text.length.toLocaleString("ru-RU")} из ${MAX_MESSAGE_CHARS.toLocaleString("ru-RU")} символов`);
       return;
     }
     if (!isRegeneration) {
       const userMsg = { role: "user", content: attachedFile ? `${text}\n\n📎 ${attachedFile.name}` : text };
-      setMessages((prev) => [...prev, userMsg]);
+      setMessages((prev) => {
+        if (!branchPoint) return [...prev, userMsg];
+        const branchIndex = prev.findIndex((msg) => msg.id === branchPoint.messageId);
+        return [...(branchIndex >= 0 ? prev.slice(0, branchIndex + 1) : prev), userMsg];
+      });
       setInput("");
+      setBranchPoint(null);
     }
     setIsGenerating(true);
     setError(null);
@@ -253,6 +268,9 @@ export default function ChatPage() {
         body: JSON.stringify({
           message: text, model, chat_id: currentChatId, is_temp: isTemp,
           regenerate: isRegeneration,
+          regenerate_message_id: isRegeneration ? messages[regenerateIndex]?.id || null : null,
+          branch_message_id: !isRegeneration ? branchPoint?.messageId || null : null,
+          branch_variant_index: !isRegeneration ? branchPoint?.variantIndex ?? null : null,
           file_name: isRegeneration ? null : (attachedFile?.name || null), file_content: isRegeneration ? null : (attachedFile?.content || null),
         }),
       });
@@ -314,6 +332,12 @@ export default function ChatPage() {
               appendAssistant(assistantText);
             }
             if (ev.chat_id) setCurrentChatId(ev.chat_id);
+            if (ev.message_id) {
+              setMessages((prev) => {
+                const index = targetAssistantIndex !== null ? targetAssistantIndex : prev.length - 1;
+                return prev.map((msg, i) => i === index ? { ...msg, id: ev.message_id } : msg);
+              });
+            }
             if (ev.usage) {
               // финальные цифры: input/output/cost_usd
               if (typeof ev.usage.cost_usd === "number") setBalance((b) => b);
@@ -373,11 +397,13 @@ export default function ChatPage() {
   };
 
   const cycleVariant = (index, delta) => {
-    setMessages((prev) => prev.map((msg, i) => {
-      if (i !== index || !msg.variants?.length) return msg;
-      const next = (msg.variantIndex + delta + msg.variants.length) % msg.variants.length;
-      return { ...msg, variantIndex: next, content: msg.variants[next] };
-    }));
+    const msg = messages[index];
+    if (!msg?.variants?.length) return;
+    const next = (msg.variantIndex + delta + msg.variants.length) % msg.variants.length;
+    setBranchPoint({ messageId: msg.id, variantIndex: next });
+    setMessages((prev) => prev.map((item, i) => i === index
+      ? { ...item, variantIndex: next, content: item.variants[next] }
+      : item));
   };
 
   return (
