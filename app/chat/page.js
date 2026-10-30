@@ -8,7 +8,7 @@ import LanguageMenu from "../../components/LanguageMenu";
 import { apiFetch } from "../../lib/api";
 
 const API_BASE = "/api";
-const MAX_MESSAGE_CHARS = 64000;
+const MAX_MESSAGE_CHARS = 100000;
 
 export default function ChatPage() {
   const [messages, setMessages] = useState([]);
@@ -221,16 +221,24 @@ export default function ChatPage() {
     } catch (e) {}
   };
 
-  const sendMessage = async () => {
-    if (!input.trim() || isGenerating) return;
-    const text = input.trim();
+  const sendMessage = async (regenerateIndex = null) => {
+    const isRegeneration = regenerateIndex !== null;
+    if (isGenerating) return;
+    const sourceUser = isRegeneration
+      ? [...messages.slice(0, regenerateIndex)].reverse().find((m) => m.role === "user")
+      : null;
+    if (isRegeneration && !sourceUser) return;
+    if (!isRegeneration && !input.trim()) return;
+    const text = isRegeneration ? sourceUser.content : input.trim();
     if (text.length > MAX_MESSAGE_CHARS) {
       setError(`Сообщение слишком длинное: ${text.length.toLocaleString("ru-RU")} из ${MAX_MESSAGE_CHARS.toLocaleString("ru-RU")} символов`);
       return;
     }
-    const userMsg = { role: "user", content: attachedFile ? `${text}\n\n📎 ${attachedFile.name}` : text };
-    setMessages((prev) => [...prev, userMsg]);
-    setInput("");
+    if (!isRegeneration) {
+      const userMsg = { role: "user", content: attachedFile ? `${text}\n\n📎 ${attachedFile.name}` : text };
+      setMessages((prev) => [...prev, userMsg]);
+      setInput("");
+    }
     setIsGenerating(true);
     setError(null);
 
@@ -244,7 +252,8 @@ export default function ChatPage() {
         },
         body: JSON.stringify({
           message: text, model, chat_id: currentChatId, is_temp: isTemp,
-          file_name: attachedFile?.name || null, file_content: attachedFile?.content || null,
+          regenerate: isRegeneration,
+          file_name: isRegeneration ? null : (attachedFile?.name || null), file_content: isRegeneration ? null : (attachedFile?.content || null),
         }),
       });
 
@@ -272,13 +281,19 @@ export default function ChatPage() {
       let buffer = "";
       let assistantText = "";
       let finished = false;
+      let targetAssistantIndex = isRegeneration ? regenerateIndex : null;
 
       const appendAssistant = (piece) => {
         setMessages((prev) => {
-          const base = prev[prev.length - 1]?.role === "assistant" && !finished
-            ? prev.slice(0, -1)
-            : prev;
-          return [...base, { role: "assistant", content: piece }];
+          if (targetAssistantIndex !== null) {
+            const next = [...prev];
+            const current = next[targetAssistantIndex] || { role: "assistant", content: "" };
+            next[targetAssistantIndex] = { ...current, content: piece };
+            return next;
+          }
+          const last = prev[prev.length - 1];
+          const base = last?.role === "assistant" && !finished ? prev.slice(0, -1) : prev;
+          return [...base, { role: "assistant", content: piece, variants: [piece], variantIndex: 0 }];
         });
       };
 
@@ -309,6 +324,18 @@ export default function ChatPage() {
       }
 
       if (assistantText) {
+        setMessages((prev) => {
+          const index = targetAssistantIndex !== null ? targetAssistantIndex : prev.length - 1;
+          const current = prev[index];
+          if (!current || current.role !== "assistant") return prev;
+          const variants = current.variants || [];
+          if (targetAssistantIndex !== null) {
+            return prev.map((msg, i) => i === index
+              ? { ...msg, content: assistantText, variants: [...variants, assistantText], variantIndex: variants.length }
+              : msg);
+          }
+          return prev.map((msg, i) => i === index ? { ...msg, content: assistantText } : msg);
+        });
         loadChats();  // чат появился/обновился в истории
       } else if (!finished) {
         setMessages((prev) => [...prev, { role: "assistant", content: "⚠️ Пустой ответ сервера" }]);
@@ -339,6 +366,19 @@ export default function ChatPage() {
 
   const newChat = () => { setMessages([]); setIsTemp(false); setCurrentChatId(null); };
   const tempChat = () => { setMessages([]); setIsTemp(true); };
+
+  const copyMessage = async (content) => {
+    try { await navigator.clipboard.writeText(content); }
+    catch (_) { setError("Не удалось скопировать сообщение"); }
+  };
+
+  const cycleVariant = (index, delta) => {
+    setMessages((prev) => prev.map((msg, i) => {
+      if (i !== index || !msg.variants?.length) return msg;
+      const next = (msg.variantIndex + delta + msg.variants.length) % msg.variants.length;
+      return { ...msg, variantIndex: next, content: msg.variants[next] };
+    }));
+  };
 
   return (
     <div className="flex h-screen bg-surface-dark overflow-hidden" style={{ height: "100dvh" }}>
@@ -478,12 +518,25 @@ export default function ChatPage() {
                     : "bg-white/[0.06] border border-white/[0.06] rounded-bl-sm text-gray-200"
                 }`}>
                   {msg.role === "user" ? msg.content : <MarkdownRenderer content={msg.content} />}
-                  <button
-                    onClick={() => navigator.clipboard.writeText(msg.content)}
-                    title="Копировать"
-                    aria-label="Копировать сообщение"
-                    className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity bg-black/60 hover:bg-black/80 text-gray-300 hover:text-white rounded-md px-1.5 py-0.5 text-[11px]"
-                  >копировать</button>
+                  {msg.role === "assistant" && !msg.content.startsWith("⚠️") && (
+                    <div className="mt-3 pt-2 border-t border-white/[0.08] flex items-center gap-1 text-gray-500">
+                      <button onClick={() => copyMessage(msg.content)} title="Копировать" aria-label="Копировать сообщение"
+                        className="p-1.5 rounded-md hover:bg-white/10 hover:text-white transition-colors">
+                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                      </button>
+                      <button onClick={() => sendMessage(i)} disabled={isGenerating} title="Перегенерировать" aria-label="Перегенерировать ответ"
+                        className="p-1.5 rounded-md hover:bg-white/10 hover:text-white disabled:opacity-40 transition-colors">
+                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M20 11a8.1 8.1 0 0 0-14.7-4.7L3 8"/><path d="M3 3v5h5"/><path d="M4 13a8.1 8.1 0 0 0 14.7 4.7L21 16"/><path d="M21 21v-5h-5"/></svg>
+                      </button>
+                      {msg.variants?.length > 1 && (
+                        <div className="ml-2 flex items-center gap-1 text-xs text-gray-400">
+                          <button onClick={() => cycleVariant(i, -1)} title="Предыдущий вариант" aria-label="Предыдущий вариант" className="p-1 rounded hover:bg-white/10 hover:text-white">←</button>
+                          <span>{(msg.variantIndex ?? 0) + 1} / {msg.variants.length}</span>
+                          <button onClick={() => cycleVariant(i, 1)} title="Следующий вариант" aria-label="Следующий вариант" className="p-1 rounded hover:bg-white/10 hover:text-white">→</button>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
