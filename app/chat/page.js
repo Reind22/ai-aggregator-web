@@ -615,7 +615,7 @@ export default function ChatPage() {
         </div>
 
         <div className={`fixed z-30 transition-all duration-200 ${composerExpanded ? "inset-0 bg-[#090d13] px-4 py-4 sm:px-8 sm:py-6" : sidebarOpen && !isMobile ? "bottom-4 left-64 right-4 sm:bottom-6" : "bottom-4 left-4 right-4 sm:bottom-6"}`}>
-          <div className={`${composerExpanded ? "h-full w-full max-w-5xl mx-auto flex flex-col" : "max-w-5xl mx-auto rounded-2xl border-0 bg-transparent shadow-none p-0 flex items-center gap-2"}`}>
+          <div className={`${composerExpanded ? "h-full w-full max-w-5xl mx-auto flex flex-col bg-transparent border-0" : "max-w-5xl mx-auto rounded-2xl border-0 bg-transparent shadow-none p-0 flex items-center gap-2"}`}>
           {composerExpanded && (
             <div className="flex items-center justify-between mb-3">
               <span className="text-sm font-semibold text-gray-200">Сообщение</span>
@@ -638,7 +638,7 @@ export default function ChatPage() {
             catch (err) { setError("Не удалось прочитать файл"); }
             e.target.value = "";
           }} />
-          <div className={composerExpanded ? "max-w-5xl mx-auto flex-1 min-h-0 flex flex-col" : "max-w-5xl mx-auto flex items-center gap-2 w-full"}>
+          <div className={composerExpanded ? "h-full w-full max-w-5xl mx-auto flex flex-col bg-transparent border-0" : "max-w-5xl mx-auto flex items-center gap-2 w-full"}>
             {!composerExpanded && (
               <button onClick={() => fileInputRef.current?.click()} disabled={isGenerating}
                 className="order-1 w-12 h-12 flex-shrink-0 border border-white/10 hover:border-[#00CC00]/50 rounded-xl text-gray-400 hover:text-white transition-colors disabled:opacity-40 flex items-center justify-center"
@@ -652,7 +652,7 @@ export default function ChatPage() {
               <div className="absolute right-3 bottom-2 text-[10px] text-gray-500">{input.length.toLocaleString("ru-RU")} / {MAX_MESSAGE_CHARS.toLocaleString("ru-RU")}</div>
             </div>
             {!composerExpanded && <button onClick={() => sendMessage()} disabled={!input.trim() || isGenerating} className="order-3 w-12 h-12 flex-shrink-0 bg-[#00FF00] hover:bg-[#00CC00] disabled:opacity-30 disabled:cursor-not-allowed text-[#0A2A0A] rounded-xl flex items-center justify-center" aria-label="Отправить сообщение" title="Отправить"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 12 3.27 3.13A59.77 59.77 0 0 1 21.49 12 59.77 59.77 0 0 1 3.27 20.88L6 12Zm0 0h7.5"/></svg></button>}
-            {composerExpanded && <div className="mt-auto flex-shrink-0 flex items-center justify-between gap-3"><button onClick={() => fileInputRef.current?.click()} disabled={isGenerating} className="w-12 h-12 flex-shrink-0 border border-white/10 rounded-xl flex items-center justify-center" aria-label="Прикрепить файл"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></button><button onClick={() => sendMessage()} disabled={!input.trim() || isGenerating} className="w-12 h-12 flex-shrink-0 bg-[#00FF00] text-[#0A2A0A] rounded-xl flex items-center justify-center" aria-label="Отправить сообщение"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M6 12 3.27 3.13A59.77 59.77 0 0 1 21.49 12 59.77 59.77 0 0 1 3.27 20.88L6 12Zm0 0h7.5"/></svg></button></div>}
+            {composerExpanded && <div className="absolute left-4 right-4 bottom-4 flex items-center justify-between gap-3"><button onClick={() => fileInputRef.current?.click()} disabled={isGenerating} className="w-12 h-12 flex-shrink-0 border border-white/10 rounded-xl flex items-center justify-center" aria-label="Прикрепить файл"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></button><button onClick={() => sendMessage()} disabled={!input.trim() || isGenerating} className="w-12 h-12 flex-shrink-0 bg-[#00FF00] text-[#0A2A0A] rounded-xl flex items-center justify-center" aria-label="Отправить сообщение"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M6 12 3.27 3.13A59.77 59.77 0 0 1 21.49 12 59.77 59.77 0 0 1 3.27 20.88L6 12Zm0 0h7.5"/></svg></button></div>}
             {error && <div className="text-xs text-red-400">{error}</div>}
           </div>
         </div>
