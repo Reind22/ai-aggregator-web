@@ -594,7 +594,7 @@ export default function ChatPage() {
                         className="p-1.5 rounded-md hover:bg-white/10 hover:text-white disabled:opacity-40 transition-colors">
                         <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M20 11a8.1 8.1 0 0 0-14.7-4.7L3 8"/><path d="M3 3v5h5"/><path d="M4 13a8.1 8.1 0 0 0 14.7 4.7L21 16"/><path d="M21 21v-5h-5"/></svg>
                       </button>
-                      {msg.variants?.length > 1 && (
+                      {false && msg.variants?.length > 1 && (
                         <div className="ml-2 flex items-center gap-1 text-xs text-gray-400">
                           <button onClick={() => cycleVariant(i, -1)} title="Предыдущий вариант" aria-label="Предыдущий вариант" className="p-1 rounded hover:bg-white/10 hover:text-white">←</button>
                           <span>{(msg.variantIndex ?? 0) + 1} / {msg.variants.length}</span>
