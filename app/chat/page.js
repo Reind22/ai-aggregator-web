@@ -240,8 +240,9 @@ export default function ChatPage() {
     } catch (e) {}
   };
 
-  const sendMessage = async (regenerateIndex = null) => {
-    const isRegeneration = regenerateIndex !== null;
+  const sendMessage = async (regenerateMessageId = null) => {
+    const isRegeneration = regenerateMessageId !== null;
+    const regenerateIndex = isRegeneration ? messages.findIndex((m) => m.id === regenerateMessageId) : -1;
     if (isGenerating) return;
     const sourceUser = isRegeneration
       ? [...messages.slice(0, regenerateIndex)].reverse().find((m) => m.role === "user")
@@ -589,7 +590,7 @@ export default function ChatPage() {
                         className="p-1.5 rounded-md hover:bg-white/10 hover:text-white transition-colors">
                         <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                       </button>
-                      <button onClick={() => sendMessage(i)} disabled={isGenerating} title="Перегенерировать" aria-label="Перегенерировать ответ"
+                      <button onClick={() => sendMessage(msg.id)} disabled={isGenerating} title="Перегенерировать" aria-label="Перегенерировать ответ"
                         className="p-1.5 rounded-md hover:bg-white/10 hover:text-white disabled:opacity-40 transition-colors">
                         <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M20 11a8.1 8.1 0 0 0-14.7-4.7L3 8"/><path d="M3 3v5h5"/><path d="M4 13a8.1 8.1 0 0 0 14.7 4.7L21 16"/><path d="M21 21v-5h-5"/></svg>
                       </button>
