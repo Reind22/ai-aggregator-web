@@ -172,7 +172,7 @@ export default function ChatPage() {
     if (saved) {
       setToken(saved);
       const savedChatId = localStorage.getItem("ai_current_chat_id");
-      loadChats(saved).then(() => {
+      loadChats().then(() => {
         if (savedChatId) openChat(Number(savedChatId));
       });
     }
@@ -198,8 +198,10 @@ export default function ChatPage() {
         setChats(data.chats || []);
         setChatsHasMore(!!data.has_more);
       }
-    } catch (e) {}
-    finally { setChatsLoading(false); }
+      return res;
+    } catch (e) {
+      return null;
+    } finally { setChatsLoading(false); }
   };
 
   const loadMoreChats = async () => {
