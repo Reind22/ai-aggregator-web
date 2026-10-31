@@ -306,6 +306,7 @@ export default function ChatPage() {
       let buffer = "";
       let assistantText = "";
       let finished = false;
+      let doneEvent = null;
       let targetAssistantIndex = isRegeneration ? regenerateIndex : null;
 
       const appendAssistant = (piece) => {
@@ -357,22 +358,25 @@ export default function ChatPage() {
               // финальные цифры: input/output/cost_usd
               if (typeof ev.usage.cost_usd === "number") setBalance((b) => b);
             }
-            if (ev.done) finished = true;
+            if (ev.done) { finished = true; doneEvent = ev; }
           } catch (_) {}
         }
       }
 
       if (assistantText) {
-        if (isRegeneration && currentChatId) {
-          await openChat(currentChatId);
-        } else {
-          setMessages((prev) => {
-            const index = targetAssistantIndex !== null ? targetAssistantIndex : prev.length - 1;
-            const current = prev[index];
-            if (!current || current.role !== "assistant") return prev;
-            return prev.map((msg, i) => i === index ? { ...msg, content: assistantText } : msg);
-          });
-        }
+        setMessages((prev) => {
+          const index = targetAssistantIndex !== null ? targetAssistantIndex : prev.length - 1;
+          const current = prev[index];
+          if (!current || current.role !== "assistant") return prev;
+          const variants = doneEvent?.variants || current.variants || [assistantText];
+          return prev.map((msg, i) => i === index ? {
+            ...msg,
+            id: doneEvent?.message_id || msg.id,
+            content: doneEvent?.variants?.length ? doneEvent.variants[doneEvent.variants.length - 1] : assistantText,
+            variants,
+            variantIndex: variants.length - 1,
+          } : msg);
+        });
         loadChats();  // чат появился/обновился в истории
       } else if (!finished) {
         setMessages((prev) => [...prev, { role: "assistant", content: "⚠️ Пустой ответ сервера" }]);
