@@ -263,6 +263,7 @@ export default function ChatPage() {
       });
       setInput("");
       setBranchPoint(null);
+      setAttachedFile(null);
     }
     setIsGenerating(true);
     setError(null);
@@ -389,7 +390,6 @@ export default function ChatPage() {
       setMessages((prev) => [...prev, { role: "assistant", content: "⚠️ Сервер недоступен" }]);
     } finally {
       setIsGenerating(false);
-      setAttachedFile(null);
     }
   };
 
