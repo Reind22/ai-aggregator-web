@@ -23,7 +23,8 @@ export default function ChatPage() {
   const [chatsHasMore, setChatsHasMore] = useState(false);
   const [chatsLoading, setChatsLoading] = useState(false);
   const [headerVisible, setHeaderVisible] = useState(true);
-  const [attachedFile, setAttachedFile] = useState(null); // {name, content}
+  const [attachedFile, setAttachedFile] = useState(null); // {name, content, kind, bytes, truncated}
+  const [uploading, setUploading] = useState(false);
   const [branchPoint, setBranchPoint] = useState(null); // {messageId, variantIndex}
   const [token, setToken] = useState(null);
   const [balance, setBalance] = useState(null);
@@ -282,7 +283,7 @@ export default function ChatPage() {
           regenerate_message_id: isRegeneration ? messages[regenerateIndex]?.id || null : null,
           branch_message_id: !isRegeneration ? branchPoint?.messageId || null : null,
           branch_variant_index: !isRegeneration ? branchPoint?.variantIndex ?? null : null,
-          file_name: isRegeneration ? null : (attachedFile?.name || null), file_content: isRegeneration ? null : (attachedFile?.content || null),
+          file_name: isRegeneration ? null : (attachedFile?.name || null), file_content: isRegeneration ? null : (attachedFile?.content || null), file_kind: isRegeneration ? null : (attachedFile?.kind || null),
         }),
       });
 
@@ -643,16 +644,47 @@ export default function ChatPage() {
             <div className="w-full max-w-5xl mx-auto flex items-center gap-2 text-xs text-gray-400 bg-white/5 border border-white/10 rounded-lg px-3 py-2 min-w-0">
               <svg className="w-4 h-4 flex-shrink-0 text-[#00FF00]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8"><path strokeLinecap="round" strokeLinejoin="round" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path strokeLinecap="round" strokeLinejoin="round" d="M14 2v6h6"/></svg>
               <span className="truncate min-w-0">{attachedFile.name}</span>
-              <span className="flex-shrink-0 text-gray-500">({(attachedFile.content.length / 1024).toFixed(0)} КБ)</span>
+              <span className="flex-shrink-0 text-gray-500">
+                {attachedFile.kind && attachedFile.kind !== "text" ? attachedFile.kind.toUpperCase() : ""}
+                {attachedFile.kind && attachedFile.kind !== "text" ? " · " : ""}
+                {(attachedFile.bytes / 1024).toFixed(0)} КБ
+                {attachedFile.truncated ? " · показано начало" : ""}
+              </span>
               <button onClick={() => setAttachedFile(null)} className="ml-auto flex-shrink-0 text-gray-500 hover:text-red-400" aria-label="Убрать файл">✕</button>
             </div>
           )}
           <input type="file" ref={fileInputRef} className="hidden" onChange={async (e) => {
             const f = e.target.files?.[0];
             if (!f) return;
-            if (f.size > 1024 * 1024) { setError("Файл больше 1 МБ"); return; }
-            try { setAttachedFile({ name: f.name, content: await f.text() }); }
-            catch (err) { setError("Не удалось прочитать файл"); }
+            setUploading(true);
+            setError(null);
+            try {
+              // Разбор делает сервер: pdf, docx, xlsx, pptx и текст/код
+              const token = localStorage.getItem("ai_token");
+              const fd = new FormData();
+              fd.append("file", f);
+              const res = await fetch("/api/chats/upload", {
+                method: "POST",
+                headers: token ? { Authorization: `Bearer ${token}` } : {},
+                body: fd,
+              });
+              const data = await res.json().catch(() => ({}));
+              if (!res.ok) {
+                setError(data.detail || "Не удалось обработать файл");
+              } else {
+                setAttachedFile({
+                  name: data.file_name,
+                  content: data.content,
+                  kind: data.kind,
+                  bytes: data.size,
+                  truncated: data.truncated,
+                });
+              }
+            } catch (err) {
+              setError("Сервер не принял файл");
+            } finally {
+              setUploading(false);
+            }
             e.target.value = "";
           }} />
           <div className={composerExpanded ? "h-full w-full max-w-5xl mx-auto flex flex-col bg-transparent border-0" : "max-w-5xl mx-auto grid grid-cols-[48px_minmax(0,1fr)_48px] items-end gap-2 w-full"}>
