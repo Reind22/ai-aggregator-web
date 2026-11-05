@@ -622,7 +622,7 @@ export default function ChatPage() {
         </div>
 
         <div className={`fixed z-30 transition-all duration-200 ${composerExpanded ? "inset-0 bg-[#090d13] px-4 py-4 sm:px-8 sm:py-6" : sidebarOpen && !isMobile ? "bottom-4 left-64 right-4 sm:bottom-6" : "bottom-4 left-4 right-4 sm:bottom-6"}`}>
-          <div className={`${composerExpanded ? "h-full w-full max-w-5xl mx-auto flex flex-col bg-transparent border-0" : "max-w-5xl mx-auto rounded-2xl border-0 bg-transparent shadow-none p-0 flex items-center gap-2"}`}>
+          <div className={`${composerExpanded ? "h-full w-full max-w-5xl mx-auto flex flex-col bg-transparent border-0" : "max-w-5xl mx-auto rounded-2xl border-0 bg-transparent shadow-none p-0 flex flex-col gap-2"}`}>
           {composerExpanded && (
             <div className="flex items-center justify-between mb-3">
               <span className="text-sm font-semibold text-gray-200">Сообщение</span>
@@ -632,9 +632,11 @@ export default function ChatPage() {
             </div>
           )}
           {attachedFile && (
-            <div className="max-w-3xl mx-auto mb-2 flex items-center gap-2 text-xs text-gray-400 bg-white/5 border border-white/10 rounded-lg px-3 py-2">
-              <span>📎 {attachedFile.name} ({(attachedFile.content.length / 1024).toFixed(0)} КБ)</span>
-              <button onClick={() => setAttachedFile(null)} className="ml-auto text-gray-500 hover:text-red-400" aria-label="Убрать файл">✕</button>
+            <div className="w-full max-w-5xl mx-auto flex items-center gap-2 text-xs text-gray-400 bg-white/5 border border-white/10 rounded-lg px-3 py-2 min-w-0">
+              <svg className="w-4 h-4 flex-shrink-0 text-[#00FF00]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8"><path strokeLinecap="round" strokeLinejoin="round" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path strokeLinecap="round" strokeLinejoin="round" d="M14 2v6h6"/></svg>
+              <span className="truncate min-w-0">{attachedFile.name}</span>
+              <span className="flex-shrink-0 text-gray-500">({(attachedFile.content.length / 1024).toFixed(0)} КБ)</span>
+              <button onClick={() => setAttachedFile(null)} className="ml-auto flex-shrink-0 text-gray-500 hover:text-red-400" aria-label="Убрать файл">✕</button>
             </div>
           )}
           <input type="file" ref={fileInputRef} className="hidden" onChange={async (e) => {
