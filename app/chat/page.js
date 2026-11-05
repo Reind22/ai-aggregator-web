@@ -409,15 +409,17 @@ export default function ChatPage() {
 
   useEffect(() => { resizeComposer(); }, [input, composerExpanded]);
 
-  // Шапка: показывается при скролле вверх, прячется при скролле вниз (мобильный UX)
+  // Шапка: показывается при скролле вверх, прячется при скролле вниз.
+  // Гистерезис 24/12 px + проверка текущего состояния: без этого у дна списка
+  // браузер сам подправляет scrollTop и панель дёргается в цикле.
   const lastScrollY = useRef(0);
   const handleMessagesScroll = (e) => {
     const y = e.target.scrollTop;
     const delta = y - lastScrollY.current;
-    if (y < 40) setHeaderVisible(true);        // у верха — всегда показываем
-    else if (delta > 6) setHeaderVisible(false);  // тянем вниз — прячем
-    else if (delta < -6) setHeaderVisible(true);  // тянем вверх — показываем
     lastScrollY.current = y;
+    if (y < 40) { if (!headerVisible) setHeaderVisible(true); return; }
+    if (delta > 24) { if (headerVisible) setHeaderVisible(false); }
+    else if (delta < -12) { if (!headerVisible) setHeaderVisible(true); }
   };
 
   const newChat = () => { setMessages([]); setIsTemp(false); setCurrentChatId(null); setBranchPoint(null); try { localStorage.removeItem("ai_current_chat_id"); } catch (_) {} };
@@ -523,9 +525,12 @@ export default function ChatPage() {
       </div>
 
       {/* Main */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-h-0">
+        {/* Хедер вне потока: его скрытие не меняет clientHeight скроллера,
+            иначе браузер сам двигает scrollTop у дна и панель дёргается в цикле.
+            Место под него резервирует статичный спейсер ниже. */}
         <div
-          className={`border-b border-white/[0.06] bg-[#0d0d14] px-4 flex items-center justify-between overflow-hidden transition-all duration-200 ${headerVisible ? "max-h-20 opacity-100 py-3" : "max-h-0 opacity-0 py-0"}`}
+          className={`fixed top-0 left-0 right-0 z-30 border-b border-white/[0.06] bg-[#0d0d14] px-4 flex items-center justify-between overflow-hidden transition-all duration-200 ${headerVisible ? "max-h-20 opacity-100 py-3" : "max-h-0 opacity-0 py-0 border-b-0"}`}
         >
           {/* Мобайл: бургер открывает панель; десктоп: панель открыта постоянно, бургер в шапке не нужен */}
           <div className="flex items-center gap-1">
@@ -557,6 +562,9 @@ export default function ChatPage() {
               onPick={(id) => { setModel(id); setPickerOpen(false); }} />
           </div>
         </div>
+
+        {/* Спейсер: постоянная высота под fixed-хедер, чтобы контент не прыгал */}
+        <div className="h-[68px] flex-shrink-0" aria-hidden="true" />
 
         <div className="flex-1 overflow-y-auto px-4 pt-6 pb-36 overscroll-contain" onScroll={handleMessagesScroll}>
           <div className="max-w-3xl mx-auto space-y-4">
