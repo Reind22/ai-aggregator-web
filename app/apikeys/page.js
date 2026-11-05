@@ -1,20 +1,18 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+/**
+ * Страница API-ключей.
+ *
+ * Модели и цены берутся из единого каталога (/models), а не из списка в коде.
+ * Ключи работают через OpenAI-совместимый шлюз: POST /api/v1/chat/completions.
+ */
+import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
 import Logo from "../../components/Logo";
 import { apiFetch } from "../../lib/api";
 
-const API_BASE = "/api";
-
-const ALL_MODELS = [
-  { id: "glm-5.3-flash", name: "GLM 5.3 Flash" },
-  { id: "glm-5.3-flashx", name: "GLM 5.3 FlashX" },
-  { id: "glm-5.2", name: "GLM 5.2" },
-  { id: "glm-5.3", name: "GLM 5.3" },
-  { id: "glm-5.1", name: "GLM 5.1" },
-  { id: "deepseek-chat", name: "DeepSeek Chat" },
-];
+// Префикс шлюза на нашем домене (nginx снимает /api/, дальше — /v1/...)
+const GATEWAY_URL = "https://aicombiner.net/api/v1";
 
 const RESET_PERIODS = [
   { value: "day", label: "Раз в день" },
@@ -26,15 +24,23 @@ function humanReset(p) {
   return RESET_PERIODS.find((r) => r.value === p)?.label || p;
 }
 
+function fmtPrice(v) {
+  if (v === null || v === undefined) return "—";
+  if (v < 0.001) return `$${v.toFixed(5)}`;
+  return `$${v.toFixed(3).replace(/0+$/, "").replace(/\.$/, "")}`;
+}
+
 export default function ApiKeysPage() {
   const [token, setToken] = useState(null);
   const [allModels, setAllModels] = useState([]);
   const [keys, setKeys] = useState([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
-  const [newKeyRaw, setNewKeyRaw] = useState(null); // полный ключ — показывается один раз
+  const [newKeyRaw, setNewKeyRaw] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [copiedSnippet, setCopiedSnippet] = useState(null);
   const [error, setError] = useState(null);
+  const [tab, setTab] = useState("docs");
 
   // Форма создания
   const [name, setName] = useState("Мой ключ");
@@ -43,7 +49,13 @@ export default function ApiKeysPage() {
   const [resetPeriod, setResetPeriod] = useState("month");
   const [selectedModels, setSelectedModels] = useState([]);
 
-  const loadKeys = useCallback(async (t) => {
+  // Фильтры каталога моделей
+  const [search, setSearch] = useState("");
+  const [brandFilter, setBrandFilter] = useState("");
+  const [modalityFilter, setModalityFilter] = useState("text");
+  const [onlyCheap, setOnlyCheap] = useState(false);
+
+  const loadKeys = useCallback(async () => {
     try {
       const res = await apiFetch("/api-keys/");
       if (res.ok) setKeys(await res.json());
@@ -55,18 +67,46 @@ export default function ApiKeysPage() {
     setLoading(false);
   }, []);
 
+  const loadModels = useCallback(async () => {
+    try {
+      const res = await apiFetch("/models/");
+      if (!res.ok) return;
+      const data = await res.json();
+      // бэкенд отдаёт массив (совместимо с чатом); на всякий случай поддержим {items}
+      const list = Array.isArray(data) ? data : (data.items || []);
+      setAllModels(list);
+    } catch (e) {}
+  }, []);
+
   useEffect(() => {
     const saved = localStorage.getItem("ai_token");
     if (saved) {
       setToken(saved);
-      loadKeys(saved);
-      apiFetch("/models").then((data) => {
-        if (Array.isArray(data)) setAllModels(data);
-      }).catch(() => {});
+      loadKeys();
+      loadModels();
     } else {
       setLoading(false);
     }
-  }, [loadKeys]);
+  }, [loadKeys, loadModels]);
+
+  const brands = useMemo(
+    () => Array.from(new Set(allModels.map((m) => m.brand))).sort(),
+    [allModels]
+  );
+
+  const visibleModels = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return allModels.filter((m) => {
+      if (modalityFilter && m.modality !== modalityFilter) return false;
+      if (brandFilter && m.brand !== brandFilter) return false;
+      if (onlyCheap && (m.input_per_1m ?? 999) > 1) return false;
+      if (q) {
+        const hay = `${m.model} ${m.display_name} ${m.brand}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [allModels, search, brandFilter, modalityFilter, onlyCheap]);
 
   const createKey = async () => {
     if (!token) return;
@@ -86,7 +126,7 @@ export default function ApiKeysPage() {
       const data = await res.json();
       if (res.ok) {
         setNewKeyRaw(data.key);
-        loadKeys(token);
+        loadKeys();
         if (window.umami) window.umami.track("api-key-created");
       } else {
         setError(typeof data.detail === "string" ? data.detail : "Не удалось создать ключ");
@@ -99,30 +139,32 @@ export default function ApiKeysPage() {
   };
 
   const toggleActive = async (key) => {
-    await apiFetch(`/api-keys/${key.id}`, {
-      method: "PATCH",
-      body: { is_active: !key.is_active },
-    });
-    loadKeys(token);
+    await apiFetch(`/api-keys/${key.id}`, { method: "PATCH", body: { is_active: !key.is_active } });
+    loadKeys();
   };
 
   const deleteKey = async (key) => {
     if (!confirm(`Удалить ключ «${key.name}»? Действие необратимо.`)) return;
     await apiFetch(`/api-keys/${key.id}`, { method: "DELETE" });
-    loadKeys(token);
+    loadKeys();
   };
 
-  const toggleModel = (id) => {
-    setSelectedModels((prev) =>
-      prev.includes(id) ? prev.filter((m) => m !== id) : [...prev, id]
-    );
-  };
+  const toggleModel = (id) =>
+    setSelectedModels((prev) => (prev.includes(id) ? prev.filter((m) => m !== id) : [...prev, id]));
 
   const copyKey = () => {
     navigator.clipboard.writeText(newKeyRaw);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
+  const copySnippet = (code, tag) => {
+    navigator.clipboard.writeText(code);
+    setCopiedSnippet(tag);
+    setTimeout(() => setCopiedSnippet(null), 2000);
+  };
+
+  const modelName = (id) => allModels.find((m) => m.model === id)?.display_name || id;
 
   if (loading) {
     return (
@@ -162,27 +204,58 @@ export default function ApiKeysPage() {
     );
   }
 
+  const curlSnippet = `curl ${GATEWAY_URL}/chat/completions \\
+  -H "Authorization: Bearer ВАШ_КЛЮЧ" \\
+  -H "Content-Type: application/json" \\
+  -d '{"model":"glm-5.3-flash","messages":[{"role":"user","content":"Привет"}]}'`;
+
+  const pythonSnippet = `from openai import OpenAI
+
+client = OpenAI(
+    base_url="${GATEWAY_URL}",
+    api_key="ВАШ_КЛЮЧ",
+)
+
+r = client.chat.completions.create(
+    model="glm-5.3-flash",
+    messages=[{"role": "user", "content": "Привет"}],
+)
+print(r.choices[0].message.content)`;
+
+  const jsSnippet = `import OpenAI from "openai";
+
+const client = new OpenAI({
+  baseURL: "${GATEWAY_URL}",
+  apiKey: process.env.AICOMBINER_KEY,
+});
+
+const r = await client.chat.completions.create({
+  model: "glm-5.3-flash",
+  messages: [{ role: "user", content: "Привет" }],
+});
+console.log(r.choices[0].message.content);`;
+
   return (
     <div className="min-h-screen bg-surface-dark">
-      {/* Header */}
       <header className="border-b border-white/[0.06] sticky top-0 bg-surface-dark/90 backdrop-blur-xl z-40">
-        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
             <Logo size={28} />
             <span className="font-extrabold text-[15px] text-white">AI Combiner</span>
             <span className="text-xs text-gray-600 ml-2">API</span>
           </Link>
           <nav className="flex items-center gap-4 text-sm">
+            <Link href="/pricing" className="text-gray-400 hover:text-white transition-colors">Цены</Link>
             <Link href="/profile" className="text-gray-400 hover:text-white transition-colors">Профиль</Link>
             <Link href="/chat" className="text-gray-400 hover:text-white transition-colors">Чат</Link>
           </nav>
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 py-10">
+      <main className="max-w-6xl mx-auto px-4 py-10">
         <h1 className="text-3xl font-extrabold text-white mb-2">API-ключи</h1>
         <p className="text-gray-500 mb-8">
-          Используй нейросети в своих проектах. До 50 ключей, у каждого — свои лимиты.
+          OpenAI-совместимый API. Один ключ работает в любом клиенте: Cursor, Continue, LangChain, своих скриптах.
         </p>
 
         {/* Модалка нового ключа */}
@@ -208,11 +281,75 @@ export default function ApiKeysPage() {
           </div>
         )}
 
-        <div className="grid md:grid-cols-[1fr_1.2fr] gap-8">
-          {/* Форма создания */}
-          <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6 h-fit">
+        {/* Табы */}
+        <div className="flex gap-1 mb-6 border-b border-white/[0.08]">
+          {[["docs", "Подключение"], ["create", "Новый ключ"], ["keys", `Мои ключи (${keys.length})`]].map(([id, label]) => (
+            <button
+              key={id}
+              onClick={() => setTab(id)}
+              className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
+                tab === id ? "border-[#00FF00] text-white" : "border-transparent text-gray-500 hover:text-gray-300"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {/* Подключение */}
+        {tab === "docs" && (
+          <div className="space-y-6">
+            <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6">
+              <h2 className="font-bold text-white mb-2">Адрес и авторизация</h2>
+              <p className="text-gray-500 text-sm mb-4">
+                Base URL: <code className="text-[#33FF33] bg-black/40 px-2 py-0.5 rounded">{GATEWAY_URL}</code>
+              </p>
+              <p className="text-gray-500 text-sm mb-4">
+                Ключ передаётся в заголовке <code className="text-gray-300">Authorization: Bearer aico-...</code> или{" "}
+                <code className="text-gray-300">x-api-key</code>.
+              </p>
+              <div className="text-xs text-gray-600">
+                Совместимо с OpenAI SDK: укажи <code>base_url</code> и свой ключ, остальной код не меняется.
+              </div>
+            </div>
+
+            {[
+              ["curl", "curl", curlSnippet],
+              ["python", "Python", pythonSnippet],
+              ["js", "JavaScript", jsSnippet],
+            ].map(([tag, label, code]) => (
+              <div key={tag} className="bg-white/[0.03] border border-white/[0.08] rounded-2xl overflow-hidden">
+                <div className="flex items-center justify-between px-5 py-3 border-b border-white/[0.06]">
+                  <span className="text-sm font-medium text-gray-300">{label}</span>
+                  <button
+                    onClick={() => copySnippet(code, tag)}
+                    className="text-xs text-gray-500 hover:text-[#00FF00] transition-colors"
+                  >
+                    {copiedSnippet === tag ? "✓ Скопировано" : "Копировать"}
+                  </button>
+                </div>
+                <pre className="p-5 text-xs text-gray-300 overflow-x-auto font-mono leading-relaxed">{code}</pre>
+              </div>
+            ))}
+
+            <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6">
+              <h2 className="font-bold text-white mb-3">Ошибки</h2>
+              <div className="space-y-2 text-sm text-gray-400">
+                <div><code className="text-red-400">401</code> — ключ не передан, неверный или отключён</div>
+                <div><code className="text-red-400">403</code> — модель не разрешена для этого ключа</div>
+                <div><code className="text-red-400">404</code> — такой модели нет</div>
+                <div><code className="text-red-400">429</code> — исчерпан лимит ключа или слишком частые запросы</div>
+                <div><code className="text-red-400">503</code> — у модели нет доступного поставщика</div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Создание */}
+        {tab === "create" && (
+          <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6">
             <h2 className="font-bold text-white mb-4">Новый ключ</h2>
-            <div className="space-y-4">
+            <div className="space-y-4 max-w-2xl">
               <div>
                 <label className="block text-xs text-gray-500 mb-1.5">Название</label>
                 <input value={name} onChange={(e) => setName(e.target.value)}
@@ -241,21 +378,67 @@ export default function ApiKeysPage() {
                   {RESET_PERIODS.map((p) => (<option key={p.value} value={p.value}>{p.label}</option>))}
                 </select>
               </div>
+
               <div>
                 <label className="block text-xs text-gray-500 mb-1.5">
                   Модели <span className="text-gray-700">(ничего не выбрано = все)</span>
+                  {selectedModels.length > 0 && <span className="text-[#00FF00] ml-2">выбрано: {selectedModels.length}</span>}
                 </label>
-                <div className="space-y-1.5">
-                  {allModels.map((m) => (
-                    <label key={m.id} className="flex items-center gap-2.5 text-sm text-gray-300 cursor-pointer hover:text-white transition-colors">
-                      <input type="checkbox" checked={selectedModels.includes(m.id)}
-                        onChange={() => toggleModel(m.id)}
-                        className="accent-[#00CC00] w-4 h-4" />
-                      {m.name}
+
+                {/* Фильтры каталога */}
+                <div className="flex flex-wrap gap-2 mb-3">
+                  <input
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="Поиск модели…"
+                    className="flex-1 min-w-[160px] bg-[#0d0d14] border border-white/10 rounded-lg px-3 py-2 text-xs text-gray-100 outline-none focus:border-[#00CC00]"
+                  />
+                  <select value={brandFilter} onChange={(e) => setBrandFilter(e.target.value)}
+                    className="bg-[#0d0d14] border border-white/10 rounded-lg px-3 py-2 text-xs text-gray-300 outline-none focus:border-[#00CC00]">
+                    <option value="">Все разработчики</option>
+                    {brands.map((b) => (<option key={b} value={b}>{b}</option>))}
+                  </select>
+                  <select value={modalityFilter} onChange={(e) => setModalityFilter(e.target.value)}
+                    className="bg-[#0d0d14] border border-white/10 rounded-lg px-3 py-2 text-xs text-gray-300 outline-none focus:border-[#00CC00]">
+                    <option value="">Все типы</option>
+                    <option value="text">Текст</option>
+                    <option value="image">Изображения</option>
+                    <option value="video">Видео</option>
+                  </select>
+                  <button
+                    onClick={() => setOnlyCheap((v) => !v)}
+                    className={`px-3 py-2 rounded-lg text-xs border transition-colors ${
+                      onlyCheap ? "border-[#00CC00] text-[#00FF00]" : "border-white/10 text-gray-400 hover:text-gray-200"
+                    }`}
+                  >
+                    до $1 / 1M
+                  </button>
+                </div>
+
+                <div className="max-h-72 overflow-y-auto space-y-1 border border-white/[0.06] rounded-xl p-2">
+                  {visibleModels.length === 0 && (
+                    <p className="text-gray-600 text-xs p-2">Ничего не найдено</p>
+                  )}
+                  {visibleModels.map((m) => (
+                    <label key={m.model} className="flex items-center justify-between gap-3 text-sm text-gray-300 cursor-pointer hover:bg-white/[0.03] rounded-lg px-2 py-1.5">
+                      <span className="flex items-center gap-2.5 min-w-0">
+                        <input type="checkbox" checked={selectedModels.includes(m.model)}
+                          onChange={() => toggleModel(m.model)}
+                          className="accent-[#00CC00] w-4 h-4 flex-shrink-0" />
+                        <span className="truncate">{m.display_name}</span>
+                      </span>
+                      <span className="text-[11px] text-gray-600 whitespace-nowrap flex-shrink-0">
+                        {m.request_price != null
+                          ? `${fmtPrice(m.request_price)} / запрос`
+                          : m.input_per_1m != null
+                            ? `${fmtPrice(m.input_per_1m)} / 1M`
+                            : "—"}
+                      </span>
                     </label>
                   ))}
                 </div>
               </div>
+
               {error && <p className="text-red-400 text-xs">{error}</p>}
               <button onClick={createKey} disabled={creating || !name.trim()}
                 className="w-full bg-[#00FF00] hover:bg-[#00CC00] disabled:opacity-40 text-black rounded-xl py-3 font-bold text-sm transition-colors">
@@ -263,12 +446,13 @@ export default function ApiKeysPage() {
               </button>
             </div>
           </div>
+        )}
 
-          {/* Список ключей */}
+        {/* Список ключей */}
+        {tab === "keys" && (
           <div className="space-y-3">
-            <h2 className="font-bold text-white">Мои ключи {keys.length > 0 && `(${keys.length})`}</h2>
             {keys.length === 0 && (
-              <p className="text-gray-600 text-sm">Ключей пока нет — создай первый слева.</p>
+              <p className="text-gray-600 text-sm">Ключей пока нет — создай первый во вкладке «Новый ключ».</p>
             )}
             {keys.map((k) => (
               <div key={k.id} className={`bg-white/[0.03] border rounded-2xl p-5 ${k.is_active ? "border-white/[0.08]" : "border-white/[0.04] opacity-50"}`}>
@@ -283,11 +467,12 @@ export default function ApiKeysPage() {
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-xs text-gray-500 mb-4">
                   <div>Лимит: <span className="text-gray-300">{k.money_limit_usd > 0 ? `$${k.money_limit_usd}` : "нет"}</span></div>
-                  <div>Потрачено: <span className="text-gray-300">${(k.money_used_usd || 0).toFixed(3)}</span></div>
+                  <div>Потрачено: <span className="text-gray-300">${(k.money_used_usd || 0).toFixed(4)}</span></div>
                   <div>Интервал: <span className="text-gray-300">{k.time_limit_hours > 0 ? `${k.time_limit_hours} ч` : "нет"}</span></div>
                   <div>Сброс: <span className="text-gray-300">{humanReset(k.reset_period)}</span></div>
+                  <div>Использован: <span className="text-gray-300">{k.last_used_at ? new Date(k.last_used_at).toLocaleString("ru-RU") : "—"}</span></div>
                   <div className="col-span-2">
-                    Модели: <span className="text-gray-300">{k.models && k.models.length > 0 ? k.models.map((m) => allModels.find((a) => a.id === m)?.name || m).join(", ") : "все"}</span>
+                    Модели: <span className="text-gray-300">{k.models && k.models.length > 0 ? k.models.map(modelName).join(", ") : "все"}</span>
                   </div>
                 </div>
                 <div className="flex gap-2">
@@ -303,7 +488,7 @@ export default function ApiKeysPage() {
               </div>
             ))}
           </div>
-        </div>
+        )}
       </main>
     </div>
   );
