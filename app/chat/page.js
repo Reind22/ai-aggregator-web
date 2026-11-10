@@ -297,10 +297,15 @@ export default function ChatPage() {
           const t = await res.text();
           if (t) detail = "Сервер недоступен";
         }
+        if (res.status === 401) {
+          detail = "Войдите, чтобы отправлять сообщения";
+        }
         setError(detail);
         setMessages((prev) => [...prev, {
           role: "assistant",
-          content: `⚠️ ${detail}`,
+          content: res.status === 401
+            ? "⚠️ Чтобы продолжить, войдите в аккаунт — кнопка «Войти» вверху страницы."
+            : `⚠️ ${detail}`,
         }]);
         return;
       }
@@ -701,10 +706,19 @@ export default function ChatPage() {
               <div className="absolute right-3 bottom-2 text-[10px] text-gray-500">{input.length.toLocaleString("ru-RU")} / {MAX_MESSAGE_CHARS.toLocaleString("ru-RU")}</div>
             </div>
             {!composerExpanded && <button onClick={() => sendMessage()} disabled={!input.trim() || isGenerating} className="order-3 w-12 h-12 flex-shrink-0 bg-[#00FF00] hover:bg-[#00CC00] disabled:opacity-30 disabled:cursor-not-allowed text-[#0A2A0A] rounded-xl flex items-center justify-center" aria-label="Отправить сообщение" title="Отправить"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 12 3.27 3.13A59.77 59.77 0 0 1 21.49 12 59.77 59.77 0 0 1 3.27 20.88L6 12Zm0 0h7.5"/></svg></button>}
-            {composerExpanded && <div className="absolute left-4 right-4 bottom-4 flex items-center justify-between gap-3"><button onClick={() => fileInputRef.current?.click()} disabled={isGenerating} className="w-12 h-12 flex-shrink-0 border border-white/10 rounded-xl flex items-center justify-center" aria-label="Прикрепить файл"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></button><button onClick={() => sendMessage()} disabled={!input.trim() || isGenerating} className="w-12 h-12 flex-shrink-0 bg-[#00FF00] text-[#0A2A0A] rounded-xl flex items-center justify-center" aria-label="Отправить сообщение"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M6 12 3.27 3.13A59.77 59.77 0 0 1 21.49 12 59.77 59.77 0 0 1 3.27 20.88L6 12Zm0 0h7.5"/></svg></button></div>}
-            {error && <div className="text-xs text-red-400">{error}</div>}
+            {composerExpanded && <div className="absolute left-4 right-4 bottom-4 flex items-center justify-between gap-3"><button onClick={() => fileInputRef.current?.click()} disabled={isGenerating} className="w-12 h-12 flex-shrink-0 border border-white/10 rounded-xl flex items-center justify-center" aria-label="Прикрепить файл"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8"><path strokeLinecap="round" strokeLinejoin="round" d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></button><button onClick={() => sendMessage()} disabled={!input.trim() || isGenerating} className="w-12 h-12 flex-shrink-0 bg-[#00FF00] text-[#0A2A0A] rounded-xl flex items-center justify-center" aria-label="Отправить сообщение"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 12 3.27 3.13A59.77 59.77 0 0 1 21.49 12 59.77 59.77 0 0 1 3.27 20.88L6 12Zm0 0h7.5"/></svg></button></div>}
           </div>
         </div>
+        {/* Ошибка — всплывающей плашкой, чтобы не деформировать поле ввода */}
+        {error && (
+          <div
+            onClick={() => setError(null)}
+            className="fixed left-1/2 -translate-x-1/2 bottom-24 z-50 max-w-md cursor-pointer rounded-xl border border-red-500/40 bg-red-950/95 px-4 py-2 text-xs text-red-200 shadow-lg"
+            role="status"
+          >
+            {error}
+          </div>
+        )}
         </div>
         </div>
         </div>
