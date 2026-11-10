@@ -454,7 +454,7 @@ export default function ChatPage() {
         <div className="fixed inset-0 bg-black/60 z-30 md:hidden" onClick={() => setSidebarOpen(false)} />
       )}
       <div className={`${sidebarOpen ? "w-64" : "w-0"} ${
-        isMobile ? "fixed z-40 h-full left-0 top-0 shadow-2xl" : "relative"
+        isMobile ? "fixed z-40 h-full left-0 top-0 shadow-2xl" : "relative z-40"
       } transition-all duration-300 bg-[#0d0d14] border-r border-white/[0.06] flex flex-col overflow-hidden flex-shrink-0`}>
         <div className="p-4">
           <div className="flex items-center justify-between mb-4">
