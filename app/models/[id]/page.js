@@ -1,0 +1,254 @@
+/**
+ * /models/[id] — карточка модели: описание, характеристики, цены, лимиты,
+ * наша статистика, ссылки. Страница генерируется на сервере, поэтому каждая
+ * модель индексируется поисковиками со своим заголовком и описанием.
+ */
+import Logo from "../../../components/Logo";
+import AuthButtons from "../../../components/AuthButtons";
+
+const API = process.env.API_INTERNAL_URL || "http://127.0.0.1:8000";
+
+async function loadModel(id) {
+  try {
+    const res = await fetch(`${API}/models/${encodeURIComponent(id)}`, { next: { revalidate: 300 } });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (e) {
+    return null;
+  }
+}
+
+const MODALITY_LABEL = { text: "текст", image: "изображения", video: "видео", audio: "аудио" };
+const money = (v) => (v == null ? "—" : `$${Number(v).toFixed(4)}`);
+const ctx = (v) => {
+  if (!v) return "—";
+  if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M токенов`;
+  if (v >= 1000) return `${Math.round(v / 1000)}K токенов`;
+  return `${v} токенов`;
+};
+
+export async function generateMetadata({ params }) {
+  const { id } = await params;
+  const m = await loadModel(id);
+  const name = m?.meta?.name || m?.name || id;
+  const brand = m?.brand || "";
+  const price = m?.price_in != null ? `$${Number(m.price_in).toFixed(4)} за 1M токенов на входе` : "";
+  const context = m?.context_length ? `контекст ${ctx(m.context_length)}` : "";
+
+  const title = `${name} — характеристики, цены и лимиты`;
+  const description = m?.meta?.description
+    ? `${m.meta.description.slice(0, 150)}… ${brand} ${context}, ${price}.`
+    : `${name}${brand ? ` от ${brand}` : ""}: ${context}, ${price}. Доступ по одному API-ключу AI Combiner.`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: `/models/${id}` },
+    openGraph: { title, description, type: "article", url: `/models/${id}` },
+  };
+}
+
+export default async function ModelPage({ params }) {
+  const { id } = await params;
+  const m = await loadModel(id);
+
+  if (!m) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-3 bg-[#0A0A0F] text-gray-300">
+        <Logo size={48} />
+        <p className="text-sm">Модель не найдена</p>
+        <a href="/models" className="text-sm text-[#00FF00] hover:underline">← В каталог моделей</a>
+      </div>
+    );
+  }
+
+  const meta = m.meta || {};
+  const mid = m.id || m.model || id;
+  const title = m.name || m.display_name || meta.name || m.model || id;
+  const priceIn = m.price_in ?? m.input_per_1m ?? null;
+  const priceOut = m.price_out ?? m.output_per_1m ?? null;
+  const priceCache = m.price_cache ?? m.cached_input_per_1m ?? null;
+  const stats = m.stats || {};
+  const name = title;
+  const links = meta.links || {};
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name,
+    applicationCategory: "AI model",
+    operatingSystem: "API",
+    description: meta.description || undefined,
+    datePublished: meta.created_at || undefined,
+    offers: (m.price_in ?? m.input_per_1m) != null
+      ? { "@type": "Offer", price: Number(m.price_in ?? m.input_per_1m), priceCurrency: "USD" }
+      : undefined,
+  };
+
+  return (
+    <div className="min-h-screen bg-[#0A0A0F] text-gray-200">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+
+      <header className="border-b border-white/[0.06]">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
+          <a href="/" className="flex items-center gap-2">
+            <Logo size={24} />
+            <span className="text-sm font-extrabold text-white">AI Combiner</span>
+          </a>
+          <nav className="flex items-center gap-4 text-sm text-gray-400">
+            <a href="/models" className="hover:text-white">Модели</a>
+            <a href="/pricing" className="hover:text-white">Цены</a>
+            <a href="/chat" className="hover:text-white">Чат</a>
+            <AuthButtons />
+          </nav>
+        </div>
+      </header>
+
+      <main className="mx-auto max-w-5xl px-4 py-8">
+        <nav className="mb-4 text-xs text-gray-500">
+          <a href="/models" className="hover:text-gray-300">Модели</a>
+          <span className="mx-1.5">/</span>
+          {m.brand && <><span>{m.brand}</span><span className="mx-1.5">/</span></>}
+          <span className="text-gray-400">{name}</span>
+        </nav>
+
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-white">{name}</h1>
+            <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs text-gray-500">
+              <span className="rounded-md border border-white/10 px-2 py-0.5">{m.brand}</span>
+              <span className="rounded-md border border-white/10 px-2 py-0.5">
+                {MODALITY_LABEL[m.modality] || m.modality}
+              </span>
+              {meta.created_at && (
+                <span className="rounded-md border border-white/10 px-2 py-0.5">
+                  релиз {new Date(meta.created_at).toLocaleDateString("ru-RU")}
+                </span>
+              )}
+              {meta.reasoning && (
+                <span className="rounded-md border border-[#00CC00]/40 px-2 py-0.5 text-[#00FF00]">reasoning</span>
+              )}
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <a href={`/chat?model=${encodeURIComponent(mid)}`}
+               className="rounded-lg bg-[#00FF00] px-4 py-2 text-sm font-medium text-[#0A2A0A] hover:bg-[#00CC00]">
+              Попробовать
+            </a>
+            <a href="#api" className="rounded-lg border border-white/15 px-4 py-2 text-sm hover:border-[#00CC00]/50">
+              Подключить API
+            </a>
+          </div>
+        </div>
+
+        {meta.description && (
+          <p className="mt-4 max-w-3xl text-sm leading-relaxed text-gray-400">{meta.description}</p>
+        )}
+
+        {/* Характеристики */}
+        <section className="mt-8">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Характеристики</h2>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              ["Контекст", ctx(m.context_length)],
+              ["Максимум на выход", meta.max_output_tokens ? ctx(meta.max_output_tokens) : "—"],
+              ["Входные данные", (meta.input_modalities || [m.modality]).join(", ")],
+              ["Выходные данные", (meta.output_modalities || ["text"]).join(", ")],
+              ["Knowledge cutoff", meta.knowledge_cutoff || "—"],
+              ["Токенизатор", meta.tokenizer || "—"],
+            ].map(([k, v]) => (
+              <div key={k} className="rounded-lg border border-white/[0.08] bg-white/[0.02] px-3 py-2.5">
+                <div className="text-[11px] uppercase tracking-wide text-gray-500">{k}</div>
+                <div className="mt-0.5 text-sm text-gray-200">{v}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Цены */}
+        <section className="mt-8">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Цены</h2>
+          <div className="mt-3 grid gap-3 sm:grid-cols-3">
+            {[
+              ["Вход", money(priceIn), "за 1M токенов"],
+              ["Выход", money(priceOut), "за 1M токенов"],
+              ["Из кэша", money(priceCache), "за 1M токенов"],
+            ].map(([k, v, hint]) => (
+              <div key={k} className="rounded-lg border border-white/[0.08] bg-white/[0.02] px-3 py-2.5">
+                <div className="text-[11px] uppercase tracking-wide text-gray-500">{k}</div>
+                <div className="mt-0.5 text-lg font-semibold tabular-nums text-white">{v}</div>
+                <div className="text-[11px] text-gray-600">{hint}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Наша статистика */}
+        <section className="mt-8">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
+            Статистика у нас <span className="normal-case text-gray-600">· за {stats.period_days || 30} дней</span>
+          </h2>
+          <div className="mt-3 grid gap-3 sm:grid-cols-4">
+            {[
+              ["Запросов", stats.requests ?? 0],
+              ["Успешных", stats.success_rate != null ? `${stats.success_rate}%` : "—"],
+              ["Медиана ответа", stats.latency_ms_median != null ? `${stats.latency_ms_median} мс` : "—"],
+              ["Средняя", stats.latency_ms_avg != null ? `${Math.round(stats.latency_ms_avg)} мс` : "—"],
+            ].map(([k, v]) => (
+              <div key={k} className="rounded-lg border border-white/[0.08] bg-white/[0.02] px-3 py-2.5">
+                <div className="text-[11px] uppercase tracking-wide text-gray-500">{k}</div>
+                <div className="mt-0.5 text-lg font-semibold tabular-nums text-white">{v}</div>
+              </div>
+            ))}
+          </div>
+          {!stats.requests && (
+            <p className="mt-2 text-[11px] text-gray-600">
+              По этой модели у нас пока не было запросов через API — статистика появится после первых вызовов.
+            </p>
+          )}
+        </section>
+
+        {/* Бенчмарки */}
+        <section className="mt-8">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Бенчмарки</h2>
+          <div className="mt-3 rounded-lg border border-dashed border-white/10 px-4 py-6 text-center">
+            <p className="text-sm text-gray-400">Пока не собраны</p>
+            <p className="mx-auto mt-1 max-w-md text-[11px] leading-relaxed text-gray-600">
+              Мы не публикуем цифры, которые не можем проверить. Сейчас собираем собственные замеры
+              (скорость, стабильность, качество на наборе задач) — они появятся здесь и будут
+              помечены датой и методикой.
+            </p>
+          </div>
+        </section>
+
+        {/* API */}
+        <section id="api" className="mt-8">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Подключение</h2>
+          <div className="mt-3 overflow-hidden rounded-lg border border-white/[0.08] bg-[#0d0d14]">
+            <pre className="overflow-x-auto px-4 py-3 text-[11px] leading-relaxed text-gray-300">
+{`curl https://aicombiner.net/v1/chat/completions \\
+  -H "Authorization: Bearer $AICO_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{"model": "${mid}", "messages": [{"role": "user", "content": "Привет"}]}'`}
+            </pre>
+          </div>
+          <p className="mt-2 text-[11px] text-gray-600">
+            Один ключ открывает все модели каталога. <a href="/docs" className="text-[#00CC00] hover:underline">Документация</a>
+          </p>
+        </section>
+
+        {/* Ссылки */}
+        {(links.website || links.hugging_face || meta.hugging_face_id) && (
+          <section className="mt-8 flex flex-wrap gap-3 text-xs">
+            {links.website && <a href={links.website} target="_blank" rel="noopener noreferrer" className="text-[#00CC00] hover:underline">Сайт модели</a>}
+            {(links.hugging_face || meta.hugging_face_id) && (
+              <a href={links.hugging_face || `https://huggingface.co/${meta.hugging_face_id}`}
+                 target="_blank" rel="noopener noreferrer" className="text-[#00CC00] hover:underline">
+                Hugging Face
+              </a>
+            )}
+          </section>
+        )}
+      </main>
+    </div>
+  );
+}

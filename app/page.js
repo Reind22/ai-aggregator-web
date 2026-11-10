@@ -155,6 +155,7 @@ export default function Home() {
             <a href="#features" className="text-gray-400 hover:text-white transition-colors hidden md:block">Возможности</a>
             <a href="#pricing" className="text-gray-400 hover:text-white transition-colors hidden md:block">Тарифы</a>
             <LanguageMenu />
+            <Link href="/models" className="text-gray-400 hover:text-white transition-colors hidden md:block font-medium">Модели</Link>
             <Link href="/pricing" className="text-gray-400 hover:text-white transition-colors hidden md:block font-medium">Цены</Link>
             <Link href="/apikeys" className="text-gray-400 hover:text-white transition-colors hidden md:block font-medium">API</Link>
             <AuthButtons />

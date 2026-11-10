@@ -26,6 +26,33 @@ const TABS = [
 export default function ProfileTabs({ profile, notify, logout, logoutAllDevices, children }) {
   const [tab, setTab] = useState("overview");
 
+  const deleteAccount = async () => {
+    const typed = window.prompt(
+      "Удаление аккаунта необратимо: пропадут чаты, ключи, баланс и история платежей.\n" +
+      "Чтобы подтвердить, введите слово УДАЛИТЬ:"
+    );
+    if (typed === null) return;
+    if (typed.trim() !== "УДАЛИТЬ") {
+      notify?.("Удаление отменено: слово не совпало");
+      return;
+    }
+    try {
+      const res = await apiFetch("/profile/me?confirm=" + encodeURIComponent("УДАЛИТЬ"), { method: "DELETE" });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        notify?.(d.detail || "Не удалось удалить аккаунт");
+        return;
+      }
+      try {
+        localStorage.removeItem("ai_token");
+        localStorage.removeItem("ai_refresh_token");
+      } catch (_) {}
+      window.location.href = "/";
+    } catch (e) {
+      notify?.("Сервер недоступен");
+    }
+  };
+
   const avatarChar = (profile.email || "?")[0].toUpperCase();
   const isTgAccount = (profile.email || "").includes("@users.aicombiner.net");
 
@@ -82,6 +109,12 @@ export default function ProfileTabs({ profile, notify, logout, logoutAllDevices,
             className="w-full text-left px-3 py-2 rounded-lg text-sm text-gray-500 hover:text-red-400 transition-colors"
           >
             Выйти со всех устройств
+          </button>
+          <button
+            onClick={deleteAccount}
+            className="w-full text-left px-3 py-2 rounded-lg text-sm text-red-500/80 hover:text-red-400 transition-colors"
+          >
+            Удалить аккаунт
           </button>
         </div>
       </div>
