@@ -553,6 +553,12 @@ export default function ChatPage() {
                 <span className="font-extrabold text-sm text-white hidden sm:inline">AI Combiner</span>
               </a>
             )}
+            {/* Разделы сайта — чтобы не возвращаться на главную */}
+            <nav className="hidden items-center gap-4 pl-3 text-sm md:flex">
+              <a href="/models" className="text-gray-400 transition-colors hover:text-white">Модели</a>
+              <a href="/pricing" className="text-gray-400 transition-colors hover:text-white">Цены</a>
+              <a href="/apikeys" className="text-gray-400 transition-colors hover:text-white">API</a>
+            </nav>
           </div>
           {isTemp && <span className="text-[#00FF00] text-sm">Временный чат (автоочистка 24ч)</span>}
           <div className="flex items-center gap-1.5 sm:gap-2">

@@ -146,24 +146,27 @@ export default function Home() {
 
       {/* Header */}
       <header className="fixed top-0 w-full z-50 bg-surface-dark/85 backdrop-blur-xl border-b border-white/[0.06]">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <Logo size={32} />
+        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-6">
+          {/* Слева: логотип и разделы — как на внутренних страницах */}
+          <Link href="/" className="flex items-center gap-2.5 flex-shrink-0">
+            <Logo size={30} />
             <span className="font-extrabold text-[15px] tracking-tight text-white">AI Combiner</span>
-          </div>
-          <nav className="flex items-center gap-4 text-sm">
-            <a href="#features" className="text-gray-400 hover:text-white transition-colors hidden md:block">Возможности</a>
-            <a href="#pricing" className="text-gray-400 hover:text-white transition-colors hidden md:block">Тарифы</a>
+          </Link>
+          <nav className="hidden items-center gap-4 text-sm md:flex">
+            <Link href="/models" className="text-gray-400 hover:text-white transition-colors font-medium">Модели</Link>
+            <Link href="/pricing" className="text-gray-400 hover:text-white transition-colors font-medium">Цены</Link>
+            <Link href="/apikeys" className="text-gray-400 hover:text-white transition-colors font-medium">API</Link>
+            <a href="#features" className="text-gray-400 hover:text-white transition-colors">Возможности</a>
+            <a href="#pricing" className="text-gray-400 hover:text-white transition-colors">Тарифы</a>
+          </nav>
+          <div className="ml-auto flex items-center gap-2">
             <LanguageMenu />
-            <Link href="/models" className="text-gray-400 hover:text-white transition-colors hidden md:block font-medium">Модели</Link>
-            <Link href="/pricing" className="text-gray-400 hover:text-white transition-colors hidden md:block font-medium">Цены</Link>
-            <Link href="/apikeys" className="text-gray-400 hover:text-white transition-colors hidden md:block font-medium">API</Link>
             <AuthButtons />
-            <Link href="/chat" className="bg-[#00FF00] hover:bg-[#00CC00] text-black px-3 sm:px-4 py-2 rounded-lg font-bold transition-colors whitespace-nowrap text-[13px] sm:text-sm hidden md:block">
+            <Link href="/chat" className="hidden rounded-lg bg-[#00FF00] px-3.5 py-2 text-[13px] font-bold text-black transition-colors hover:bg-[#00CC00] md:block">
               Открыть чат
             </Link>
             <MobileMenu />
-          </nav>
+          </div>
         </div>
       </header>
 

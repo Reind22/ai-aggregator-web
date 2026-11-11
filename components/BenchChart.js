@@ -18,14 +18,7 @@ export default function BenchChart({ title, subtitle, rows, unit = "%", max }) {
           <h3 className="truncate text-sm font-medium text-white">{title}</h3>
           {subtitle && <p className="mt-0.5 text-[11px] text-gray-500">{subtitle}</p>}
         </div>
-        {our && (
-          <div className="flex-shrink-0 text-right">
-            <div className="text-[11px] text-gray-500">наша модель</div>
-            <div className="tabular-nums text-sm font-semibold text-[#00FF00]">
-              {Number(our.value).toFixed(unit === "%" ? 1 : 0)}{unit}
-            </div>
-          </div>
-        )}
+
       </div>
 
       <ul className="space-y-2">

@@ -6,12 +6,13 @@
 import Logo from "../../../components/Logo";
 import SiteHeader from "../../../components/SiteHeader";
 import BenchChart from "../../../components/BenchChart";
+import ModelArticle from "../../../components/ModelArticle";
 
 const API = process.env.API_INTERNAL_URL || "http://127.0.0.1:8000";
 
 async function loadModel(id) {
   try {
-    const res = await fetch(`${API}/models/${encodeURIComponent(id)}`, { next: { revalidate: 300 } });
+    const res = await fetch(`${API}/models/${encodeURIComponent(id)}`, { next: { revalidate: 60 } });
     if (!res.ok) return null;
     return await res.json();
   } catch (e) {
@@ -167,13 +168,6 @@ export default async function ModelPage({ params }) {
           </div>
         </div>
 
-        {(m.providers || []).length > 1 && (
-          <p className="mt-3 text-[11px] text-gray-500">
-            Доступна через несколько каналов: <span className="text-gray-400">{m.providers.join(", ")}</span>
-            {" "}— это одна и та же модель, а не разные.
-          </p>
-        )}
-
         {meta.description && (
           <p className="mt-4 max-w-3xl text-sm leading-relaxed text-gray-400">{meta.description}</p>
         )}
@@ -279,7 +273,7 @@ export default async function ModelPage({ params }) {
           {/* Vals: точность на отраслевых задачах */}
           {Array.isArray(m.benchmarks) && m.benchmarks.length > 0 && (
             <div className="mt-3 grid gap-3 lg:grid-cols-2">
-              {m.benchmarks.map((b, i) => (
+              {m.benchmarks.slice(0, 6).map((b, i) => (
                 <BenchChart
                   key={`v-${b.benchmark}-${i}`}
                   title={b.label}
@@ -295,6 +289,40 @@ export default async function ModelPage({ params }) {
                   }))}
                 />
               ))}
+            </div>
+          )}
+
+          {Array.isArray(m.benchmarks) && m.benchmarks.length > 6 && (
+            <div className="mt-3 overflow-hidden rounded-lg border border-white/[0.08]">
+              <table className="w-full text-xs">
+                <thead className="bg-white/[0.03] text-[11px] uppercase tracking-wide text-gray-500">
+                  <tr>
+                    <th className="px-3 py-2 text-left font-medium">Остальные бенчмарки</th>
+                    <th className="px-3 py-2 text-right font-medium">Место</th>
+                    <th className="px-3 py-2 text-right font-medium">Результат</th>
+                    <th className="px-3 py-2 text-right font-medium">Лидер</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {m.benchmarks.slice(6).map((b, i) => {
+                    const leader = (b.top || [])[0];
+                    return (
+                      <tr key={`rest-${b.benchmark}-${i}`}>
+                        <td className="px-3 py-2 text-gray-300">{b.label}</td>
+                        <td className="px-3 py-2 text-right tabular-nums text-gray-400">
+                          #{b.rank} <span className="text-gray-600">из {b.total_models}</span>
+                        </td>
+                        <td className="px-3 py-2 text-right tabular-nums text-white">
+                          {b.accuracy != null ? `${b.accuracy}%` : "—"}
+                        </td>
+                        <td className="px-3 py-2 text-right text-[11px] text-gray-500">
+                          {leader ? `${leader.model} · ${leader.accuracy}%` : "—"}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           )}
 
@@ -405,87 +433,7 @@ export default async function ModelPage({ params }) {
             )}
           </section>
         )}
-        {/* Подробное описание — для читателя и поисковиков */}
-        <section className="mt-12 border-t border-white/[0.06] pt-8">
-          <h2 className="text-lg font-semibold text-white">Подробно о модели {name}</h2>
-
-          <div className="mt-4 space-y-4 text-sm leading-relaxed text-gray-400">
-            <p>
-              <b className="text-gray-200">{name}</b> — модель{m.brand ? ` от ${m.brand}` : ""}
-              {meta.created_at ? `, выпущенная ${new Date(meta.created_at).toLocaleDateString("ru-RU")}` : ""}.
-              {meta.description ? ` ${meta.description}` : ""}
-            </p>
-
-            {m.context_length && (
-              <>
-                <h3 className="pt-2 text-sm font-semibold text-gray-200">Что такое контекст и зачем он нужен</h3>
-                <p>
-                  Контекст — сколько текста модель держит «в голове» за один разговор: вопрос,
-                  документы, предыдущие ответы. У {name} это {ctx(m.context_length)}.
-                  Если разговор длиннее, старое придётся сокращать или разбивать задачу на части.
-                  Для сравнения: один абзац — примерно 100 токенов, страница текста — около 500.
-                </p>
-              </>
-            )}
-
-            <h3 className="pt-2 text-sm font-semibold text-gray-200">Сколько это стоит</h3>
-            <p>
-              Оплата по факту: вход — {money(priceIn)} за миллион токенов, выход — {money(priceOut)},
-              чтение из кэша — {money(priceCache)}. Вход — это то, что вы отправляете (промпт, файлы,
-              история), выход — то, что модель пишет в ответ. Кэш срабатывает, когда один и тот же
-              контекст отправляют повторно: тогда вход стоит дешевле.
-            </p>
-
-            {(m.benchmarks?.length || m.design_arena?.length) ? (
-              <>
-                <h3 className="pt-2 text-sm font-semibold text-gray-200">Что показывают бенчмарки</h3>
-                <p>
-                  Бенчмарк — это набор задач с проверяемым ответом, на котором модели сравнивают
-                  между собой. Важно смотреть не на абсолютное число, а на место и разрыв с лидером:
-                  разница в 1–2% обычно внутри статистической погрешности, разрыв в 20% — уже
-                  реальная разница в качестве.
-                </p>
-                <ul className="list-disc space-y-1.5 pl-5">
-                  {Array.from(new Set((m.benchmarks || []).map((b) => b.label))).map((label) => (
-                    <li key={label}>
-                      <span className="text-gray-300">{label}</span>
-                      {" — "}{BENCH_INFO[label] || "отраслевые задачи с проверяемым ответом"}.
-                    </li>
-                  ))}
-                  {(m.design_arena || []).length > 0 && (
-                    <li>
-                      <span className="text-gray-300">Design Arena</span>
-                      {" — "}слепые сравнения: два результата показывают людям, они выбирают лучший,
-                      из исходов считается Elo. Показывает, насколько аккуратно модель делает
-                      интерфейсы, а не насколько «умна» в целом.
-                    </li>
-                  )}
-                  {m.arena && (
-                    <li>
-                      <span className="text-gray-300">Arena (LMArena)</span>
-                      {" — "}общий рейтинг по слепым сравнениям ответов на любые вопросы;
-                      место #{m.arena.rank} и {Number(m.arena.votes).toLocaleString("ru-RU")} голосов.
-                    </li>
-                  )}
-                </ul>
-              </>
-            ) : null}
-
-            <h3 className="pt-2 text-sm font-semibold text-gray-200">Как получить доступ</h3>
-            <p>
-              Модель доступна через OpenAI-совместимый API: один ключ открывает весь каталог,
-              переключается только поле <code className="text-gray-300">model</code>. Оплата — с баланса,
-              списывается по факту использования. Лимиты (деньги, запросы в минуту, список моделей,
-              срок жизни) задаются на ключе в кабинете.
-            </p>
-            {m.providers?.length > 1 && (
-              <p>
-                Модель подключена через несколько каналов ({m.providers.join(", ")}): это одна и та же
-                модель, разные маршруты доставки. Если один канал недоступен, запрос уходит в другой.
-              </p>
-            )}
-          </div>
-        </section>
+        <ModelArticle model={m} meta={meta} stats={stats} />
 
       </main>
     </div>
