@@ -279,6 +279,39 @@ export default async function ModelPage({ params }) {
               Источник: Vals AI, независимые отраслевые задачи. Точность — доля верных ответов.
             </p>
           )}
+          {Array.isArray(m.design_arena) && m.design_arena.length > 0 && (
+            <div className="mt-3 overflow-hidden rounded-lg border border-white/[0.08]">
+              <table className="w-full text-xs">
+                <thead className="bg-white/[0.03] text-[11px] uppercase tracking-wide text-gray-500">
+                  <tr>
+                    <th className="px-3 py-2 text-left font-medium">Design Arena</th>
+                    <th className="px-3 py-2 text-right font-medium">Место</th>
+                    <th className="px-3 py-2 text-right font-medium">Elo</th>
+                    <th className="px-3 py-2 text-right font-medium">Победы</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {m.design_arena.map((b, i) => (
+                    <tr key={`${b.category}-${i}`}>
+                      <td className="px-3 py-2 text-gray-300">{b.category}</td>
+                      <td className="px-3 py-2 text-right tabular-nums text-gray-400">
+                        #{b.rank} <span className="text-gray-600">из {b.total_models}</span>
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums text-white">{b.elo}</td>
+                      <td className="px-3 py-2 text-right tabular-nums text-gray-400">
+                        {b.win_rate != null ? `${b.win_rate}%` : "—"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          {Array.isArray(m.design_arena) && m.design_arena.length > 0 && (
+            <p className="mt-1.5 text-[11px] text-gray-600">
+              Источник: Design Arena — слепые сравнения сгенерированных сайтов и SVG, Elo по исходам боёв.
+            </p>
+          )}
           {m.arena && (
             <div className="mt-3 grid gap-2 sm:grid-cols-3">
               <div className="rounded-lg border border-[#00CC00]/30 bg-[#00CC00]/[0.06] px-3 py-2.5">
