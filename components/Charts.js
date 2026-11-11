@@ -12,9 +12,15 @@ import { useId, useState } from "react";
 
 const fmtDefault = (v) => `$${Number(v ?? 0).toFixed(2)}`;
 
-const compact = (v) =>
-  new Intl.NumberFormat("ru-RU", { notation: "compact", maximumFractionDigits: 1 })
-    .format(Number(v ?? 0));
+const compact = (v) => {
+  const n = Number(v ?? 0);
+  if (n === 0) return "0";
+  const abs = Math.abs(n);
+  // мелкие суммы ($0.0001) в compact-нотации превращаются в «0» — показываем значащие цифры
+  if (abs < 0.01) return "$" + n.toFixed(abs < 0.001 ? 6 : 4).replace(/0+$/, "").replace(/\.$/, "");
+  if (abs < 1) return "$" + n.toFixed(3).replace(/0+$/, "").replace(/\.$/, "");
+  return new Intl.NumberFormat("ru-RU", { notation: "compact", maximumFractionDigits: 1 }).format(n);
+};
 
 const fmtDate = (d) => {
   if (!d || typeof d !== "string") return "";
@@ -102,7 +108,7 @@ export function BarChart({ data, valueKey, label = "", format = fmtDefault, heig
   const max = niceMax(rawMax);
   const H = height / 2;
   const w = 100 / data.length;
-  const yFmt = (v) => (format === fmtDefault ? "$" + Number(v || 0).toFixed(2) : compact(v));
+  const yFmt = (v) => (format === fmtDefault ? compact(v) : compact(v));
 
   return (
     <div>

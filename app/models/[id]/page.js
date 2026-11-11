@@ -4,7 +4,7 @@
  * модель индексируется поисковиками со своим заголовком и описанием.
  */
 import Logo from "../../../components/Logo";
-import AuthButtons from "../../../components/AuthButtons";
+import SiteHeader from "../../../components/SiteHeader";
 
 const API = process.env.API_INTERNAL_URL || "http://127.0.0.1:8000";
 
@@ -19,6 +19,22 @@ async function loadModel(id) {
 }
 
 const MODALITY_LABEL = { text: "текст", image: "изображения", video: "видео", audio: "аудио" };
+
+const VENDOR_SITES = {
+  OpenAI: "https://openai.com/index/",
+  Anthropic: "https://www.anthropic.com/news",
+  Google: "https://deepmind.google/models/",
+  DeepSeek: "https://api-docs.deepseek.com/",
+  Zhipu: "https://z.ai/",
+  xAI: "https://x.ai/news",
+  Meta: "https://ai.meta.com/blog/",
+  Alibaba: "https://qwen.ai/",
+  Moonshot: "https://www.moonshot.ai/",
+  MiniMax: "https://www.minimax.io/",
+  ByteDance: "https://www.volcengine.com/",
+  Tencent: "https://hunyuan.tencent.com/",
+  Xiaomi: "https://xiaomi-mi.com/",
+};
 const money = (v) => (v == null ? "—" : `$${Number(v).toFixed(4)}`);
 const ctx = (v) => {
   if (!v) return "—";
@@ -88,20 +104,7 @@ export default async function ModelPage({ params }) {
     <div className="min-h-screen bg-[#0A0A0F] text-gray-200">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      <header className="border-b border-white/[0.06]">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-          <a href="/" className="flex items-center gap-2">
-            <Logo size={24} />
-            <span className="text-sm font-extrabold text-white">AI Combiner</span>
-          </a>
-          <nav className="flex items-center gap-4 text-sm text-gray-400">
-            <a href="/models" className="hover:text-white">Модели</a>
-            <a href="/pricing" className="hover:text-white">Цены</a>
-            <a href="/chat" className="hover:text-white">Чат</a>
-            <AuthButtons />
-          </nav>
-        </div>
-      </header>
+      <SiteHeader active="/models" />
 
       <main className="mx-auto max-w-5xl px-4 py-8">
         <nav className="mb-4 text-xs text-gray-500">
@@ -164,6 +167,32 @@ export default async function ModelPage({ params }) {
           </div>
         </section>
 
+        {/* Возможности */}
+        <section className="mt-8">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Возможности</h2>
+          <div className="mt-3 flex flex-wrap gap-2 text-xs">
+            {[
+              ["Вызов функций", meta.tool_call],
+              ["Structured output", meta.structured_output],
+              ["Открытые веса", meta.open_weights],
+              ["Приём файлов", meta.attachment],
+              ["Reasoning", meta.reasoning],
+            ].map(([label, flag]) => (
+              <span key={label}
+                className={`rounded-md border px-2.5 py-1 ${flag
+                  ? "border-[#00CC00]/40 bg-[#00CC00]/10 text-[#00FF00]"
+                  : "border-white/10 text-gray-500"}`}>
+                {flag ? "✓ " : "— "}{label}
+              </span>
+            ))}
+            {Array.isArray(meta.reasoning_options) && meta.reasoning_options.length > 0 && (
+              <span className="rounded-md border border-white/10 px-2.5 py-1 text-gray-400">
+                effort: {meta.reasoning_options.map((o) => (o.values || []).join("/")).join(", ")}
+              </span>
+            )}
+          </div>
+        </section>
+
         {/* Цены */}
         <section className="mt-8">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Цены</h2>
@@ -210,13 +239,24 @@ export default async function ModelPage({ params }) {
         {/* Бенчмарки */}
         <section className="mt-8">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Бенчмарки</h2>
-          <div className="mt-3 rounded-lg border border-dashed border-white/10 px-4 py-6 text-center">
-            <p className="text-sm text-gray-400">Пока не собраны</p>
-            <p className="mx-auto mt-1 max-w-md text-[11px] leading-relaxed text-gray-600">
-              Мы не публикуем цифры, которые не можем проверить. Сейчас собираем собственные замеры
-              (скорость, стабильность, качество на наборе задач) — они появятся здесь и будут
-              помечены датой и методикой.
-            </p>
+          <p className="mt-3 text-xs leading-relaxed text-gray-500">
+            Своих цифр мы не публикуем, пока не измерили их сами: чужие числа без методики
+            быстро устаревают и вводят в заблуждение. Ниже — независимые рейтинги, где эту модель
+            можно проверить, и официальные источники вендора.
+          </p>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            {[
+              ["LMArena (слепые сравнения)", "https://lmarena.ai/leaderboard"],
+              ["Vals AI (отраслевые задачи)", "https://www.vals.ai/"],
+              ["Artificial Analysis (скорость и цена)", "https://artificialanalysis.ai/"],
+              ["Design Arena (дизайн и фронтенд)", "https://www.designarena.ai/"],
+            ].map(([label, href]) => (
+              <a key={href} href={href} target="_blank" rel="noopener noreferrer"
+                 className="flex items-center justify-between rounded-lg border border-white/[0.08] bg-white/[0.02] px-3 py-2.5 text-xs text-gray-300 transition-colors hover:border-[#00CC00]/40 hover:text-white">
+                {label}
+                <span className="text-gray-600">↗</span>
+              </a>
+            ))}
           </div>
         </section>
 
@@ -237,6 +277,26 @@ export default async function ModelPage({ params }) {
         </section>
 
         {/* Ссылки */}
+        <section className="mt-8">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Официальные источники</h2>
+          <div className="mt-3 flex flex-wrap gap-3 text-xs">
+            {VENDOR_SITES[m.brand] && (
+              <a href={VENDOR_SITES[m.brand]} target="_blank" rel="noopener noreferrer" className="text-[#00CC00] hover:underline">
+                {m.brand} — сайт вендора ↗
+              </a>
+            )}
+            <a href={`https://openrouter.ai/models?q=${encodeURIComponent(name)}`} target="_blank" rel="noopener noreferrer" className="text-[#00CC00] hover:underline">
+              Карточка в OpenRouter ↗
+            </a>
+            {(links.hugging_face || meta.hugging_face_id) && (
+              <a href={links.hugging_face || `https://huggingface.co/${meta.hugging_face_id}`}
+                 target="_blank" rel="noopener noreferrer" className="text-[#00CC00] hover:underline">
+                Веса на Hugging Face ↗
+              </a>
+            )}
+          </div>
+        </section>
+
         {(links.website || links.hugging_face || meta.hugging_face_id) && (
           <section className="mt-8 flex flex-wrap gap-3 text-xs">
             {links.website && <a href={links.website} target="_blank" rel="noopener noreferrer" className="text-[#00CC00] hover:underline">Сайт модели</a>}

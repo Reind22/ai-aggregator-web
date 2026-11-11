@@ -9,10 +9,11 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
 import Logo from "../../components/Logo";
+import SiteHeader from "../../components/SiteHeader";
 import { apiFetch } from "../../lib/api";
 
-// Префикс шлюза на нашем домене (nginx снимает /api/, дальше — /v1/...)
-const GATEWAY_URL = "https://aicombiner.net/api/v1";
+// Публичный адрес шлюза: nginx проксирует /v1/ напрямую на API
+const GATEWAY_URL = "https://aicombiner.net/v1";
 
 const RESET_PERIODS = [
   { value: "day", label: "Раз в день" },
@@ -31,6 +32,14 @@ function fmtPrice(v) {
 }
 
 export default function ApiKeysPage() {
+  const [copiedBase, setCopiedBase] = useState(false);
+  const copyBase = async () => {
+    try {
+      await navigator.clipboard.writeText(GATEWAY_URL);
+      setCopiedBase(true);
+      setTimeout(() => setCopiedBase(false), 1500);
+    } catch (_) {}
+  };
   const [token, setToken] = useState(null);
   const [allModels, setAllModels] = useState([]);
   const [keys, setKeys] = useState([]);
@@ -177,19 +186,7 @@ export default function ApiKeysPage() {
   if (!token) {
     return (
       <div className="min-h-screen bg-surface-dark">
-        <header className="border-b border-white/[0.06] sticky top-0 bg-surface-dark/90 backdrop-blur-xl z-40">
-          <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-2.5">
-              <Logo size={28} />
-              <span className="font-extrabold text-[15px] text-white">AI Combiner</span>
-            </Link>
-            <nav className="flex items-center gap-4 text-sm">
-              <Link href="/profile" className="text-gray-400 hover:text-white transition-colors">Профиль</Link>
-              <Link href="/chat" className="text-gray-400 hover:text-white transition-colors">Чат</Link>
-              <Link href="/login" className="text-gray-400 hover:text-white transition-colors">Войти</Link>
-            </nav>
-          </div>
-        </header>
+        <SiteHeader active="/apikeys" subtitle="API" />
         <div className="flex items-center justify-center px-4" style={{ minHeight: "calc(100vh - 61px)" }}>
           <div className="text-center">
             <div className="mx-auto mb-5 w-fit"><Logo size={56} /></div>
@@ -237,25 +234,12 @@ console.log(r.choices[0].message.content);`;
 
   return (
     <div className="min-h-screen bg-surface-dark">
-      <header className="border-b border-white/[0.06] sticky top-0 bg-surface-dark/90 backdrop-blur-xl z-40">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5">
-            <Logo size={28} />
-            <span className="font-extrabold text-[15px] text-white">AI Combiner</span>
-            <span className="text-xs text-gray-600 ml-2">API</span>
-          </Link>
-          <nav className="flex items-center gap-4 text-sm">
-            <Link href="/pricing" className="text-gray-400 hover:text-white transition-colors">Цены</Link>
-            <Link href="/profile" className="text-gray-400 hover:text-white transition-colors">Профиль</Link>
-            <Link href="/chat" className="text-gray-400 hover:text-white transition-colors">Чат</Link>
-          </nav>
-        </div>
-      </header>
+      <SiteHeader active="/apikeys" subtitle="API" />
 
       <main className="max-w-6xl mx-auto px-4 py-10">
         <h1 className="text-3xl font-extrabold text-white mb-2">API-ключи</h1>
         <p className="text-gray-500 mb-8">
-          OpenAI-совместимый API. Один ключ работает в любом клиенте: Cursor, Continue, LangChain, своих скриптах.
+          OpenAI-совместимый API. Один ключ работает везде, где можно указать свой base URL: Codex CLI, Claude Code, Hermes, OpenClaw, Cline, Cursor, OpenCode, Zed и любом OpenAI SDK.
         </p>
 
         {/* Модалка нового ключа */}
@@ -301,9 +285,31 @@ console.log(r.choices[0].message.content);`;
           <div className="space-y-6">
             <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6">
               <h2 className="font-bold text-white mb-2">Адрес и авторизация</h2>
-              <p className="text-gray-500 text-sm mb-4">
-                Base URL: <code className="text-[#33FF33] bg-black/40 px-2 py-0.5 rounded">{GATEWAY_URL}</code>
-              </p>
+              <div className="mb-4">
+                <div className="text-xs uppercase tracking-wide text-gray-500 mb-1.5">Base URL</div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => copyBase()}
+                    title="Нажмите, чтобы скопировать"
+                    className="group flex min-w-0 flex-1 items-center gap-2 rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-left transition-colors hover:border-[#00CC00]/50"
+                  >
+                    <code className="truncate text-sm text-[#33FF33]">{GATEWAY_URL}</code>
+                    <span className="ml-auto flex-shrink-0 text-[11px] text-gray-500 group-hover:text-[#00FF00]">
+                      {copiedBase ? "скопировано" : "копировать"}
+                    </span>
+                  </button>
+                  <button
+                    onClick={() => copyBase()}
+                    aria-label="Скопировать Base URL"
+                    className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-white/10 text-gray-400 transition-colors hover:border-[#00CC00]/50 hover:text-white"
+                  >
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
+                      <rect x="9" y="9" width="11" height="11" rx="2" />
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
               <p className="text-gray-500 text-sm mb-4">
                 Ключ передаётся в заголовке <code className="text-gray-300">Authorization: Bearer aico-...</code> или{" "}
                 <code className="text-gray-300">x-api-key</code>.

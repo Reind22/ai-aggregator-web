@@ -6,8 +6,7 @@
  * подмешиваются на сервере в /api/models/{id}.
  */
 import { useEffect, useMemo, useState } from "react";
-import Logo from "../../components/Logo";
-import AuthButtons from "../../components/AuthButtons";
+import SiteHeader from "../../components/SiteHeader";
 
 const MODALITY_LABEL = { text: "Текст", image: "Изображения", video: "Видео", audio: "Аудио" };
 const price = (v) => (v == null ? "—" : `$${Number(v).toFixed(4)}`);
@@ -70,20 +69,7 @@ export default function ModelsPage() {
 
   return (
     <div className="min-h-screen bg-[#0A0A0F] text-gray-200">
-      <header className="sticky top-0 z-30 border-b border-white/[0.06] bg-[#0A0A0F]/95 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-          <a href="/" className="flex items-center gap-2">
-            <Logo size={24} />
-            <span className="text-sm font-extrabold text-white">AI Combiner</span>
-          </a>
-          <nav className="flex items-center gap-4 text-sm text-gray-400">
-            <a href="/models" className="text-white">Модели</a>
-            <a href="/pricing" className="hover:text-white">Цены</a>
-            <a href="/chat" className="hover:text-white">Чат</a>
-            <AuthButtons />
-          </nav>
-        </div>
-      </header>
+      <SiteHeader active="/models" />
 
       <main className="mx-auto max-w-6xl px-4 py-8">
         <h1 className="text-2xl font-bold text-white">Каталог моделей</h1>
