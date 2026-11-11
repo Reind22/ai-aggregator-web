@@ -301,7 +301,7 @@ export default async function ModelPage({ params }) {
           {/* Design Arena: Elo по слепым сравнениям */}
           {Array.isArray(m.design_arena) && m.design_arena.length > 0 && (
             <div className="mt-3 grid gap-3 lg:grid-cols-2">
-              {m.design_arena.map((b, i) => (
+              {m.design_arena.slice(0, 4).map((b, i) => (
                 <BenchChart
                   key={`d-${b.category}-${i}`}
                   title={`Design Arena · ${b.category}`}
@@ -316,6 +316,13 @@ export default async function ModelPage({ params }) {
                 />
               ))}
             </div>
+          )}
+
+          {Array.isArray(m.design_arena) && m.design_arena.length > 4 && (
+            <p className="mt-2 text-[11px] text-gray-600">
+              Показаны 4 лучшие категории из {m.design_arena.length}. Остальные —
+              на <a href="https://www.designarena.ai/leaderboard" target="_blank" rel="noopener noreferrer" className="text-[#00CC00] hover:underline">сайте Design Arena</a>.
+            </p>
           )}
 
           {/* Arena: место и рейтинг */}
