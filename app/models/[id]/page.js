@@ -143,6 +143,13 @@ export default async function ModelPage({ params }) {
           </div>
         </div>
 
+        {(m.providers || []).length > 1 && (
+          <p className="mt-3 text-[11px] text-gray-500">
+            Доступна через несколько каналов: <span className="text-gray-400">{m.providers.join(", ")}</span>
+            {" "}— это одна и та же модель, а не разные.
+          </p>
+        )}
+
         {meta.description && (
           <p className="mt-4 max-w-3xl text-sm leading-relaxed text-gray-400">{meta.description}</p>
         )}
@@ -239,6 +246,39 @@ export default async function ModelPage({ params }) {
         {/* Бенчмарки */}
         <section className="mt-8">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Бенчмарки</h2>
+          {Array.isArray(m.benchmarks) && m.benchmarks.length > 0 && (
+            <div className="mt-3 overflow-hidden rounded-lg border border-white/[0.08]">
+              <table className="w-full text-xs">
+                <thead className="bg-white/[0.03] text-[11px] uppercase tracking-wide text-gray-500">
+                  <tr>
+                    <th className="px-3 py-2 text-left font-medium">Бенчмарк</th>
+                    <th className="px-3 py-2 text-right font-medium">Место</th>
+                    <th className="px-3 py-2 text-right font-medium">Результат</th>
+                    <th className="px-3 py-2 text-right font-medium">Обновлён</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {m.benchmarks.map((b, i) => (
+                    <tr key={`${b.benchmark}-${i}`}>
+                      <td className="px-3 py-2 text-gray-300">{b.label}</td>
+                      <td className="px-3 py-2 text-right tabular-nums text-gray-400">
+                        #{b.rank} <span className="text-gray-600">из {b.total_models}</span>
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums text-white">
+                        {b.accuracy != null ? `${b.accuracy}%` : "—"}
+                      </td>
+                      <td className="px-3 py-2 text-right text-gray-500">{b.updated || "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          {Array.isArray(m.benchmarks) && m.benchmarks.length > 0 && (
+            <p className="mt-1.5 text-[11px] text-gray-600">
+              Источник: Vals AI, независимые отраслевые задачи. Точность — доля верных ответов.
+            </p>
+          )}
           {m.arena && (
             <div className="mt-3 grid gap-2 sm:grid-cols-3">
               <div className="rounded-lg border border-[#00CC00]/30 bg-[#00CC00]/[0.06] px-3 py-2.5">

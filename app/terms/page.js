@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Logo from "../../components/Logo";
+import SiteHeader from "../../components/SiteHeader";
 
 const P = ({ children }) => <p className="text-gray-300 leading-relaxed mb-4">{children}</p>;
 const H = ({ children }) => <h2 className="text-xl font-bold text-white mt-10 mb-4">{children}</h2>;
@@ -11,18 +12,7 @@ const B = ({ children }) => <span className="text-gray-100 font-medium">{childre
 export default function TermsPage() {
   return (
     <div className="min-h-screen bg-surface-dark">
-      <header className="border-b border-white/[0.06] sticky top-0 bg-surface-dark/90 backdrop-blur-xl z-50">
-        <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5">
-            <Logo size={28} />
-            <span className="font-extrabold text-[15px] text-white">AI Combiner</span>
-          </Link>
-          <nav className="flex items-center gap-4 text-sm">
-            <Link href="/privacy" className="text-gray-400 hover:text-white transition-colors">Политика</Link>
-            <Link href="/chat" className="text-gray-400 hover:text-white transition-colors">Чат</Link>
-          </nav>
-        </div>
-      </header>
+      <SiteHeader active="/terms" />
 
       <main className="max-w-3xl mx-auto px-4 py-12">
         <h1 className="text-3xl font-extrabold text-white mb-2">Пользовательское соглашение</h1>
