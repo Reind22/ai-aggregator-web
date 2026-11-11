@@ -86,20 +86,28 @@ export default function FinancePanel({ profile }) {
         <div className="border border-white/10 rounded-xl p-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-medium">Расход по дням</h3>
-            <div className="flex gap-1 text-xs">
+            <div className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/[0.03] p-1">
               <button
                 onClick={() => setMode("bar")}
-                className={`px-2 py-1 rounded ${mode === "bar" ? "bg-white/10 text-white" : "text-gray-500"}`}
-                title="Столбики"
+                title="Столбцы"
+                aria-label="Показать столбцами"
+                className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[11px] transition-colors ${mode === "bar" ? "bg-[#00CC00]/20 text-white" : "text-gray-500 hover:text-gray-300"}`}
               >
-                ▮▮▮
+                <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" d="M4 20V10M10 20V4M16 20v-7M22 20H2" />
+                </svg>
+                Столбцы
               </button>
               <button
                 onClick={() => setMode("line")}
-                className={`px-2 py-1 rounded ${mode === "line" ? "bg-white/10 text-white" : "text-gray-500"}`}
                 title="Линия"
+                aria-label="Показать линией"
+                className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[11px] transition-colors ${mode === "line" ? "bg-[#00CC00]/20 text-white" : "text-gray-500 hover:text-gray-300"}`}
               >
-                ⌁
+                <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 17l6-6 4 3 8-8" />
+                </svg>
+                Линия
               </button>
             </div>
           </div>

@@ -5,6 +5,7 @@
  */
 import Logo from "../../../components/Logo";
 import SiteHeader from "../../../components/SiteHeader";
+import BenchChart from "../../../components/BenchChart";
 
 const API = process.env.API_INTERNAL_URL || "http://127.0.0.1:8000";
 
@@ -19,6 +20,24 @@ async function loadModel(id) {
 }
 
 const MODALITY_LABEL = { text: "текст", image: "изображения", video: "видео", audio: "аудио" };
+
+const BENCH_INFO = {
+  "Access to Justice": "юридические задачи без юриста",
+  "BioMysteryBench": "биология и медицина",
+  "ClaimBench": "проверка фактов",
+  "Code Migration": "перенос кода между версиями",
+  "CUA-bench": "управление интерфейсами",
+  "CyberBench": "кибербезопасность",
+  "Excel Modeling": "финансовые модели в Excel",
+  "Finance Agent": "агентские финансовые задачи",
+  "Vals Finance Index": "сводный финансовый индекс",
+  "HLAB-Vals-1.1": "юридические консультации",
+  "Immigration Bench": "иммиграционное право",
+  "IOI": "олимпиада по информатике",
+};
+
+const normName = (s) =>
+  String(s || "").toLowerCase().replace(/\(.*?\)/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
 const VENDOR_SITES = {
   OpenAI: "https://openai.com/index/",
@@ -110,7 +129,12 @@ export default async function ModelPage({ params }) {
         <nav className="mb-4 text-xs text-gray-500">
           <a href="/models" className="hover:text-gray-300">Модели</a>
           <span className="mx-1.5">/</span>
-          {m.brand && <><span>{m.brand}</span><span className="mx-1.5">/</span></>}
+          {m.brand && (
+            <>
+              <a href={`/companies/${encodeURIComponent(m.brand)}`} className="hover:text-gray-300">{m.brand}</a>
+              <span className="mx-1.5">/</span>
+            </>
+          )}
           <span className="text-gray-400">{name}</span>
         </nav>
 
@@ -245,77 +269,60 @@ export default async function ModelPage({ params }) {
 
         {/* Бенчмарки */}
         <section className="mt-8">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Бенчмарки</h2>
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Бенчмарки</h2>
+            <span className="text-[11px] text-gray-600">
+              независимые замеры: Vals AI и Design Arena
+            </span>
+          </div>
+
+          {/* Vals: точность на отраслевых задачах */}
           {Array.isArray(m.benchmarks) && m.benchmarks.length > 0 && (
-            <div className="mt-3 overflow-hidden rounded-lg border border-white/[0.08]">
-              <table className="w-full text-xs">
-                <thead className="bg-white/[0.03] text-[11px] uppercase tracking-wide text-gray-500">
-                  <tr>
-                    <th className="px-3 py-2 text-left font-medium">Бенчмарк</th>
-                    <th className="px-3 py-2 text-right font-medium">Место</th>
-                    <th className="px-3 py-2 text-right font-medium">Результат</th>
-                    <th className="px-3 py-2 text-right font-medium">Обновлён</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/5">
-                  {m.benchmarks.map((b, i) => (
-                    <tr key={`${b.benchmark}-${i}`}>
-                      <td className="px-3 py-2 text-gray-300">{b.label}</td>
-                      <td className="px-3 py-2 text-right tabular-nums text-gray-400">
-                        #{b.rank} <span className="text-gray-600">из {b.total_models}</span>
-                      </td>
-                      <td className="px-3 py-2 text-right tabular-nums text-white">
-                        {b.accuracy != null ? `${b.accuracy}%` : "—"}
-                      </td>
-                      <td className="px-3 py-2 text-right text-gray-500">{b.updated || "—"}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="mt-3 grid gap-3 lg:grid-cols-2">
+              {m.benchmarks.map((b, i) => (
+                <BenchChart
+                  key={`v-${b.benchmark}-${i}`}
+                  title={b.label}
+                  subtitle={`${BENCH_INFO[b.label] || "отраслевые задачи"} · #${b.rank} из ${b.total_models}`}
+                  rows={[
+                    ...(b.top || []).map((t) => ({ label: t.model, value: t.accuracy })),
+                    ...(b.top || []).some((t) => normName(t.model) === normName(b.display))
+                      ? []
+                      : [{ label: b.display || "наша модель", value: b.accuracy, ours: true }],
+                  ].map((r) => ({
+                    ...r,
+                    ours: r.ours || normName(r.label) === normName(b.display),
+                  }))}
+                />
+              ))}
             </div>
           )}
-          {Array.isArray(m.benchmarks) && m.benchmarks.length > 0 && (
-            <p className="mt-1.5 text-[11px] text-gray-600">
-              Источник: Vals AI, независимые отраслевые задачи. Точность — доля верных ответов.
-            </p>
-          )}
+
+          {/* Design Arena: Elo по слепым сравнениям */}
           {Array.isArray(m.design_arena) && m.design_arena.length > 0 && (
-            <div className="mt-3 overflow-hidden rounded-lg border border-white/[0.08]">
-              <table className="w-full text-xs">
-                <thead className="bg-white/[0.03] text-[11px] uppercase tracking-wide text-gray-500">
-                  <tr>
-                    <th className="px-3 py-2 text-left font-medium">Design Arena</th>
-                    <th className="px-3 py-2 text-right font-medium">Место</th>
-                    <th className="px-3 py-2 text-right font-medium">Elo</th>
-                    <th className="px-3 py-2 text-right font-medium">Победы</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/5">
-                  {m.design_arena.map((b, i) => (
-                    <tr key={`${b.category}-${i}`}>
-                      <td className="px-3 py-2 text-gray-300">{b.category}</td>
-                      <td className="px-3 py-2 text-right tabular-nums text-gray-400">
-                        #{b.rank} <span className="text-gray-600">из {b.total_models}</span>
-                      </td>
-                      <td className="px-3 py-2 text-right tabular-nums text-white">{b.elo}</td>
-                      <td className="px-3 py-2 text-right tabular-nums text-gray-400">
-                        {b.win_rate != null ? `${b.win_rate}%` : "—"}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="mt-3 grid gap-3 lg:grid-cols-2">
+              {m.design_arena.map((b, i) => (
+                <BenchChart
+                  key={`d-${b.category}-${i}`}
+                  title={`Design Arena · ${b.category}`}
+                  subtitle={`слепые сравнения · #${b.rank} из ${b.total_models} · побед ${b.win_rate ?? "—"}%`}
+                  unit=""
+                  rows={[
+                    ...(b.top || []).map((t) => ({ label: t.model, value: t.elo })),
+                    ...(b.top || []).some((t) => normName(t.model) === normName(m.model || m.id))
+                      ? []
+                      : [{ label: m.model || m.id, value: b.elo, ours: true }],
+                  ]}
+                />
+              ))}
             </div>
           )}
-          {Array.isArray(m.design_arena) && m.design_arena.length > 0 && (
-            <p className="mt-1.5 text-[11px] text-gray-600">
-              Источник: Design Arena — слепые сравнения сгенерированных сайтов и SVG, Elo по исходам боёв.
-            </p>
-          )}
+
+          {/* Arena: место и рейтинг */}
           {m.arena && (
             <div className="mt-3 grid gap-2 sm:grid-cols-3">
               <div className="rounded-lg border border-[#00CC00]/30 bg-[#00CC00]/[0.06] px-3 py-2.5">
-                <div className="text-[11px] uppercase tracking-wide text-gray-500">Место в Arena</div>
+                <div className="text-[11px] uppercase tracking-wide text-gray-500">Arena, место</div>
                 <div className="mt-0.5 text-lg font-semibold text-white">#{m.arena.rank}</div>
               </div>
               <div className="rounded-lg border border-white/[0.08] bg-white/[0.02] px-3 py-2.5">
@@ -332,29 +339,14 @@ export default async function ModelPage({ params }) {
               </div>
             </div>
           )}
-          {m.arena?.url && (
-            <a href={m.arena.url} target="_blank" rel="noopener noreferrer"
-               className="mt-2 inline-flex items-center gap-1.5 text-xs text-[#00CC00] hover:underline">
-              Официальный анонс модели ↗
-            </a>
-          )}
-          <p className="mt-3 text-xs leading-relaxed text-gray-500">
-            Своих цифр мы не публикуем, пока не измерили их сами: чужие числа без методики
-            быстро устаревают и вводят в заблуждение. Ниже — независимые рейтинги, где эту модель
-            можно проверить, и официальные источники вендора.
-          </p>
-          <div className="mt-3 grid gap-2 sm:grid-cols-2">
-            {[
-              ["Vals AI (отраслевые задачи)", "https://www.vals.ai/"],
-              ["Artificial Analysis (скорость и цена)", "https://artificialanalysis.ai/"],
-              ["Design Arena (дизайн и фронтенд)", "https://www.designarena.ai/"],
-            ].map(([label, href]) => (
-              <a key={href} href={href} target="_blank" rel="noopener noreferrer"
-                 className="flex items-center justify-between rounded-lg border border-white/[0.08] bg-white/[0.02] px-3 py-2.5 text-xs text-gray-300 transition-colors hover:border-[#00CC00]/40 hover:text-white">
-                {label}
-                <span className="text-gray-600">↗</span>
+
+          <div className="mt-3 flex flex-wrap items-center gap-3 text-[11px] text-gray-600">
+            {m.arena?.url && (
+              <a href={m.arena.url} target="_blank" rel="noopener noreferrer" className="text-[#00CC00] hover:underline">
+                Официальный анонс модели ↗
               </a>
-            ))}
+            )}
+            <span>Источники: Vals AI, Design Arena, Arena (LMArena).</span>
           </div>
         </section>
 
@@ -406,6 +398,88 @@ export default async function ModelPage({ params }) {
             )}
           </section>
         )}
+        {/* Подробное описание — для читателя и поисковиков */}
+        <section className="mt-12 border-t border-white/[0.06] pt-8">
+          <h2 className="text-lg font-semibold text-white">Подробно о модели {name}</h2>
+
+          <div className="mt-4 space-y-4 text-sm leading-relaxed text-gray-400">
+            <p>
+              <b className="text-gray-200">{name}</b> — модель{m.brand ? ` от ${m.brand}` : ""}
+              {meta.created_at ? `, выпущенная ${new Date(meta.created_at).toLocaleDateString("ru-RU")}` : ""}.
+              {meta.description ? ` ${meta.description}` : ""}
+            </p>
+
+            {m.context_length && (
+              <>
+                <h3 className="pt-2 text-sm font-semibold text-gray-200">Что такое контекст и зачем он нужен</h3>
+                <p>
+                  Контекст — сколько текста модель держит «в голове» за один разговор: вопрос,
+                  документы, предыдущие ответы. У {name} это {ctx(m.context_length)}.
+                  Если разговор длиннее, старое придётся сокращать или разбивать задачу на части.
+                  Для сравнения: один абзац — примерно 100 токенов, страница текста — около 500.
+                </p>
+              </>
+            )}
+
+            <h3 className="pt-2 text-sm font-semibold text-gray-200">Сколько это стоит</h3>
+            <p>
+              Оплата по факту: вход — {money(priceIn)} за миллион токенов, выход — {money(priceOut)},
+              чтение из кэша — {money(priceCache)}. Вход — это то, что вы отправляете (промпт, файлы,
+              история), выход — то, что модель пишет в ответ. Кэш срабатывает, когда один и тот же
+              контекст отправляют повторно: тогда вход стоит дешевле.
+            </p>
+
+            {(m.benchmarks?.length || m.design_arena?.length) ? (
+              <>
+                <h3 className="pt-2 text-sm font-semibold text-gray-200">Что показывают бенчмарки</h3>
+                <p>
+                  Бенчмарк — это набор задач с проверяемым ответом, на котором модели сравнивают
+                  между собой. Важно смотреть не на абсолютное число, а на место и разрыв с лидером:
+                  разница в 1–2% обычно внутри статистической погрешности, разрыв в 20% — уже
+                  реальная разница в качестве.
+                </p>
+                <ul className="list-disc space-y-1.5 pl-5">
+                  {Array.from(new Set((m.benchmarks || []).map((b) => b.label))).map((label) => (
+                    <li key={label}>
+                      <span className="text-gray-300">{label}</span>
+                      {" — "}{BENCH_INFO[label] || "отраслевые задачи с проверяемым ответом"}.
+                    </li>
+                  ))}
+                  {(m.design_arena || []).length > 0 && (
+                    <li>
+                      <span className="text-gray-300">Design Arena</span>
+                      {" — "}слепые сравнения: два результата показывают людям, они выбирают лучший,
+                      из исходов считается Elo. Показывает, насколько аккуратно модель делает
+                      интерфейсы, а не насколько «умна» в целом.
+                    </li>
+                  )}
+                  {m.arena && (
+                    <li>
+                      <span className="text-gray-300">Arena (LMArena)</span>
+                      {" — "}общий рейтинг по слепым сравнениям ответов на любые вопросы;
+                      место #{m.arena.rank} и {Number(m.arena.votes).toLocaleString("ru-RU")} голосов.
+                    </li>
+                  )}
+                </ul>
+              </>
+            ) : null}
+
+            <h3 className="pt-2 text-sm font-semibold text-gray-200">Как получить доступ</h3>
+            <p>
+              Модель доступна через OpenAI-совместимый API: один ключ открывает весь каталог,
+              переключается только поле <code className="text-gray-300">model</code>. Оплата — с баланса,
+              списывается по факту использования. Лимиты (деньги, запросы в минуту, список моделей,
+              срок жизни) задаются на ключе в кабинете.
+            </p>
+            {m.providers?.length > 1 && (
+              <p>
+                Модель подключена через несколько каналов ({m.providers.join(", ")}): это одна и та же
+                модель, разные маршруты доставки. Если один канал недоступен, запрос уходит в другой.
+              </p>
+            )}
+          </div>
+        </section>
+
       </main>
     </div>
   );

@@ -10,6 +10,20 @@ import SiteHeader from "../../components/SiteHeader";
 
 const MODALITY_LABEL = { text: "Текст", image: "Изображения", video: "Видео", audio: "Аудио" };
 const price = (v) => (v == null ? "—" : `$${Number(v).toFixed(4)}`);
+
+// у медиа-моделей цена за токены нулевая, платят за запрос
+const priceCell = (m) => {
+  const perToken = m.price_in ?? m.input_per_1m;
+  const perRequest = m.request_price ?? m.price_request;
+  if ((!perToken || perToken === 0) && perRequest) return `$${Number(perRequest).toFixed(2)} / запрос`;
+  return price(perToken);
+};
+const priceCellOut = (m) => {
+  const perToken = m.price_out ?? m.output_per_1m;
+  const perRequest = m.request_price ?? m.price_request;
+  if ((!perToken || perToken === 0) && perRequest) return "—";
+  return price(perToken);
+};
 const ctx = (v) => {
   if (!v) return "—";
   if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M`;
@@ -58,8 +72,10 @@ export default function ModelsPage() {
     if (modality) list = list.filter((m) => m.modality === modality);
     if (vision) list = list.filter((m) => (m.input_per_1m > 0) && /image|vision/i.test(m.id + " " + (m.name || "") + " " + (m.modality || "")));
 
+    const textFirst = (a, b) =>
+      (a.modality === "text" ? 0 : 1) - (b.modality === "text" ? 0 : 1);
     const by = {
-      price_asc: (a, b) => (a.price_in ?? 9e9) - (b.price_in ?? 9e9),
+      price_asc: (a, b) => textFirst(a, b) || (a.price_in ?? 9e9) - (b.price_in ?? 9e9),
       price_desc: (a, b) => (b.price_in ?? -1) - (a.price_in ?? -1),
       context: (a, b) => (b.context_length ?? 0) - (a.context_length ?? 0),
       name: (a, b) => (a.name || a.id).localeCompare(b.name || b.id),
@@ -103,6 +119,12 @@ export default function ModelsPage() {
             <option value="name">По названию</option>
           </select>
           <button
+            onClick={() => { setQ(""); setBrand(""); setModality(""); setVision(false); setSort("price_asc"); }}
+            className="rounded-lg border border-white/10 px-3 py-2 text-sm text-gray-500 transition-colors hover:text-white"
+          >
+            Сбросить
+          </button>
+          <button
             onClick={() => setVision((v) => !v)}
             className={`rounded-lg border px-3 py-2 text-sm transition-colors ${vision ? "border-[#00CC00]/60 bg-[#00CC00]/10 text-white" : "border-white/10 text-gray-400 hover:text-white"}`}
           >
@@ -136,8 +158,8 @@ export default function ModelsPage() {
                   </td>
                   <td className="px-4 py-3 text-xs text-gray-400">{MODALITY_LABEL[m.modality] || m.modality}</td>
                   <td className="px-4 py-3 text-right tabular-nums text-gray-400">{ctx(m.context_length)}</td>
-                  <td className="px-4 py-3 text-right tabular-nums text-gray-300">{price(m.price_in)}</td>
-                  <td className="px-4 py-3 text-right tabular-nums text-gray-300">{price(m.price_out)}</td>
+                  <td className="px-4 py-3 text-right tabular-nums text-gray-300">{priceCell(m)}</td>
+                  <td className="px-4 py-3 text-right tabular-nums text-gray-300">{priceCellOut(m)}</td>
                 </tr>
               ))}
               {!loading && !shown.length && (
@@ -158,7 +180,7 @@ export default function ModelsPage() {
                   <div className="mt-1 flex items-center gap-3 text-[11px] text-gray-500">
                     <span>{m.brand}</span>
                     <span>{MODALITY_LABEL[m.modality] || m.modality}</span>
-                    <span className="tabular-nums">{price(m.price_in)} / {price(m.price_out)}</span>
+                    <span className="tabular-nums">{priceCell(m)} / {priceCellOut(m)}</span>
                   </div>
                 </a>
               </li>

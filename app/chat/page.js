@@ -566,17 +566,15 @@ export default function ChatPage() {
               models={models} modelStatuses={modelStatuses} current={model}
               usageCounts={usageCounts}
               onPick={(id) => { setModel(id); setPickerOpen(false); }} />
-            {/* Профиль в правом верхнем углу */}
+            {/* Вход/кабинет — та же подача, что в шапке сайта */}
             {token ? (
-              <a href="/profile" title="Личный кабинет" aria-label="Личный кабинет"
-                className="min-w-[36px] min-h-[36px] flex items-center justify-center rounded-lg border border-white/10 bg-[#0d0d14] text-gray-300 hover:text-white hover:border-[#00CC00]/50 transition-colors">
-                <svg className="w-4.5 h-4.5" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.5 20.25a7.5 7.5 0 0 1 15 0" />
-                </svg>
+              <a href="/profile" title="Личный кабинет"
+                className="min-h-[36px] flex items-center rounded-lg border border-[#00CC00]/40 px-3 text-xs font-medium text-[#00FF00] transition-colors hover:bg-[#00CC00]/10">
+                Кабинет
               </a>
             ) : (
-              <a href="/login" title="Войти" aria-label="Войти"
-                className="min-h-[36px] flex items-center rounded-lg bg-[#00FF00] px-3 text-xs font-medium text-[#0A2A0A] hover:bg-[#00CC00] transition-colors">
+              <a href="/login" title="Войти"
+                className="min-h-[36px] flex items-center rounded-lg bg-[#00FF00] px-3.5 text-xs font-medium text-[#0A2A0A] transition-colors hover:bg-[#00CC00]">
                 Войти
               </a>
             )}

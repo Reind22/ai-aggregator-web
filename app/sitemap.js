@@ -36,5 +36,20 @@ export default async function sitemap() {
     // без каталога отдаём хотя бы статические страницы
   }
 
-  return [...staticPages, ...models];
+  let companies = [];
+  try {
+    const api = process.env.API_INTERNAL_URL || "http://127.0.0.1:8000";
+    const res = await fetch(`${api}/models/filters`, { next: { revalidate: 3600 } });
+    if (res.ok) {
+      const f = await res.json();
+      companies = (f.brands || []).map((b) => ({
+        url: `${base}/companies/${encodeURIComponent(b)}`,
+        lastModified: now,
+        changeFrequency: "weekly",
+        priority: 0.7,
+      }));
+    }
+  } catch (e) {}
+
+  return [...staticPages, ...companies, ...models];
 }
