@@ -239,6 +239,32 @@ export default async function ModelPage({ params }) {
         {/* Бенчмарки */}
         <section className="mt-8">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Бенчмарки</h2>
+          {m.arena && (
+            <div className="mt-3 grid gap-2 sm:grid-cols-3">
+              <div className="rounded-lg border border-[#00CC00]/30 bg-[#00CC00]/[0.06] px-3 py-2.5">
+                <div className="text-[11px] uppercase tracking-wide text-gray-500">Место в Arena</div>
+                <div className="mt-0.5 text-lg font-semibold text-white">#{m.arena.rank}</div>
+              </div>
+              <div className="rounded-lg border border-white/[0.08] bg-white/[0.02] px-3 py-2.5">
+                <div className="text-[11px] uppercase tracking-wide text-gray-500">Рейтинг</div>
+                <div className="mt-0.5 text-lg font-semibold tabular-nums text-white">
+                  {Number(m.arena.rating).toFixed(3)}
+                </div>
+              </div>
+              <div className="rounded-lg border border-white/[0.08] bg-white/[0.02] px-3 py-2.5">
+                <div className="text-[11px] uppercase tracking-wide text-gray-500">Голосов</div>
+                <div className="mt-0.5 text-lg font-semibold tabular-nums text-white">
+                  {Number(m.arena.votes).toLocaleString("ru-RU")}
+                </div>
+              </div>
+            </div>
+          )}
+          {m.arena?.url && (
+            <a href={m.arena.url} target="_blank" rel="noopener noreferrer"
+               className="mt-2 inline-flex items-center gap-1.5 text-xs text-[#00CC00] hover:underline">
+              Официальный анонс модели ↗
+            </a>
+          )}
           <p className="mt-3 text-xs leading-relaxed text-gray-500">
             Своих цифр мы не публикуем, пока не измерили их сами: чужие числа без методики
             быстро устаревают и вводят в заблуждение. Ниже — независимые рейтинги, где эту модель
@@ -246,7 +272,6 @@ export default async function ModelPage({ params }) {
           </p>
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
             {[
-              ["LMArena (слепые сравнения)", "https://lmarena.ai/leaderboard"],
               ["Vals AI (отраслевые задачи)", "https://www.vals.ai/"],
               ["Artificial Analysis (скорость и цена)", "https://artificialanalysis.ai/"],
               ["Design Arena (дизайн и фронтенд)", "https://www.designarena.ai/"],

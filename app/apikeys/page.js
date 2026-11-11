@@ -33,6 +33,7 @@ function fmtPrice(v) {
 
 export default function ApiKeysPage() {
   const [copiedBase, setCopiedBase] = useState(false);
+  const [revealedId, setRevealedId] = useState(null);
   const copyBase = async () => {
     try {
       await navigator.clipboard.writeText(GATEWAY_URL);
@@ -144,6 +145,23 @@ export default function ApiKeysPage() {
       setError("Сервер недоступен");
     } finally {
       setCreating(false);
+    }
+  };
+
+  const revealKey = async (key) => {
+    try {
+      const res = await apiFetch(`/api-keys/${key.id}/secret`);
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        alert(d.detail || "Не удалось получить ключ");
+        return;
+      }
+      const d = await res.json();
+      await navigator.clipboard.writeText(d.key);
+      setRevealedId(key.id);
+      setTimeout(() => setRevealedId(null), 2500);
+    } catch (e) {
+      alert("Не удалось скопировать ключ");
     }
   };
 
@@ -481,7 +499,11 @@ console.log(r.choices[0].message.content);`;
                     Модели: <span className="text-gray-300">{k.models && k.models.length > 0 ? k.models.map(modelName).join(", ") : "все"}</span>
                   </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
+                  <button onClick={() => revealKey(k)}
+                    className="basis-full border border-[#00CC00]/40 bg-[#00CC00]/10 hover:bg-[#00CC00]/20 text-[#00FF00] text-xs py-2 rounded-lg transition-colors">
+                    {revealedId === k.id ? "✓ Ключ скопирован" : "Скопировать ключ"}
+                  </button>
                   <button onClick={() => toggleActive(k)}
                     className="flex-1 border border-white/10 hover:border-[#00CC00]/50 text-gray-300 text-xs py-2 rounded-lg transition-colors">
                     {k.is_active ? "Отключить" : "Включить"}

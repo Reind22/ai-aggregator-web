@@ -7,7 +7,7 @@
  */
 import { useEffect, useState } from "react";
 import Logo from "../../components/Logo";
-import AuthButtons from "../../components/AuthButtons";
+import SiteHeader from "../../components/SiteHeader";
 
 export default function PricingPage() {
   const [items, setItems] = useState([]);
@@ -32,12 +32,8 @@ export default function PricingPage() {
 
   return (
     <div className="min-h-screen bg-surface-dark text-gray-200">
+      <SiteHeader active="/pricing" />
       <div className="max-w-5xl mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
-          <a href="/" className="flex items-center gap-2"><Logo size={28} /><span className="font-extrabold text-white">AI Combiner</span></a>
-          <AuthButtons />
-        </div>
-
         <h1 className="text-3xl font-extrabold text-white mb-2">Цены на модели</h1>
         <p className="text-gray-400 mb-2">
           Стоимость за 1 миллион токенов. Оплата по факту — с дневного баланса, только за использованные токены.
