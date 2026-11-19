@@ -155,6 +155,7 @@ export default function Home() {
           <nav className="hidden items-center gap-4 text-sm md:flex">
             <Link href="/models" className="text-gray-400 hover:text-white transition-colors font-medium">Модели</Link>
             <Link href="/pricing" className="text-gray-400 hover:text-white transition-colors font-medium">Цены</Link>
+            <Link href="/billing" className="text-gray-400 hover:text-white transition-colors font-medium">Пополнить</Link>
             <Link href="/apikeys" className="text-gray-400 hover:text-white transition-colors font-medium">API</Link>
             <a href="#features" className="text-gray-400 hover:text-white transition-colors">Возможности</a>
             <a href="#pricing" className="text-gray-400 hover:text-white transition-colors">Тарифы</a>
@@ -282,60 +283,49 @@ export default function Home() {
 
       {/* Pricing */}
       <section id="pricing" className="py-24 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-4 text-white">
-              Прозрачные тарифы
+              Оплата по факту, без подписок
             </h2>
-            <p className="text-gray-500 max-w-md mx-auto">
-              Дневной баланс в долларах — трать на любую модель. Остаток не переносится.
+            <p className="text-gray-500 max-w-lg mx-auto">
+              Пополняете баланс — платите только за те токены, которые израсходовали.
+              Нет ежемесячных платежей и скрытых тарифов.
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-            {pricing.map((plan) => (
-              <div
-                key={plan.name}
-                className={`rounded-2xl p-6 border transition-all flex flex-col ${
-                  plan.badge
-                    ? "border-[#00CC00]/60 bg-[#00CC00]/[0.04] relative hover:border-[#00FF00]"
-                    : "border-white/[0.06] bg-white/[0.02] hover:border-white/[0.15]"
-                }`}
-              >
-                {plan.badge && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#00FF00] text-black text-[11px] font-bold px-3 py-0.5 rounded-full whitespace-nowrap">
-                    {plan.badge}
-                  </div>
-                )}
-                <h3 className="font-medium text-gray-400 text-sm mb-3">{plan.name}</h3>
-                <div className="flex items-baseline gap-1 mb-1">
-                  <span className="text-4xl font-extrabold tracking-tight text-white">{plan.price}</span>
-                  <span className="text-gray-600 text-sm">/мес</span>
-                </div>
-                <div className="text-[#33FF33] text-sm font-semibold mb-8">
-                  {plan.balance} на запросы
-                </div>
-                <div className="space-y-2.5 mb-8">
-                  {plan.features.map((f) => (
-                    <div key={f} className="flex items-start gap-2.5 text-sm text-gray-300">
-                      <svg className="w-4 h-4 text-[#00CC00] mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
-                      {f}
-                    </div>
-                  ))}
-                </div>
-                <button
-                  className={`w-full py-2.5 rounded-xl font-bold text-sm transition-colors mt-auto ${
-                    plan.badge
-                      ? "bg-[#00FF00] hover:bg-[#00CC00] text-black"
-                      : "border border-white/10 hover:border-[#00FF00]/50 text-gray-200 hover:bg-white/5"
-                  }`}
-                >
-                  {plan.cta}
-                </button>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6">
+              <h3 className="text-sm font-medium text-gray-400 mb-3">Бесплатный старт</h3>
+              <div className="flex items-baseline gap-1">
+                <span className="text-4xl font-extrabold tracking-tight text-white">$0.5</span>
+                <span className="text-gray-600 text-sm">каждый день</span>
               </div>
-            ))}
+              <p className="mt-4 text-sm text-gray-400">
+                Пополняется ежедневно и не переносится на следующий день — достаточно,
+                чтобы проверить модели на реальных задачах.
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-[#00CC00]/60 bg-[#00CC00]/[0.04] p-6">
+              <h3 className="text-sm font-medium text-gray-400 mb-3">Пополнение баланса</h3>
+              <div className="flex items-baseline gap-1">
+                <span className="text-4xl font-extrabold tracking-tight text-white">от $5</span>
+                <span className="text-gray-600 text-sm">любая сумма</span>
+              </div>
+              <p className="mt-4 text-sm text-gray-400">
+                СБП или крипта. Деньги не сгорают и не сбрасываются — тратятся
+                только на запросы, по фактическому расходу токенов.
+              </p>
+              <a href="/billing" className="mt-5 inline-block rounded-xl bg-[#00FF00] px-5 py-2.5 text-sm font-bold text-black transition-colors hover:bg-[#00CC00]">
+                Пополнить баланс
+              </a>
+            </div>
           </div>
+
+          <p className="mt-6 text-center text-sm text-gray-600">
+            Цены моделей — на странице <a href="/pricing" className="text-[#00CC00] hover:underline">Цены</a>.
+          </p>
         </div>
       </section>
 

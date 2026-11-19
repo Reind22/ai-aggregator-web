@@ -14,6 +14,7 @@ import LanguageMenu from "./LanguageMenu";
 const NAV = [
   { href: "/models", label: "Модели" },
   { href: "/pricing", label: "Цены" },
+  { href: "/billing", label: "Пополнить" },
   { href: "/chat", label: "Чат" },
   { href: "/apikeys", label: "API" },
 ];
