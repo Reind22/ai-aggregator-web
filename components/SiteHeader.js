@@ -15,6 +15,7 @@ const NAV = [
   { href: "/models", label: "Модели" },
   { href: "/pricing", label: "Цены" },
   { href: "/billing", label: "Пополнить" },
+  { href: "/support", label: "Поддержка" },
   { href: "/chat", label: "Чат" },
   { href: "/apikeys", label: "API" },
 ];

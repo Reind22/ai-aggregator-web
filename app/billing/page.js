@@ -145,28 +145,17 @@ export default function BillingPage() {
       <main className="mx-auto max-w-3xl px-4 py-8">
         <h1 className="text-2xl font-bold text-white">Пополнение баланса</h1>
         <p className="mt-1 text-sm text-gray-500">
-          Деньги списываются только за фактически использованные токены. Подписок нет.
+          Деньги списываются только за фактически использованные токены. Подписок и ежедневных начислений нет.
         </p>
 
         {/* Баланс */}
-        <div className="mt-5 grid gap-3 sm:grid-cols-3">
-          <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-4">
-            <div className="text-[11px] uppercase tracking-wide text-gray-500">Платный баланс</div>
-            <div className="mt-1 text-xl font-semibold text-white">
-              {money(balance?.paid_balance_usd)}
-            </div>
+        <div className="mt-5 rounded-xl border border-[#00CC00]/30 bg-[#00CC00]/[0.06] p-5">
+          <div className="text-[11px] uppercase tracking-wide text-gray-500">Баланс</div>
+          <div className="mt-1 text-3xl font-semibold text-[#00FF00]">
+            {money(balance?.paid_balance_usd)}
           </div>
-          <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-4">
-            <div className="text-[11px] uppercase tracking-wide text-gray-500">Дневной бесплатный</div>
-            <div className="mt-1 text-xl font-semibold text-gray-300">
-              {money(balance?.daily_balance_usd)}
-            </div>
-          </div>
-          <div className="rounded-xl border border-[#00CC00]/30 bg-[#00CC00]/[0.06] p-4">
-            <div className="text-[11px] uppercase tracking-wide text-gray-500">Доступно всего</div>
-            <div className="mt-1 text-xl font-semibold text-[#00FF00]">
-              {money(balance?.total_balance_usd)}
-            </div>
+          <div className="mt-1 text-xs text-gray-500">
+            Списывается только за использованные токены. Подписок и ежедневных начислений нет.
           </div>
         </div>
 
@@ -187,13 +176,18 @@ export default function BillingPage() {
                 ${a}
               </button>
             ))}
+          </div>
+
+          <div className="mt-3 flex items-center gap-2">
+            <span className="text-xs text-gray-500">Своя сумма</span>
             <input
               type="number"
               min="1"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className="w-24 rounded-lg border border-white/10 bg-[#0d0d14] px-3 py-2 text-sm outline-none focus:border-[#00CC00]"
+              className="w-28 rounded-lg border border-white/10 bg-[#0d0d14] px-3 py-2 text-sm outline-none focus:border-[#00CC00]"
             />
+            <span className="text-xs text-gray-600">USD</span>
           </div>
 
           <div className="mt-5 text-sm font-medium text-white">Способ оплаты</div>
@@ -232,7 +226,7 @@ export default function BillingPage() {
             </button>
           </div>
           <p className="mt-2 text-[11px] text-gray-600">
-            Одна попытка в минуту и не больше 10 в сутки — проверяется на сервере.
+            Одна попытка в 30 секунд, не больше 100 в час — проверяется на сервере.
           </p>
 
           <button

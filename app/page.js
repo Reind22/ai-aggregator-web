@@ -156,6 +156,7 @@ export default function Home() {
             <Link href="/models" className="text-gray-400 hover:text-white transition-colors font-medium">Модели</Link>
             <Link href="/pricing" className="text-gray-400 hover:text-white transition-colors font-medium">Цены</Link>
             <Link href="/billing" className="text-gray-400 hover:text-white transition-colors font-medium">Пополнить</Link>
+            <Link href="/support" className="text-gray-400 hover:text-white transition-colors font-medium">Поддержка</Link>
             <Link href="/apikeys" className="text-gray-400 hover:text-white transition-colors font-medium">API</Link>
             <a href="#features" className="text-gray-400 hover:text-white transition-colors">Возможности</a>
             <a href="#pricing" className="text-gray-400 hover:text-white transition-colors">Тарифы</a>
@@ -296,14 +297,14 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6">
-              <h3 className="text-sm font-medium text-gray-400 mb-3">Бесплатный старт</h3>
+              <h3 className="text-sm font-medium text-gray-400 mb-3">Без подписки</h3>
               <div className="flex items-baseline gap-1">
-                <span className="text-4xl font-extrabold tracking-tight text-white">$0.5</span>
-                <span className="text-gray-600 text-sm">каждый день</span>
+                <span className="text-4xl font-extrabold tracking-tight text-white">$0</span>
+                <span className="text-gray-600 text-sm">в месяц</span>
               </div>
               <p className="mt-4 text-sm text-gray-400">
-                Пополняется ежедневно и не переносится на следующий день — достаточно,
-                чтобы проверить модели на реальных задачах.
+                Нет ежемесячной платы и обязательного минимума — пополняете баланс,
+                когда он заканчивается, и тратите только на свои запросы.
               </p>
             </div>
 
