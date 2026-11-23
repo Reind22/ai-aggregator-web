@@ -21,6 +21,14 @@ const time = (iso) =>
     ? new Date(iso).toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })
     : "—";
 
+function hourColor(h) {
+  if (!h || h.total === 0) return "bg-white/10";
+  const rate = h.ok / h.total;
+  if (rate >= 0.98) return "bg-[#00FF00]";
+  if (rate >= 0.9) return "bg-amber-300";
+  return "bg-red-400";
+}
+
 function health(value) {
   if (value === null || value === undefined) return { dot: "bg-gray-600", text: "text-gray-500", label: "нет данных" };
   if (value >= 0.98) return { dot: "bg-[#00FF00]", text: "text-[#00FF00]", label: "работает" };
@@ -113,6 +121,14 @@ export default function StatusPage() {
           </div>
         )}
 
+        <div className="mt-3 flex flex-wrap items-center gap-4 text-[11px] text-gray-500">
+          <span className="flex items-center gap-1.5"><span className="h-3 w-[3px] rounded-sm bg-[#00FF00]" /> все запросы успешны</span>
+          <span className="flex items-center gap-1.5"><span className="h-3 w-[3px] rounded-sm bg-amber-300" /> часть сбоев</span>
+          <span className="flex items-center gap-1.5"><span className="h-3 w-[3px] rounded-sm bg-red-400" /> сбои</span>
+          <span className="flex items-center gap-1.5"><span className="h-3 w-[3px] rounded-sm bg-white/10" /> запросов не было</span>
+          <span className="text-gray-600">полоса — один час, слева 24 часа назад, справа текущий час</span>
+        </div>
+
         <div className="mt-4 overflow-x-auto rounded-xl border border-white/[0.08]">
           <table className="w-full text-xs">
             <thead className="bg-white/[0.03] text-[11px] uppercase tracking-wide text-gray-500">
@@ -120,6 +136,7 @@ export default function StatusPage() {
                 <th className="px-3 py-2 text-left font-medium">Модель</th>
                 <th className="px-3 py-2 text-right font-medium">Вход / выход за 1M</th>
                 <th className="px-3 py-2 text-right font-medium">Запросов</th>
+                <th className="px-3 py-2 text-left font-medium">Сутки по часам</th>
                 <th className="px-3 py-2 text-right font-medium">Успешность</th>
                 <th className="px-3 py-2 text-right font-medium">Средняя</th>
                 <th className="px-3 py-2 text-right font-medium">p95</th>
@@ -129,12 +146,12 @@ export default function StatusPage() {
             <tbody className="divide-y divide-white/5">
               {!data && (
                 <tr>
-                  <td colSpan={7} className="px-3 py-8 text-center text-gray-500">Загружаем статистику…</td>
+                  <td colSpan={8} className="px-3 py-8 text-center text-gray-500">Загружаем статистику…</td>
                 </tr>
               )}
               {data && models.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-3 py-8 text-center text-gray-500">Ничего не найдено</td>
+                  <td colSpan={8} className="px-3 py-8 text-center text-gray-500">Ничего не найдено</td>
                 </tr>
               )}
               {models.map((m) => {
@@ -154,6 +171,21 @@ export default function StatusPage() {
                       {money(m.input_per_1m)} / {money(m.output_per_1m)}
                     </td>
                     <td className="px-3 py-2 text-right tabular-nums text-gray-400">{m.requests || "—"}</td>
+                    <td className="px-3 py-2">
+                      {(m.hours || []).some((h) => h.total > 0) ? (
+                      <div className="flex items-end gap-[2px]" title={`успешность за сутки: ${pct(m.uptime_24h)}`}>
+                        {(m.hours || []).map((h) => (
+                          <span
+                            key={h.hour}
+                            className={`h-4 w-[3px] rounded-sm ${hourColor(h)}`}
+                            title={`${h.hour.slice(11, 16)} — ${h.total ? `${h.ok}/${h.total}` : "нет запросов"}`}
+                          />
+                        ))}
+                      </div>
+                      ) : (
+                        <span className="text-[11px] text-gray-600">нет запросов за сутки</span>
+                      )}
+                    </td>
                     <td className={`px-3 py-2 text-right tabular-nums ${h.text}`}>{pct(m.success_rate)}</td>
                     <td className="px-3 py-2 text-right tabular-nums text-gray-300">{ms(m.avg_ms)}</td>
                     <td className="px-3 py-2 text-right tabular-nums text-gray-400">{ms(m.p95_ms)}</td>
