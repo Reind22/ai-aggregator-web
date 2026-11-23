@@ -5,6 +5,7 @@ import Logo from "../../components/Logo";
 import ModelPickerModal from "../../components/ModelPickerModal";
 import MarkdownRenderer from "../../components/MarkdownRenderer";
 import LanguageMenu from "../../components/LanguageMenu";
+import NavMenu from "../../components/NavMenu";
 import { apiFetch } from "../../lib/api";
 
 const API_BASE = "/api";
@@ -538,12 +539,14 @@ export default function ChatPage() {
         <div
           className={`fixed top-0 left-0 right-0 z-30 border-b border-white/[0.06] bg-[#0d0d14] px-4 flex items-center justify-between overflow-hidden transition-all duration-200 ${headerVisible ? "max-h-20 opacity-100 py-3" : "max-h-0 opacity-0 py-0 border-b-0"}`}
         >
-          {/* Мобайл: бургер открывает панель; десктоп: панель открыта постоянно, бургер в шапке не нужен */}
           <div className="flex items-center gap-1">
+            {/* Меню сайта — общий бургер, такой же, как на остальных страницах */}
+            <NavMenu />
             {!sidebarOpen && (
-              <button onClick={() => setSidebarOpen(true)} className="text-gray-400 hover:text-white transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center flex-shrink-0" aria-label="Меню">
+              <button onClick={() => setSidebarOpen(true)} className="text-gray-400 hover:text-white transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center flex-shrink-0" aria-label="Список чатов">
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                  <rect x="3" y="4" width="18" height="16" rx="2" />
+                  <path strokeLinecap="round" d="M9 4v16" />
                 </svg>
               </button>
             )}
@@ -553,18 +556,12 @@ export default function ChatPage() {
                 <span className="font-extrabold text-sm text-white hidden sm:inline">AI Combiner</span>
               </a>
             )}
-            {/* Разделы сайта — чтобы не возвращаться на главную */}
-            <nav className="hidden items-center gap-4 pl-3 text-sm md:flex">
-              <a href="/models" className="text-gray-400 transition-colors hover:text-white">Модели</a>
-              <a href="/pricing" className="text-gray-400 transition-colors hover:text-white">Цены</a>
-              <a href="/apikeys" className="text-gray-400 transition-colors hover:text-white">API</a>
-            </nav>
           </div>
           {isTemp && <span className="text-[#00FF00] text-sm">Временный чат (автоочистка 24ч)</span>}
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            <LanguageMenu compact />
+          <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
+            <div className="hidden sm:block"><LanguageMenu compact /></div>
             <button onClick={() => setPickerOpen(true)}
-              className="bg-[#0d0d14] border border-white/10 rounded-lg px-2 sm:px-3 py-1.5 text-xs sm:text-sm text-gray-200 outline-none focus:border-[#00CC00] transition-colors max-w-[170px] sm:max-w-none flex items-center gap-1.5">
+              className="bg-[#0d0d14] border border-white/10 rounded-lg px-2 sm:px-3 py-1.5 text-xs sm:text-sm text-gray-200 outline-none focus:border-[#00CC00] transition-colors max-w-[120px] sm:max-w-none flex items-center gap-1.5 min-w-0">
               <span className="truncate">{(models.find((mm) => mm.id === model) || {}).name || model}</span>
               <span className="text-gray-500 text-[10px]">▾</span>
             </button>
