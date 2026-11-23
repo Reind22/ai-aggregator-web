@@ -15,7 +15,7 @@ export const metadata = {
     default: 'AI Combiner — нейросети в Telegram, Discord и браузере',
     template: '%s | AI Combiner',
   },
-  description: 'Доступ к GLM, DeepSeek, Claude, GPT и 90+ моделям через Telegram, Discord и веб-чат. Бесплатный тариф, оплата по факту.',
+  description: 'Доступ к GLM, DeepSeek, Claude, GPT и 90+ моделям через Telegram, Discord и веб-чат. Оплата по факту: пополнение баланса от 5 $.',
   keywords: ['AI Combiner', 'нейросети', 'ИИ чат', 'GLM', 'DeepSeek', 'Claude', 'GPT', 'бесплатный ИИ', 'нейросеть онлайн', 'ИИ телеграм бот'],
   openGraph: {
     type: 'website',
@@ -23,12 +23,12 @@ export const metadata = {
     url: 'https://aicombiner.net',
     siteName: 'AI Combiner',
     title: 'AI Combiner — нейросети в Telegram, Discord и браузере',
-    description: '90+ ИИ-моделей в одном чате. Telegram-бот, Discord-бот и веб. Бесплатный дневной баланс.',
+    description: '90+ ИИ-моделей в одном чате. Telegram-бот, Discord-бот и веб. Оплата по факту, без подписки.',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'AI Combiner — нейросети в одном чате',
-    description: '90+ ИИ-моделей: Telegram, Discord, веб. Бесплатный тариф.',
+    description: '90+ ИИ-моделей: Telegram, Discord, веб. Оплата по факту.',
   },
   alternates: {
     canonical: '/',

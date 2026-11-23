@@ -36,14 +36,14 @@ export default function PricingPage() {
       <div className="max-w-5xl mx-auto px-4 py-8">
         <h1 className="text-3xl font-extrabold text-white mb-2">Цены на модели</h1>
         <p className="text-gray-400 mb-2">
-          Стоимость за 1 миллион токенов. Оплата по факту — с дневного баланса, только за использованные токены.
+          Стоимость за 1 миллион токенов. Оплата по факту — с пополненного баланса, только за использованные токены.
         </p>
         <p className="text-gray-500 text-sm mb-6">
           Кэшированные входные токены (повторные запросы с тем же контекстом) тарифицируются по сниженной ставке.
         </p>
 
         {loading ? (
-          <p className="text-gray-500 py-10 text-center">Загрузка…</p>
+          <p className="text-gray-500 py-10 text-center">Загружаем цены…</p>
         ) : (
           <div>
             {/* Мобильные карточки */}
@@ -111,7 +111,7 @@ export default function PricingPage() {
 
         <div className="mt-8 text-xs text-gray-500 space-y-1">
           <p>* Кэшированные входные токены (при повторных запросах с тем же контекстом) тарифицируются по сниженной ставке cache read — значительно дешевле обычного входа.</p>
-          <p>* Бесплатный тариф: 0,50 $ в день на любые модели.</p>
+          <p>* Минимальное пополнение — 5 $, деньги не сгорают и расходуются только на запросы.</p>
         </div>
 
         <div className="mt-10 text-center">

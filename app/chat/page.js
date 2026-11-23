@@ -520,12 +520,12 @@ export default function ChatPage() {
           )}
         </div>
         <div className="p-4 border-t border-white/[0.06]">
-          <div className="text-xs text-gray-500 mb-2">Остаток сегодня:</div>
+          <div className="text-xs text-gray-500 mb-2">Баланс:</div>
           <div className="w-full bg-white/10 rounded-full h-2">
-            <div className="bg-[#00CC00] h-2 rounded-full transition-all" style={{ width: balance !== null ? `${Math.min(100, balance * 200)}%` : "100%" }}></div>
+            <div className="bg-[#00CC00] h-2 rounded-full transition-all" style={{ width: balance !== null ? `${Math.min(100, (balance / 5) * 100)}%` : "0%" }}></div>
           </div>
           <div className="text-xs text-gray-500 mt-1">
-            {balance !== null ? `$${balance.toFixed(2)}` : "$0.50 (Free)"}
+            {balance !== null ? `$${balance.toFixed(2)}` : "$0.00"}
           </div>
         </div>
       </div>

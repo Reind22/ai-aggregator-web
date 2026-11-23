@@ -72,66 +72,6 @@ const features = [
   },
 ];
 
-// Финальные тарифы: Free 0 / Basic 249 / Pro 799 / Ultra 999
-const pricing = [
-  {
-    name: "Free",
-    price: "0₽",
-    balance: "$0.50 / день",
-    features: [
-      "GLM 5.3 Flash + DeepSeek Chat",
-      "~70 запросов в день",
-      "5 чатов в истории",
-      "Голос и изображения",
-      "API-ключи (до 50)",
-    ],
-    cta: "Начать бесплатно",
-    badge: null,
-  },
-  {
-    name: "Basic",
-    price: "249₽",
-    balance: "$1.00 / день",
-    features: [
-      "Всё из Free",
-      "+ GLM 5.3 FlashX",
-      "~700 запросов в день",
-      "25 чатов в истории",
-      "Приоритетная поддержка",
-    ],
-    cta: "Выбрать Basic",
-    badge: null,
-  },
-  {
-    name: "Pro",
-    price: "799₽",
-    balance: "$3.00 / день",
-    features: [
-      "Всё из Basic",
-      "+ GLM 5.2 — сильная модель",
-      "~2800 запросов в день",
-      "∞ история чатов",
-      "−15% на API-токены",
-    ],
-    cta: "Выбрать Pro",
-    badge: null,
-  },
-  {
-    name: "Ultra",
-    price: "999₽",
-    balance: "$5.00 / день",
-    features: [
-      "Всё из Pro",
-      "+ GLM 5.3 и GLM 5.1",
-      "~14000 запросов в день",
-      "Приоритетная обработка",
-      "−25% на API-токены",
-    ],
-    cta: "Выбрать Ultra",
-    badge: "Максимальная выгода",
-  },
-];
-
 // Клик по кнопке Telegram — событие в Umami
 function trackTgClick(place) {
   if (typeof window !== "undefined" && window.umami) {
@@ -186,8 +126,8 @@ export default function Home() {
             где тебе удобно
           </h1>
           <p className="text-lg text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed">
-            Один аккаунт — доступ к 5+ моделям через Telegram, Discord и браузер.
-            Дневной баланс в долларах. Бесплатный тариф без карты.
+            Один аккаунт — доступ к 90+ моделям через Telegram, Discord и браузер.
+            Оплата по факту: пополняете баланс и тратите только на запросы.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link
@@ -315,7 +255,7 @@ export default function Home() {
                 <span className="text-gray-600 text-sm">любая сумма</span>
               </div>
               <p className="mt-4 text-sm text-gray-400">
-                СБП или крипта. Деньги не сгорают и не сбрасываются — тратятся
+                СБП, банковская карта или крипта. Деньги не сгорают и не сбрасываются — тратятся
                 только на запросы, по фактическому расходу токенов.
               </p>
               <a href="/billing" className="mt-5 inline-block rounded-xl bg-[#00FF00] px-5 py-2.5 text-sm font-bold text-black transition-colors hover:bg-[#00CC00]">
@@ -338,7 +278,7 @@ export default function Home() {
             Готов попробовать?
           </h2>
           <p className="text-gray-500 mb-8">
-            Бесплатный тариф — без карты, без ограничений по времени.
+            Пополнение от 5 $ — без подписки и обязательных платежей.
           </p>
           <Link
             href="/chat"
@@ -357,6 +297,8 @@ export default function Home() {
             AI Combiner © 2026
           </div>
           <nav className="flex flex-wrap justify-center gap-x-6 gap-y-3 text-gray-600">
+            <a href="/support" className="hover:text-gray-400 transition-colors py-1">Поддержка</a>
+            <a href="/pricing" className="hover:text-gray-400 transition-colors py-1">Цены</a>
             <a href="/privacy" className="hover:text-gray-400 transition-colors py-1">Конфиденциальность</a>
             <a href="/terms" className="hover:text-gray-400 transition-colors py-1">Пользовательское соглашение</a>
             <a
@@ -368,6 +310,9 @@ export default function Home() {
               Telegram
             </a>
           </nav>
+          <div className="text-gray-600 text-center md:text-right">
+            Служба поддержки: Telegram-бот @aicombinernet_bot, ответ в течение дня
+          </div>
         </div>
       </footer>
     </main>
