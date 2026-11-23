@@ -17,6 +17,7 @@ const NAV = [
   { href: "/billing", label: "Пополнить" },
   { href: "/support", label: "Поддержка" },
   { href: "/chat", label: "Чат" },
+  { href: "/status", label: "Статус" },
   { href: "/apikeys", label: "API" },
 ];
 

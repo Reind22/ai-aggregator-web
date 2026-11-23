@@ -299,6 +299,7 @@ export default function Home() {
           <nav className="flex flex-wrap justify-center gap-x-6 gap-y-3 text-gray-600">
             <a href="/support" className="hover:text-gray-400 transition-colors py-1">Поддержка</a>
             <a href="/pricing" className="hover:text-gray-400 transition-colors py-1">Цены</a>
+            <a href="/status" className="hover:text-gray-400 transition-colors py-1">Статус</a>
             <a href="/privacy" className="hover:text-gray-400 transition-colors py-1">Конфиденциальность</a>
             <a href="/terms" className="hover:text-gray-400 transition-colors py-1">Пользовательское соглашение</a>
             <a
