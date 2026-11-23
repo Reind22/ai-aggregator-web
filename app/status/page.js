@@ -22,7 +22,7 @@ const time = (iso) =>
     : "—";
 
 function hourColor(h) {
-  if (!h || h.total === 0) return "bg-white/10";
+  if (!h || h.total === 0) return "bg-white/[0.04]";
   const rate = h.ok / h.total;
   if (rate >= 0.98) return "bg-[#00FF00]";
   if (rate >= 0.9) return "bg-amber-300";
@@ -67,6 +67,8 @@ export default function StatusPage() {
   });
 
   const summary = data?.summary || {};
+  const usage = data?.usage_by_hour || [];
+  const maxUsage = Math.max(1, ...usage.map((u) => u.total));
   const hours = data?.window_hours ?? 24;
   const windowLabel = hours <= 24 ? "за сутки" : hours <= 48 ? "за двое суток" : "за неделю";
 
@@ -100,6 +102,50 @@ export default function StatusPage() {
           <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-4">
             <div className="text-[11px] uppercase tracking-wide text-gray-500">Средняя задержка</div>
             <div className="mt-1 text-2xl font-semibold text-white">{ms(summary.avg_ms)}</div>
+          </div>
+        </div>
+
+        {/* График использования по часам */}
+        <div className="mt-6 rounded-xl border border-white/[0.08] bg-white/[0.02] p-4">
+          <div className="flex items-baseline justify-between">
+            <div className="text-sm font-medium text-white">Использование по часам</div>
+            <div className="text-[11px] text-gray-600">запросов за час, последние 24 часа</div>
+          </div>
+
+          {usage.every((u) => u.total === 0) && (
+            <div className="mt-3 text-[11px] text-gray-600">
+              За последние сутки запросов через шлюз не было — столбцы появятся с первым трафиком.
+            </div>
+          )}
+
+          <div className="relative mt-3 flex h-24 items-end gap-[3px] border-b border-white/10">
+            {(usage.length ? usage : Array.from({ length: 24 }, () => ({ total: 0, ok: 0 }))).map((u, i) => {
+              const h = u.total === 0 ? 2 : Math.max(3, Math.round((u.total / maxUsage) * 96));
+              const color =
+                u.total === 0
+                  ? "bg-white/10"
+                  : u.ok === u.total
+                  ? "bg-[#00CC00]"
+                  : u.ok / u.total >= 0.9
+                  ? "bg-amber-300"
+                  : "bg-red-400";
+              return (
+                <div
+                  key={u.hour || i}
+                  className={`flex-1 rounded-sm ${color}`}
+                  style={{ height: `${h}px` }}
+                  title={`${u.hour ? u.hour.slice(11, 16) : ""} — ${u.total} запросов`}
+                />
+              );
+            })}
+          </div>
+
+          <div className="mt-1 flex justify-between text-[10px] text-gray-600">
+            <span>-24 ч</span>
+            <span>-18 ч</span>
+            <span>-12 ч</span>
+            <span>-6 ч</span>
+            <span className="text-[#00CC00]">сейчас</span>
           </div>
         </div>
 
@@ -173,11 +219,13 @@ export default function StatusPage() {
                     <td className="px-3 py-2 text-right tabular-nums text-gray-400">{m.requests || "—"}</td>
                     <td className="px-3 py-2">
                       {(m.hours || []).some((h) => h.total > 0) ? (
-                      <div className="flex items-end gap-[2px]" title={`успешность за сутки: ${pct(m.uptime_24h)}`}>
-                        {(m.hours || []).map((h) => (
+                      <div className="flex items-end gap-[4px]" title={`успешность за сутки: ${pct(m.uptime_24h)}`}>
+                        {(m.hours || []).map((h, i) => (
                           <span
                             key={h.hour}
-                            className={`h-4 w-[3px] rounded-sm ${hourColor(h)}`}
+                            className={`h-[18px] w-[4px] rounded-sm ${hourColor(h)} ${
+                              h.total === 0 ? "ring-1 ring-white/10" : ""
+                            } ${i === 23 ? "outline outline-1 outline-offset-[2px] outline-white/30" : ""}`}
                             title={`${h.hour.slice(11, 16)} — ${h.total ? `${h.ok}/${h.total}` : "нет запросов"}`}
                           />
                         ))}
