@@ -540,8 +540,6 @@ export default function ChatPage() {
           className={`fixed top-0 left-0 right-0 z-30 border-b border-white/[0.06] bg-[#0d0d14] px-4 flex items-center justify-between overflow-hidden transition-all duration-200 ${headerVisible ? "max-h-20 opacity-100 py-3" : "max-h-0 opacity-0 py-0 border-b-0"}`}
         >
           <div className="flex items-center gap-1">
-            {/* Меню сайта — общий бургер, такой же, как на остальных страницах */}
-            <NavMenu />
             {!sidebarOpen && (
               <button onClick={() => setSidebarOpen(true)} className="text-gray-400 hover:text-white transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center flex-shrink-0" aria-label="Список чатов">
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -569,18 +567,14 @@ export default function ChatPage() {
               models={models} modelStatuses={modelStatuses} current={model}
               usageCounts={usageCounts}
               onPick={(id) => { setModel(id); setPickerOpen(false); }} />
-            {/* Вход/кабинет — та же подача, что в шапке сайта */}
-            {token ? (
-              <a href="/profile" title="Личный кабинет"
-                className="min-h-[36px] flex items-center rounded-lg border border-[#00CC00]/40 px-3 text-xs font-medium text-[#00FF00] transition-colors hover:bg-[#00CC00]/10">
-                Кабинет
-              </a>
-            ) : (
+            {/* Вход — только для гостя; кабинет доступен из меню */}
+            {!token && (
               <a href="/login" title="Войти"
                 className="min-h-[36px] flex items-center rounded-lg bg-[#00FF00] px-3.5 text-xs font-medium text-[#0A2A0A] transition-colors hover:bg-[#00CC00]">
                 Войти
               </a>
             )}
+            <NavMenu />
           </div>
         </div>
 

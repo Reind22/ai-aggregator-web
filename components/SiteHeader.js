@@ -31,14 +31,7 @@ export default function SiteHeader({ subtitle }) {
 
         <div className="ml-auto flex flex-shrink-0 items-center gap-2">
           <LanguageMenu compact />
-          {loggedIn ? (
-            <a
-              href="/profile"
-              className="rounded-lg border border-[#00CC00]/40 px-3 py-1.5 text-xs font-medium text-[#00FF00] transition-colors hover:bg-[#00CC00]/10"
-            >
-              Кабинет
-            </a>
-          ) : (
+          {!loggedIn && (
             <a
               href="/login"
               className="rounded-lg bg-[#00FF00] px-4 py-1.5 text-xs font-medium text-[#0A2A0A] transition-colors hover:bg-[#00CC00]"

@@ -2,9 +2,7 @@
 
 import Link from "next/link";
 import Logo from "../components/Logo";
-import LanguageMenu from "../components/LanguageMenu";
-import MobileMenu from "../components/MobileMenu";
-import AuthButtons from "../components/AuthButtons";
+import SiteHeader from "../components/SiteHeader";
 
 // SVG иконки (зелёный акцент)
 const iconCls = "w-7 h-7 text-[#00CC00]";
@@ -85,35 +83,10 @@ export default function Home() {
       <div className="hero-glow absolute inset-x-0 top-0 h-[800px] pointer-events-none" />
 
       {/* Header */}
-      <header className="fixed top-0 w-full z-50 bg-surface-dark/85 backdrop-blur-xl border-b border-white/[0.06]">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-6">
-          {/* Слева: логотип и разделы — как на внутренних страницах */}
-          <Link href="/" className="flex items-center gap-2.5 flex-shrink-0">
-            <Logo size={30} />
-            <span className="font-extrabold text-[15px] tracking-tight text-white">AI Combiner</span>
-          </Link>
-          <nav className="hidden items-center gap-4 text-sm md:flex">
-            <Link href="/models" className="text-gray-400 hover:text-white transition-colors font-medium">Модели</Link>
-            <Link href="/pricing" className="text-gray-400 hover:text-white transition-colors font-medium">Цены</Link>
-            <Link href="/billing" className="text-gray-400 hover:text-white transition-colors font-medium">Пополнить</Link>
-            <Link href="/support" className="text-gray-400 hover:text-white transition-colors font-medium">Поддержка</Link>
-            <Link href="/apikeys" className="text-gray-400 hover:text-white transition-colors font-medium">API</Link>
-            <a href="#features" className="text-gray-400 hover:text-white transition-colors">Возможности</a>
-            <a href="#pricing" className="text-gray-400 hover:text-white transition-colors">Тарифы</a>
-          </nav>
-          <div className="ml-auto flex items-center gap-2">
-            <LanguageMenu />
-            <AuthButtons />
-            <Link href="/chat" className="hidden rounded-lg bg-[#00FF00] px-3.5 py-2 text-[13px] font-bold text-black transition-colors hover:bg-[#00CC00] md:block">
-              Открыть чат
-            </Link>
-            <MobileMenu />
-          </div>
-        </div>
-      </header>
+      <SiteHeader />
 
       {/* Hero */}
-      <section className="relative pt-32 pb-16 px-4">
+      <section className="relative pt-16 pb-16 px-4">
         <div className="max-w-4xl mx-auto text-center animate-fade-in-up">
           <div className="inline-flex items-center gap-2 bg-white/[0.04] border border-white/[0.08] rounded-full px-4 py-1.5 text-sm text-gray-300 mb-8">
             <span className="w-1.5 h-1.5 rounded-full bg-[#00FF00] animate-pulse"></span>
