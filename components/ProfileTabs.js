@@ -12,7 +12,6 @@ import FinancePanel from "./FinancePanel";
 import RefPanel from "./RefPanel";
 import Sessions from "./Sessions";
 
-const TIER_LABELS = { free: "Free", basic: "Basic", pro: "Pro", ultra: "Ultra" };
 
 const TABS = [
   { id: "overview", label: "Обзор" },
@@ -66,16 +65,13 @@ export default function ProfileTabs({ profile, notify, logout, logoutAllDevices,
           </div>
           <div className="min-w-0">
             <div className="font-bold text-white truncate">#{profile.id}</div>
-            <span className="inline-block mt-1 text-[10px] uppercase tracking-wider bg-[#00FF00]/10 text-[#00FF00] border border-[#00FF00]/30 rounded-full px-2 py-0.5">
-              {TIER_LABELS[profile.tier] || profile.tier}
-            </span>
           </div>
         </div>
 
         <div className="space-y-2 text-sm border-t border-white/[0.06] pt-4">
           <div className="flex justify-between gap-2 min-w-0">
             <span className="text-gray-500">Баланс</span>
-            <span className="text-[#33FF33] font-semibold">${profile.daily_balance_usd.toFixed(2)}</span>
+            <span className="text-[#33FF33] font-semibold">${(profile.paid_balance_usd ?? profile.daily_balance_usd ?? 0).toFixed(2)}</span>
           </div>
           <div className="flex justify-between gap-2 min-w-0">
             <span className="text-gray-500">С нами с</span>
@@ -136,30 +132,20 @@ export default function ProfileTabs({ profile, notify, logout, logoutAllDevices,
 function OverviewTab({ profile }) {
   return (
     <div className="space-y-6">
-      <Section title="Баланс и подписка">
-        <div className="flex items-end justify-between gap-4 mb-4">
-          <div>
-            <div className="text-4xl font-extrabold text-white">
-              ${profile.daily_balance_usd.toFixed(2)}
-            </div>
-            <div className="text-xs text-gray-500 mt-1">
-              доступно сегодня · обновление в 00:00 МСК
-            </div>
+      <Section title="Баланс">
+        <div className="mb-4">
+          <div className="text-4xl font-extrabold text-white">
+            ${(profile.paid_balance_usd ?? profile.daily_balance_usd ?? 0).toFixed(2)}
           </div>
-          <span className="text-[10px] uppercase tracking-wider bg-[#00FF00]/10 text-[#00FF00] border border-[#00FF00]/30 rounded-full px-2.5 py-1">
-            {TIER_LABELS[profile.tier] || profile.tier}
-          </span>
+          <div className="text-xs text-gray-500 mt-1">
+            списывается только за использованные токены
+          </div>
         </div>
-        {profile.subscription_expires && (
-          <p className="text-xs text-gray-500 mb-3">
-            Подписка действует до {new Date(profile.subscription_expires).toLocaleDateString("ru-RU")}
-          </p>
-        )}
         <a
-          href="/#pricing"
+          href="/billing"
           className="block w-full text-center bg-[#00FF00] hover:bg-[#00CC00] text-black rounded-xl py-2.5 font-bold text-sm transition-colors"
         >
-          {profile.tier === "free" ? "Улучшить тариф" : "Сменить тариф"}
+          Пополнить баланс
         </a>
       </Section>
 
@@ -237,7 +223,7 @@ function KeysTab({ stats }) {
         <ol className="space-y-2 text-sm text-gray-400 list-decimal list-inside">
           <li>Создай ключ на странице управления</li>
           <li>Отправляй запросы на <code className="text-[#33FF33]">aicombiner.net/api/v1/chat/completions</code> с заголовком <code className="text-[#33FF33]">Authorization: Bearer sk-...</code></li>
-          <li>Списания идут с дневного баланса аккаунта</li>
+          <li>Списания идут с пополненного баланса аккаунта</li>
         </ol>
       </Section>
     </div>

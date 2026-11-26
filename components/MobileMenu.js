@@ -20,7 +20,7 @@ export default function MobileMenu() {
 
   const links = [
     { href: "/#features", label: "Возможности" },
-    { href: "/#pricing", label: "Тарифы" },
+    { href: "/pricing", label: "Цены" },
     { href: "/models", label: "Каталог моделей" },
     { href: "/pricing", label: "Цены" },
     { href: "/apikeys", label: "API" },

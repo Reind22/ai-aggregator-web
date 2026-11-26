@@ -521,13 +521,18 @@ export default function ChatPage() {
           )}
         </div>
         <div className="p-4 border-t border-white/[0.06]">
-          <div className="text-xs text-gray-500 mb-2">Баланс:</div>
-          <div className="w-full bg-white/10 rounded-full h-2">
-            <div className="bg-[#00CC00] h-2 rounded-full transition-all" style={{ width: balance !== null ? `${Math.min(100, (balance / 5) * 100)}%` : "0%" }}></div>
+          <div className="flex items-center justify-between gap-2 text-xs">
+            <span className="text-gray-500">Баланс</span>
+            <span className="text-[#33FF33] font-semibold">
+              {balance !== null ? `$${balance.toFixed(2)}` : "$0.00"}
+            </span>
           </div>
-          <div className="text-xs text-gray-500 mt-1">
-            {balance !== null ? `$${balance.toFixed(2)}` : "$0.00"}
-          </div>
+          <a
+            href="/billing"
+            className="mt-2 block text-center text-[11px] text-gray-400 hover:text-[#00FF00] transition-colors"
+          >
+            Пополнить
+          </a>
         </div>
       </div>
 

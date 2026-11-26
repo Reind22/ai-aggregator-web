@@ -145,7 +145,7 @@ export default function BillingPage() {
       <main className="mx-auto max-w-3xl px-4 py-8">
         <h1 className="text-2xl font-bold text-white">Пополнение баланса</h1>
         <p className="mt-1 text-sm text-gray-500">
-          Деньги списываются только за фактически использованные токены. Подписок и ежедневных начислений нет.
+          Деньги списываются только за фактически использованные токены.
         </p>
 
         {/* Баланс */}
@@ -155,7 +155,7 @@ export default function BillingPage() {
             {money(balance?.paid_balance_usd)}
           </div>
           <div className="mt-1 text-xs text-gray-500">
-            Списывается только за использованные токены. Подписок и ежедневных начислений нет.
+            Списывается только за использованные токены.
           </div>
         </div>
 

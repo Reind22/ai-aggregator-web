@@ -204,13 +204,13 @@ export default function Home() {
             </h2>
             <p className="text-gray-500 max-w-lg mx-auto">
               Пополняете баланс — платите только за те токены, которые израсходовали.
-              Нет ежемесячных платежей и скрытых тарифов.
+              Нет ежемесячных платежей и скрытых комиссий.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6">
-              <h3 className="text-sm font-medium text-gray-400 mb-3">Без подписки</h3>
+              <h3 className="text-sm font-medium text-gray-400 mb-3">Оплата по факту</h3>
               <div className="flex items-baseline gap-1">
                 <span className="text-4xl font-extrabold tracking-tight text-white">$0</span>
                 <span className="text-gray-600 text-sm">в месяц</span>
@@ -251,7 +251,7 @@ export default function Home() {
             Готов попробовать?
           </h2>
           <p className="text-gray-500 mb-8">
-            Пополнение от 5 $ — без подписки и обязательных платежей.
+            Пополнение от 5 $ — платите только за то, что использовали.
           </p>
           <Link
             href="/chat"

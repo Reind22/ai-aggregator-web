@@ -39,7 +39,6 @@ export default function FinancePanel({ profile }) {
         <div className="border border-white/10 rounded-xl p-3">
           <div className="text-xs text-gray-500">Баланс</div>
           <div className="text-xl font-bold text-[#00FF00]">{fmt2$(data.balance_usd)}</div>
-          <div className="text-[10px] text-gray-500">тариф {data.tier}</div>
         </div>
         <div className="border border-white/10 rounded-xl p-3">
           <div className="text-xs text-gray-500">Расход за {days} дн.</div>
