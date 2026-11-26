@@ -285,14 +285,12 @@ export default function Home() {
             </a>
           </nav>
           <div className="text-gray-600 text-center md:text-right">
-            Поддержка в Telegram:{" "}
+            Поддержка:{" "}
             <a
-              href="https://t.me/aicombinernet_bot?start=website"
-              target="_blank"
-              onClick={() => trackTgClick("footer_support")}
+              href="/support"
               className="text-[#00CC00] hover:text-[#00FF00] transition-colors"
             >
-              @aicombinernet_bot
+              страница поддержки
             </a>{" "}
             — отвечаем в течение дня
           </div>
