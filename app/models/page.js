@@ -48,6 +48,9 @@ export default function ModelsPage() {
   const [brandOpen, setBrandOpen] = useState(false);
   const [sortKey, setSortKey] = useState("name");
   const [sortDir, setSortDir] = useState("asc");
+  const [calcIdx, setCalcIdx] = useState(0);
+  const [inTok, setInTok] = useState(1000);
+  const [outTok, setOutTok] = useState(500);
   const brandRef = useRef(null);
 
   useEffect(() => {
@@ -135,15 +138,12 @@ export default function ModelsPage() {
       <main className="mx-auto max-w-6xl px-4 py-8">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-white">Каталог моделей</h1>
+            <h1 className="text-2xl font-bold text-white">Модели и цены</h1>
             <p className="mt-1 text-sm text-gray-500">
-              {items.length} моделей через один API-ключ. Цена запроса — на странице цен.
+              {items.length} моделей через один API-ключ. Цены — за 1 миллион токенов, оплата по факту.
             </p>
           </div>
-          <div className="flex items-center gap-4">
-            <a href="/pricing" className="text-xs text-[#00FF00] hover:underline">Цены запросов →</a>
-            <a href="/companies" className="text-xs text-[#00CC00] hover:underline">Все компании →</a>
-          </div>
+          <a href="/status" className="text-xs text-[#00CC00] hover:underline">Статус и доступность →</a>
         </div>
 
         {/* Тип модели */}
@@ -213,6 +213,79 @@ export default function ModelsPage() {
           </button>
         </div>
 
+
+        {/* Стоимость запроса */}
+        {!loading && items.length > 0 && (
+          <div className="mt-5 rounded-xl border border-white/10 bg-white/[0.02] p-4">
+            <div className="mb-3 text-sm font-semibold text-white">Сколько стоит запрос</div>
+            <div className="grid gap-2 sm:grid-cols-3">
+              <label className="block">
+                <span className="mb-1 block text-[11px] text-gray-500">Модель</span>
+                <select
+                  value={calcIdx}
+                  onChange={(e) => setCalcIdx(Number(e.target.value))}
+                  className="w-full rounded-lg border border-white/10 bg-[#0d0d14] px-2 py-2 text-xs text-gray-200 outline-none focus:border-[#00CC00]"
+                >
+                  {items.map((m, i) => (
+                    <option key={m.id} value={i}>{m.name || m.id}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="block">
+                <span className="mb-1 block text-[11px] text-gray-500">Токенов на входе</span>
+                <input type="number" min="0" step="100" value={inTok}
+                  onChange={(e) => setInTok(Math.max(0, Number(e.target.value) || 0))}
+                  className="w-full rounded-lg border border-white/10 bg-[#0d0d14] px-2 py-2 text-xs text-gray-200 outline-none focus:border-[#00CC00]" />
+              </label>
+              <label className="block">
+                <span className="mb-1 block text-[11px] text-gray-500">Токенов на выходе</span>
+                <input type="number" min="0" step="100" value={outTok}
+                  onChange={(e) => setOutTok(Math.max(0, Number(e.target.value) || 0))}
+                  className="w-full rounded-lg border border-white/10 bg-[#0d0d14] px-2 py-2 text-xs text-gray-200 outline-none focus:border-[#00CC00]" />
+              </label>
+            </div>
+            {(() => {
+              const m = items[calcIdx] || {};
+              const req = m.request_price ?? m.price_request;
+              const cost = req
+                ? Number(req)
+                : (inTok / 1e6) * Number(m.price_in ?? m.input_per_1m ?? 0) +
+                  (outTok / 1e6) * Number(m.price_out ?? m.output_per_1m ?? 0);
+              return (
+                <div className="mt-3 flex flex-wrap items-baseline gap-x-5 gap-y-1 text-sm">
+                  <span className="text-gray-500">Стоимость:</span>
+                  <span className="text-lg font-bold text-[#00FF00]">{money(cost) === "—" ? "$0.0000" : money(cost)}</span>
+                  <span className="text-gray-500">· 1000 запросов:</span>
+                  <span className="text-gray-300">{money(cost * 1000)}</span>
+                </div>
+              );
+            })()}
+          </div>
+        )}
+
+        {/* Компании */}
+        {!loading && brands.length > 0 && (
+          <div className="mt-4 flex flex-wrap items-center gap-1.5">
+            <span className="mr-1 text-[11px] uppercase tracking-wide text-gray-600">Компании</span>
+            {brands.map((b) => {
+              const active = brandSel.includes(b);
+              return (
+                <button
+                  key={b}
+                  onClick={() => toggleBrand(b)}
+                  className={`rounded-full border px-2.5 py-1 text-[11px] transition-colors ${
+                    active
+                      ? "border-[#00CC00]/60 bg-[#00CC00]/10 text-white"
+                      : "border-white/10 text-gray-400 hover:text-white"
+                  }`}
+                >
+                  {b}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
         {/* Таблица */}
         <div className="mt-5 overflow-hidden rounded-xl border border-white/[0.08]">
           <table className="w-full text-sm">
@@ -229,11 +302,19 @@ export default function ModelsPage() {
                   Контекст {sortKey === "context" && <SortArrow dir={sortDir} />}
                 </th>
                 <th className="px-4 py-3 text-right font-medium">Доступность</th>
+                <th className="cursor-pointer px-4 py-3 text-right font-medium hover:text-gray-300"
+                    onClick={() => clickSort("price_in")}>
+                  Вход {sortKey === "price_in" && <SortArrow dir={sortDir} />}
+                </th>
+                <th className="hidden cursor-pointer px-4 py-3 text-right font-medium hover:text-gray-300 sm:table-cell"
+                    onClick={() => clickSort("price_out")}>
+                  Выход {sortKey === "price_out" && <SortArrow dir={sortDir} />}
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
               {loading && (
-                <tr><td colSpan={5} className="px-4 py-10 text-center text-gray-500">Загрузка…</td></tr>
+                <tr><td colSpan={7} className="px-4 py-10 text-center text-gray-500">Загрузка…</td></tr>
               )}
               {!loading && shown.map((m) => (
                 <tr key={m.id} className="transition-colors hover:bg-white/[0.03]">
@@ -262,10 +343,14 @@ export default function ModelsPage() {
                       <span className="text-[#33FF33]">доступна</span>
                     )}
                   </td>
+                  <td className="px-4 py-3 text-right tabular-nums text-gray-300">{moneyReq(m)}</td>
+                  <td className="hidden px-4 py-3 text-right tabular-nums text-gray-300 sm:table-cell">
+                    {money(m.price_out ?? m.output_per_1m)}
+                  </td>
                 </tr>
               ))}
               {!loading && !shown.length && (
-                <tr><td colSpan={5} className="px-4 py-10 text-center text-gray-500">Ничего не найдено</td></tr>
+                <tr><td colSpan={7} className="px-4 py-10 text-center text-gray-500">Ничего не найдено</td></tr>
               )}
             </tbody>
           </table>

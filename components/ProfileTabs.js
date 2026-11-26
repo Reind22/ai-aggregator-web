@@ -59,7 +59,7 @@ export default function ProfileTabs({ profile, notify, logout, logoutAllDevices,
       {/* ── Сайдбар: карточка аккаунта ── */}
       <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6 lg:sticky lg:top-24">
         <div className="mb-5">
-          <div className="font-bold text-white truncate">{profile.id}</div>
+          <div className="font-bold text-white truncate">ID {profile.id}</div>
         </div>
 
         <div className="space-y-2 text-sm border-t border-white/[0.06] pt-4">

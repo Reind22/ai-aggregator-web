@@ -12,8 +12,7 @@ import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 
 const NAV = [
-  { href: "/models", label: "Модели" },
-  { href: "/pricing", label: "Цены" },
+  { href: "/models", label: "Модели и цены" },
   { href: "/status", label: "Статус" },
   { href: "/billing", label: "Пополнить" },
   { href: "/support", label: "Поддержка" },

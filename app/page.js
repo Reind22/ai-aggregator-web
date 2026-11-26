@@ -238,7 +238,7 @@ export default function Home() {
           </div>
 
           <p className="mt-6 text-center text-sm text-gray-600">
-            Цены моделей — на странице <a href="/pricing" className="text-[#00CC00] hover:underline">Цены</a>.
+            Цены моделей — на странице <a href="/models" className="text-[#00CC00] hover:underline">Цены</a>.
           </p>
         </div>
       </section>
@@ -271,7 +271,7 @@ export default function Home() {
           </div>
           <nav className="flex flex-wrap justify-center gap-x-6 gap-y-3 text-gray-600">
             <a href="/support" className="hover:text-gray-400 transition-colors py-1">Поддержка</a>
-            <a href="/pricing" className="hover:text-gray-400 transition-colors py-1">Цены</a>
+            <a href="/models" className="hover:text-gray-400 transition-colors py-1">Модели и цены</a>
             <a href="/status" className="hover:text-gray-400 transition-colors py-1">Статус</a>
             <a href="/privacy" className="hover:text-gray-400 transition-colors py-1">Конфиденциальность</a>
             <a href="/terms" className="hover:text-gray-400 transition-colors py-1">Пользовательское соглашение</a>
@@ -285,7 +285,16 @@ export default function Home() {
             </a>
           </nav>
           <div className="text-gray-600 text-center md:text-right">
-            Служба поддержки: Telegram-бот @aicombinernet_bot, ответ в течение дня
+            Поддержка в Telegram:{" "}
+            <a
+              href="https://t.me/aicombinernet_bot?start=website"
+              target="_blank"
+              onClick={() => trackTgClick("footer_support")}
+              className="text-[#00CC00] hover:text-[#00FF00] transition-colors"
+            >
+              @aicombinernet_bot
+            </a>{" "}
+            — отвечаем в течение дня
           </div>
         </div>
       </footer>
