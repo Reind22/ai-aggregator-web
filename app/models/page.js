@@ -137,12 +137,13 @@ export default function ModelsPage() {
           <div>
             <h1 className="text-2xl font-bold text-white">Каталог моделей</h1>
             <p className="mt-1 text-sm text-gray-500">
-              {items.length} моделей через один API-ключ. Цены — за 1M токенов.
+              {items.length} моделей через один API-ключ. Цена запроса — на странице цен.
             </p>
           </div>
-          <a href="/companies" className="text-xs text-[#00CC00] hover:underline">
-            Все компании →
-          </a>
+          <div className="flex items-center gap-4">
+            <a href="/pricing" className="text-xs text-[#00FF00] hover:underline">Цены запросов →</a>
+            <a href="/companies" className="text-xs text-[#00CC00] hover:underline">Все компании →</a>
+          </div>
         </div>
 
         {/* Тип модели */}
@@ -227,19 +228,12 @@ export default function ModelsPage() {
                     onClick={() => clickSort("context")}>
                   Контекст {sortKey === "context" && <SortArrow dir={sortDir} />}
                 </th>
-                <th className="cursor-pointer px-4 py-3 text-right font-medium hover:text-gray-300"
-                    onClick={() => clickSort("price_in")}>
-                  Вход {sortKey === "price_in" && <SortArrow dir={sortDir} />}
-                </th>
-                <th className="hidden cursor-pointer px-4 py-3 text-right font-medium hover:text-gray-300 sm:table-cell"
-                    onClick={() => clickSort("price_out")}>
-                  Выход {sortKey === "price_out" && <SortArrow dir={sortDir} />}
-                </th>
+                <th className="px-4 py-3 text-right font-medium">Доступность</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
               {loading && (
-                <tr><td colSpan={6} className="px-4 py-10 text-center text-gray-500">Загрузка…</td></tr>
+                <tr><td colSpan={5} className="px-4 py-10 text-center text-gray-500">Загрузка…</td></tr>
               )}
               {!loading && shown.map((m) => (
                 <tr key={m.id} className="transition-colors hover:bg-white/[0.03]">
@@ -261,14 +255,17 @@ export default function ModelsPage() {
                     {m.modality === "text" ? "текст" : m.modality === "image" ? "изображения" : m.modality === "video" ? "видео" : m.modality}
                   </td>
                   <td className="px-4 py-3 text-right tabular-nums text-gray-400">{ctxLabel(m.context_length)}</td>
-                  <td className="px-4 py-3 text-right tabular-nums text-gray-300">{moneyReq(m)}</td>
-                  <td className="hidden px-4 py-3 text-right tabular-nums text-gray-300 sm:table-cell">
-                    {money(m.price_out ?? m.output_per_1m)}
+                  <td className="px-4 py-3 text-right text-xs">
+                    {m.soon ? (
+                      <span className="text-sky-400">скоро</span>
+                    ) : (
+                      <span className="text-[#33FF33]">доступна</span>
+                    )}
                   </td>
                 </tr>
               ))}
               {!loading && !shown.length && (
-                <tr><td colSpan={6} className="px-4 py-10 text-center text-gray-500">Ничего не найдено</td></tr>
+                <tr><td colSpan={5} className="px-4 py-10 text-center text-gray-500">Ничего не найдено</td></tr>
               )}
             </tbody>
           </table>

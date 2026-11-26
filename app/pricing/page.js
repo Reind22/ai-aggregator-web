@@ -13,6 +13,9 @@ export default function PricingPage() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loggedIn, setLoggedIn] = useState(false);
+  const [modelIdx, setModelIdx] = useState(0);
+  const [inTok, setInTok] = useState(1000);
+  const [outTok, setOutTok] = useState(500);
 
   useEffect(() => {
     setLoggedIn(!!localStorage.getItem("ai_token"));
@@ -41,6 +44,77 @@ export default function PricingPage() {
         <p className="text-gray-500 text-sm mb-6">
           Кэшированные входные токены (повторные запросы с тем же контекстом) считаются по сниженной ставке.
         </p>
+
+
+
+        {/* Правила расчёта */}
+        <div className="mb-8 grid gap-3 sm:grid-cols-3">
+          <div className="rounded-xl border border-white/10 p-4">
+            <div className="text-xs text-gray-500 mb-1">Оплата по факту</div>
+            <div className="text-sm text-gray-300">Списываются только использованные токены. Ничего не сгорает и не списывается заранее.</div>
+          </div>
+          <div className="rounded-xl border border-white/10 p-4">
+            <div className="text-xs text-gray-500 mb-1">Кэш дешевле</div>
+            <div className="text-sm text-gray-300">Повторная отправка того же контекста считается по сниженной ставке.</div>
+          </div>
+          <div className="rounded-xl border border-white/10 p-4">
+            <div className="text-xs text-gray-500 mb-1">Пополнение от 5 $</div>
+            <div className="text-sm text-gray-300">Баланс пополняется в любой момент, деньги расходуются только на запросы.</div>
+          </div>
+        </div>
+
+        {/* Калькулятор запроса */}
+        {!loading && items.length > 0 && (
+          <div className="mb-8 rounded-2xl border border-white/10 bg-white/[0.02] p-5">
+            <div className="text-sm font-semibold text-white mb-3">Сколько стоит один запрос</div>
+            <div className="grid gap-3 sm:grid-cols-3">
+              <label className="block">
+                <span className="mb-1 block text-[11px] text-gray-500">Модель</span>
+                <select
+                  value={modelIdx}
+                  onChange={(e) => setModelIdx(Number(e.target.value))}
+                  className="w-full rounded-lg border border-white/10 bg-[#0d0d14] px-2 py-2 text-xs text-gray-200 outline-none focus:border-[#00CC00]"
+                >
+                  {items.map((it, i) => (
+                    <option key={it.model} value={i}>{it.display_name || it.model}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="block">
+                <span className="mb-1 block text-[11px] text-gray-500">Токенов на входе</span>
+                <input
+                  type="number" min="0" step="100" value={inTok}
+                  onChange={(e) => setInTok(Math.max(0, Number(e.target.value) || 0))}
+                  className="w-full rounded-lg border border-white/10 bg-[#0d0d14] px-2 py-2 text-xs text-gray-200 outline-none focus:border-[#00CC00]"
+                />
+              </label>
+              <label className="block">
+                <span className="mb-1 block text-[11px] text-gray-500">Токенов на выходе</span>
+                <input
+                  type="number" min="0" step="100" value={outTok}
+                  onChange={(e) => setOutTok(Math.max(0, Number(e.target.value) || 0))}
+                  className="w-full rounded-lg border border-white/10 bg-[#0d0d14] px-2 py-2 text-xs text-gray-200 outline-none focus:border-[#00CC00]"
+                />
+              </label>
+            </div>
+            {(() => {
+              const it = items[modelIdx] || {};
+              const cost = it.request_price
+                ? it.request_price
+                : (inTok / 1e6) * (it.our_input || 0) + (outTok / 1e6) * (it.our_output || 0);
+              const per1000 = cost * 1000;
+              return (
+                <div className="mt-4 flex flex-wrap items-baseline gap-x-6 gap-y-1 text-sm">
+                  <span className="text-gray-500">Стоимость:</span>
+                  <span className="text-lg font-bold text-[#00FF00]">${cost < 0.0001 ? cost.toFixed(6) : cost.toFixed(4).replace(/0+$/, "").replace(/\.$/, "")}</span>
+                  <span className="text-gray-500">· 1000 таких запросов:</span>
+                  <span className="text-gray-300">${per1000 < 1 ? per1000.toFixed(3) : per1000.toFixed(2)}</span>
+                  {it.request_price && <span className="text-[11px] text-gray-500">цена фиксированная за вызов</span>}
+                </div>
+              );
+            })()}
+          </div>
+        )}
 
         {loading ? (
           <p className="text-gray-500 py-10 text-center">Загружаем цены…</p>
