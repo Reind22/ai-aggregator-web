@@ -64,7 +64,7 @@ export default function ProfileTabs({ profile, notify, logout, logoutAllDevices,
             {avatarChar}
           </div>
           <div className="min-w-0">
-            <div className="font-bold text-white truncate">#{profile.id}</div>
+            <div className="font-bold text-white truncate">{profile.id}</div>
           </div>
         </div>
 
@@ -167,7 +167,7 @@ function OverviewTab({ profile }) {
       </Section>
 
       <Section title="Аккаунт">
-        <Row label="ID" value={`#${profile.id}`} mono />
+        <Row label="ID" value={`${profile.id}`} mono />
         {profile.email && !profile.email.includes("@users.aicombiner.net") && (
           <Row label="Email" value={profile.email} />
         )}

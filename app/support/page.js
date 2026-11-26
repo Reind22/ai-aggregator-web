@@ -156,7 +156,7 @@ export default function SupportPage() {
                 }`}
               >
                 <div className="flex items-center justify-between gap-2">
-                  <span className="truncate text-xs text-gray-200">#{t.id} {t.subject}</span>
+                  <span className="truncate text-xs text-gray-200">{t.id} {t.subject}</span>
                   {t.unread_user > 0 && (
                     <span className="rounded-full bg-[#00FF00] px-1.5 text-[10px] font-bold text-black">
                       {t.unread_user}

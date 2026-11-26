@@ -205,9 +205,9 @@ export default function RefPanel({ profile, onNotify }) {
             {recent.slice().reverse().map((r) => (
               <li key={r.id} className="flex items-center gap-3 px-4 py-2.5 text-xs">
                 <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/5 text-[10px] text-gray-400">
-                  #{r.id}
+                  {r.id}
                 </span>
-                <span className="flex-1 text-gray-300">Пользователь #{r.id}</span>
+                <span className="flex-1 text-gray-300">Пользователь {r.id}</span>
                 <span className="tabular-nums text-gray-500">
                   {r.created_at ? new Date(r.created_at).toLocaleDateString("ru-RU") : "—"}
                 </span>

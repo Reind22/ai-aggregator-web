@@ -23,7 +23,7 @@ export const metadata = {
     url: 'https://aicombiner.net',
     siteName: 'AI Combiner',
     title: 'AI Combiner — нейросети в Telegram, Discord и браузере',
-    description: '90+ ИИ-моделей в одном чате. Telegram-бот, Discord-бот и веб. Оплата по факту, без подписки.',
+    description: '90+ ИИ-моделей в одном чате. Telegram-бот, Discord-бот и веб. Оплата по факту.',
   },
   twitter: {
     card: 'summary_large_image',

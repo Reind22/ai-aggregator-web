@@ -83,7 +83,7 @@ export default function ModelArticle({ model, meta, stats }) {
             <h3 className="pt-1 text-sm font-semibold text-gray-200">Сколько стоит работа</h3>
             <p>
               Входные токены — {fmt(priceIn, 4)} $ за миллион, выходные — {fmt(priceOut, 4)} $.
-              {priceCache != null ? ` Повторная отправка того же контекста тарифицируется по кэшу — ${fmt(priceCache, 4)} $.` : ""}
+              {priceCache != null ? ` Повторная отправка того же контекста считается по кэшу — ${fmt(priceCache, 4)} $.` : ""}
               {exampleCost != null
                 ? ` Тысяча запросов, в каждом 500 токенов вопроса и 500 токенов ответа, обойдётся примерно в ${exampleCost.toFixed(2)} $.`
                 : ""}
