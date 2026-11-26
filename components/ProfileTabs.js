@@ -52,20 +52,14 @@ export default function ProfileTabs({ profile, notify, logout, logoutAllDevices,
     }
   };
 
-  const avatarChar = (profile.email || "?")[0].toUpperCase();
   const isTgAccount = (profile.email || "").includes("@users.aicombiner.net");
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6 items-start">
       {/* ── Сайдбар: карточка аккаунта ── */}
       <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6 lg:sticky lg:top-24">
-        <div className="flex items-center gap-4 mb-5">
-          <div className="w-14 h-14 rounded-full bg-[#00FF00]/10 border-2 border-[#00FF00]/40 flex items-center justify-center text-[#00FF00] text-xl font-extrabold shrink-0">
-            {avatarChar}
-          </div>
-          <div className="min-w-0">
-            <div className="font-bold text-white truncate">{profile.id}</div>
-          </div>
+        <div className="mb-5">
+          <div className="font-bold text-white truncate">{profile.id}</div>
         </div>
 
         <div className="space-y-2 text-sm border-t border-white/[0.06] pt-4">
