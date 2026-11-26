@@ -20,6 +20,30 @@ export default function ProfilePage() {
     setTimeout(() => setNotifyMsg(null), 4000);
   };
 
+  // Результат привязки Discord приходит в адресе: /profile?discord_link=ok|error
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const result = params.get("discord_link");
+    if (!result) return;
+
+    const reason = params.get("reason");
+    if (result === "ok") {
+      notify("Discord привязан к аккаунту");
+    } else if (reason === "noauth") {
+      notify("Не удалось привязать Discord: сначала войдите в аккаунт");
+    } else if (reason === "used") {
+      notify("Этот Discord уже привязан к другому аккаунту");
+    } else {
+      notify("Не удалось привязать Discord");
+    }
+
+    params.delete("discord_link");
+    params.delete("reason");
+    const clean = window.location.pathname + (params.toString() ? `?${params}` : "");
+    window.history.replaceState({}, "", clean);
+  }, []);
+
   useEffect(() => {
     const saved = localStorage.getItem("ai_token");
     if (!saved) {

@@ -34,9 +34,19 @@ function DiscordInner() {
       return;
     }
 
-    fetch(`/api/auth/discord/callback?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`, { redirect: "follow" })
+    // При привязке Discord API должен знать, кто привязывает: передаём токен
+    const token = localStorage.getItem("ai_token");
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+    fetch(`/api/auth/discord/callback?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`, {
+      redirect: "follow",
+      headers,
+    })
       .then(async (r) => {
-        // API может вернуть JSON (login) или redirect на /profile (link) — для link браузер сам перейдёт
+        // Привязка: API отвечает redirect-ом на /profile?discord_link=... — переходим туда сами
+        if (r.redirected && r.url.includes("/profile")) {
+          return { redirectTo: r.url };
+        }
         const ct = r.headers.get("content-type") || "";
         if (!ct.includes("application/json")) {
           return { redirect: true };
@@ -44,7 +54,11 @@ function DiscordInner() {
         return { ok: r.ok, data: await r.json() };
       })
       .then(async (res) => {
-        if (res.redirect) return; // link-сценарий: страница /profile уже загружена API-редиректом
+        if (res.redirectTo) {
+          window.location.href = res.redirectTo;
+          return;
+        }
+        if (res.redirect) return;
         if (!res.ok) {
           setError(res.data?.detail || "Discord: не удалось завершить вход.");
           setStatus("");
